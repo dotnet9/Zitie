@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Avalonia.Media;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -38,6 +39,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _textEntryIndex = -1;
     private double _zoom = 1.0;
     private int _pageIndex;
+    private string _traceColor = "#DF9C93";
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
@@ -162,6 +164,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set
         {
             if (SetProperty(ref _inputText, value)) Rebuild();
+        }
+    }
+
+    /// <summary>描红字颜色（#RRGGBB），浅色适合打印后手描。</summary>
+    public string TraceColor
+    {
+        get => _traceColor;
+        set
+        {
+            if (SetProperty(ref _traceColor, value)) Rebuild();
         }
     }
 
@@ -296,7 +308,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             ShowPoemHeader = _showPoemHeader,
             FrameBorder = _frameBorder,
             Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
-            Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim()
+            Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
+            TraceColor = _traceColor
         };
 
         Spec = spec;
@@ -379,6 +392,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "title" when property.Value.GetString() is { } title:
                     Title = title;
+                    break;
+                case "tracecolor" when property.Value.GetString() is { } traceColor
+                                       && Color.TryParse(traceColor, out _):
+                    TraceColor = traceColor;
                     break;
                 case "text" when property.Value.GetString() is { } text:
                     InputText = text;

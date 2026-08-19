@@ -58,6 +58,12 @@ public sealed record CharacterSheetSpec
     /// <summary>只显示拼音不显示范字，用于“看拼音写词语”。</summary>
     public bool PinyinOnly { get; init; }
 
+    /// <summary>
+    ///     描红字颜色（十六进制，如 "#DF9C93"）；null 时用渲染主题默认色。
+    ///     浅色适合打印后手描，深色适合屏幕直接临摹。
+    /// </summary>
+    public string? TraceColor { get; init; }
+
     /// <summary>空心双钩字：范字以轮廓线描出，供填墨临摹。</summary>
     public bool HollowGlyph { get; init; }
 

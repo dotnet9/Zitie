@@ -294,4 +294,19 @@ public class LayoutEngineTests
         Assert.Equal(["chūn", "tiān", "huā"], slots.Select(slot => slot.Glyph));
         Assert.All(slots, slot => Assert.Equal(CellRole.Model, slot.Role));
     }
+
+    [Fact]
+    public void Paginate_TraceColor_DoesNotChangeLayout()
+    {
+        // 描红颜色属于渲染外观，不影响排版：两种颜色应产出完全相同的格子
+        var baseline = LayoutEngine.Paginate(MakeSpec("山水", repeats: 4));
+        var colored = LayoutEngine.Paginate(MakeSpec("山水", repeats: 4) with { TraceColor = "#FF0000" });
+        var invalid = LayoutEngine.Paginate(MakeSpec("山水", repeats: 4) with { TraceColor = "not-a-color" });
+
+        Assert.Equal(baseline.Count, colored.Count);
+        Assert.Equal(baseline.Count, invalid.Count);
+        Assert.Equal(
+            baseline.SelectMany(page => page.Cells).Select(cell => cell.Role),
+            colored.SelectMany(page => page.Cells).Select(cell => cell.Role));
+    }
 }

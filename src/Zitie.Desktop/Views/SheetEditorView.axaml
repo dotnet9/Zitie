@@ -67,6 +67,21 @@
                         <CheckBox Content="空心双钩字（范字描轮廓，供填墨）"
                                   IsChecked="{Binding HollowGlyph}" />
 
+                        <TextBlock Text="描红字颜色" Classes="section-title" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Border Width="22" Height="22" CornerRadius="4"
+                                    Background="{Binding TraceColor}"
+                                    BorderBrush="#888888" BorderThickness="1"
+                                    VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding TraceColor}"
+                                     PlaceholderText="#DF9C93 或 red" />
+                            <TextBlock Grid.Column="2"
+                                       Text="浅色适合打印后手描"
+                                       FontSize="11" Foreground="#777777"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
                         <TextBlock Text="每字格数" Classes="section-title" />
                         <ComboBox ItemsSource="{Binding RepeatsChoices}"
                                   SelectedIndex="{Binding RepeatsIndex}" />

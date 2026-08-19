@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using SkiaSharp;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
@@ -25,6 +26,15 @@ public static class SheetRenderer
         DrawHeader(canvas, spec, page, theme);
         DrawCells(canvas, spec, page, theme);
         DrawFooter(canvas, spec, page, totalPages, theme);
+    }
+
+    /// <summary>解析描红字颜色：规格指定时优先，否则回退到主题默认色。</summary>
+    private static Color TraceGlyphColor(CharacterSheetSpec spec, SheetRenderTheme theme)
+    {
+        return spec.TraceColor is { } hex
+            && Color.TryParse(hex, out var color)
+                ? color
+                : theme.TraceGlyphColor;
     }
 
     /// <summary>页面装饰边框：距边缘双线框。</summary>
@@ -127,7 +137,7 @@ public static class SheetRenderer
             // 范字（或浅色描红字）居中；拼音四线格的音节用较小字号避免溢出
             glyphPaint.Color = (cell.Role == CellRole.Model
                 ? theme.ModelGlyphColor
-                : theme.TraceGlyphColor).ToSKColor();
+                : TraceGlyphColor(spec, theme)).ToSKColor();
             var fontSize = spec.Grid == GridKind.Pinyin ? size * 0.5f : size * 0.74f;
             DrawCenteredGlyph(canvas, cell.Glyph, fontSize,
                 new SKPoint(x + size / 2, y + size / 2), glyphPaint,
