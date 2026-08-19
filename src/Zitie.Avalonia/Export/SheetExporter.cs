@@ -47,6 +47,9 @@ public static class SheetExporter
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(spec);
         ArgumentNullException.ThrowIfNull(page);
+        if (double.IsNaN(dpi) || double.IsInfinity(dpi) || dpi <= 0)
+            throw new ArgumentOutOfRangeException(nameof(dpi), dpi, "DPI 必须是正数。");
+
         theme ??= SheetRenderTheme.Print;
 
         var pxPerMm = dpi / 25.4;

@@ -62,6 +62,6 @@ internal static class ZitieLogging
 
     private static void EnsureInitialized()
     {
-        if (_initialized) Initialize();
+        if (!_initialized) Initialize();
     }
 }

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Zitie.Core\Zitie.Core.csproj" />
+    <ProjectReference Include="..\..\src\Zitie.Avalonia\Zitie.Avalonia.csproj" />
   </ItemGroup>
 
 </Project>
