@@ -32,6 +32,22 @@
         <Setter Property="Margin" Value="0,0,0,2" />
     </Style>
 
+    <Style Selector="TextBox.gallery-search">
+        <Setter Property="MinWidth" Value="280" />
+        <Setter Property="Height" Value="36" />
+    </Style>
+
+    <Style Selector="TextBlock.gallery-count">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="#6B6E76" />
+    </Style>
+
+    <Style Selector="TextBlock.module-empty">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="#6B6E76" />
+        <Setter Property="Margin" Value="2,6,0,0" />
+    </Style>
+
     <!-- 模块卡片 -->
     <Style Selector="Button.module-card">
         <Setter Property="Width" Value="252" />

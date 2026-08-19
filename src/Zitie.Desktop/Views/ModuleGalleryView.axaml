@@ -12,7 +12,26 @@
             <TextBlock Text="点击模板开始生成字帖；模板是 modules 目录下的 JSON 配方，可自行增删替换。"
                        Classes="page-subtitle" />
 
-            <ItemsControl ItemsSource="{Binding Modules}">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                <TextBox Grid.Column="0"
+                         Classes="gallery-search"
+                         Text="{Binding SearchText}"
+                         PlaceholderText="搜索模板名称、说明或分类" />
+                <ComboBox Grid.Column="1"
+                          Width="150"
+                          ItemsSource="{Binding CategoryChoices}"
+                          SelectedItem="{Binding SelectedCategory}" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                           Classes="gallery-count"
+                           VerticalAlignment="Center" />
+            </Grid>
+
+            <TextBlock Text="未找到匹配的模板"
+                       Classes="module-empty"
+                       IsVisible="{Binding IsEmpty}" />
+
+            <ItemsControl ItemsSource="{Binding FilteredModules}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel />
