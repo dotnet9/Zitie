@@ -201,4 +201,55 @@ public class LayoutEngineTests
         Assert.Equal(6, slots.Count);
         Assert.Equal("cat", string.Concat(slots.Take(3).Select(slot => slot.Glyph)));
     }
+
+    [Fact]
+    public void Paginate_Vertical_FillsRightColumnFirst()
+    {
+        // 小页面每列 2 格，一句 4 字恰好占满一列：第一句在最右列，第二句在左一列
+        var spec = new CharacterSheetSpec
+        {
+            Text = "一二三，四五六。",
+            Grid = GridKind.Mi,
+            Mode = PracticeMode.Copy,
+            RepeatsPerChar = 1,
+            Orientation = SheetOrientation.Vertical,
+            Title = null,
+            ShowHeaderFields = false,
+            Page = PageSettings.A4 with { HeightMm = 80 }
+        };
+        var pages = LayoutEngine.Paginate(spec);
+
+        var slots = pages.SelectMany(page => page.Cells).ToList();
+        // 两句各 4 字（含标点）
+        Assert.Equal(8, slots.Count);
+        // 同一列内的字符 x 相同（列对齐）
+        Assert.Equal(slots[0].XMm, slots[1].XMm, 3);
+        // 第一句字符在上（y 小），第二句整体在左侧（x 小）
+        Assert.True(slots[4].XMm < slots[0].XMm, "第二句应在第一句左侧");
+    }
+
+    [Fact]
+    public void Paginate_Vertical_SentenceNeverSplitAcrossColumns()
+    {
+        var spec = new CharacterSheetSpec
+        {
+            Text = "床前明月光，疑是地上霜。举头望明月，低头思故乡。",
+            Grid = GridKind.Plain,
+            Mode = PracticeMode.Copy,
+            RepeatsPerChar = 1,
+            Orientation = SheetOrientation.Vertical,
+            Title = null,
+            ShowHeaderFields = false
+        };
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.NotEmpty(pages);
+        // 每组句子都在同一列（x 相同），不被拆到不同列
+        foreach (var page in pages)
+        {
+            var groupXs = page.Cells.GroupBy(slot => slot.GroupIndex)
+                .Select(g => g.Select(slot => slot.XMm).Distinct().Count());
+            Assert.All(groupXs, distinct => Assert.Equal(1, distinct));
+        }
+    }
 }

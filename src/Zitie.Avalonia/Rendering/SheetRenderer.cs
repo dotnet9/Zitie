@@ -21,9 +21,36 @@ public static class SheetRenderer
     {
         canvas.Clear(SKColors.White);
 
+        if (spec.FrameBorder) DrawFrame(canvas, spec, theme);
         DrawHeader(canvas, spec, page, theme);
         DrawCells(canvas, spec, page, theme);
         DrawFooter(canvas, spec, page, totalPages, theme);
+    }
+
+    /// <summary>页面装饰边框：距边缘双线框。</summary>
+    private static void DrawFrame(SKCanvas canvas, CharacterSheetSpec spec, SheetRenderTheme theme)
+    {
+        var widthPt = (float)(spec.Page.WidthMm * LayoutEngine.MmToPt);
+        var heightPt = (float)(spec.Page.HeightMm * LayoutEngine.MmToPt);
+        var inset = (float)(6 * LayoutEngine.MmToPt);
+
+        using var outerPaint = new SKPaint
+        {
+            Color = theme.FrameColor.ToSKColor(),
+            StrokeWidth = 1.4f,
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke
+        };
+        using var innerPaint = new SKPaint
+        {
+            Color = theme.FrameInnerColor.ToSKColor(),
+            StrokeWidth = 0.8f,
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke
+        };
+
+        canvas.DrawRect(inset, inset, widthPt - inset * 2, heightPt - inset * 2, outerPaint);
+        canvas.DrawRect(inset + 5, inset + 5, widthPt - (inset + 5) * 2, heightPt - (inset + 5) * 2, innerPaint);
     }
 
     private static void DrawHeader(SKCanvas canvas, CharacterSheetSpec spec, SheetPage page, SheetRenderTheme theme)
@@ -40,6 +67,17 @@ public static class SheetRenderer
             DrawCenteredText(canvas, spec.Title, 16f,
                 new SKPoint(pageWidthPt / 2, lineY + titleHeightPt / 2), theme.TitleColor.ToSKColor());
             lineY += titleHeightPt;
+        }
+
+        if (spec.ShowPoemHeader && !string.IsNullOrWhiteSpace(spec.Author))
+        {
+            var authorHeightPt = (float)(9 * LayoutEngine.MmToPt);
+            var authorLine = spec.Dynasty is { Length: > 0 }
+                ? $"{spec.Dynasty} · {spec.Author}"
+                : spec.Author;
+            DrawCenteredText(canvas, authorLine, 11f,
+                new SKPoint(pageWidthPt / 2, lineY + authorHeightPt / 2), theme.TitleColor.ToSKColor());
+            lineY += authorHeightPt;
         }
 
         if (spec.ShowHeaderFields)

@@ -35,5 +35,11 @@ public sealed record SheetRenderTheme
     /// <summary>拼音标注颜色（打印建议深灰）。</summary>
     public Color PinyinColor { get; init; } = Color.FromRgb(0x50, 0x50, 0x50);
 
+    /// <summary>页面装饰边框外圈颜色。</summary>
+    public Color FrameColor { get; init; } = Color.FromRgb(0x8A, 0x8A, 0x8A);
+
+    /// <summary>页面装饰边框内圈颜色。</summary>
+    public Color FrameInnerColor { get; init; } = Color.FromRgb(0xC8, 0xC8, 0xC8);
+
     public static SheetRenderTheme Print { get; } = new();
 }

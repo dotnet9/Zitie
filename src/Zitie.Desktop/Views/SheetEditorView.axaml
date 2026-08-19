@@ -58,6 +58,11 @@
 
                         <CheckBox Content="按词分组（词内字符连续，不拆行）"
                                   IsChecked="{Binding GroupByWord}" />
+                        <CheckBox Content="竖排版式（从右到左，传统书法帖式）"
+                                  IsChecked="{Binding IsVertical}" />
+                        <CheckBox Content="题头显示作者（朝代 · 作者）"
+                                  IsChecked="{Binding ShowPoemHeader}" />
+                        <CheckBox Content="页面装饰边框" IsChecked="{Binding FrameBorder}" />
                         <CheckBox Content="标注拼音" IsChecked="{Binding ShowPinyin}" />
                         <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
                                   IsChecked="{Binding PinyinOnly}"

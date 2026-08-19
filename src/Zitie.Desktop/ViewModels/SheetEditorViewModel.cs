@@ -28,6 +28,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _groupByWord;
     private bool _showPinyin;
     private bool _pinyinOnly;
+    private bool _isVertical;
+    private bool _showPoemHeader;
+    private bool _frameBorder;
+    private string _author = string.Empty;
+    private string _dynasty = string.Empty;
     private int _textEntryIndex = -1;
     private double _zoom = 1.0;
     private int _pageIndex;
@@ -70,9 +75,56 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         {
             if (SetProperty(ref _textEntryIndex, value) && value >= 0 && value < TextEntries.Count)
             {
-                InputText = TextEntries[value].Body;
+                var entry = TextEntries[value];
+                InputText = entry.Body;
+                // 文本库条目自带作者/朝代时自动带入题头
+                if (!string.IsNullOrWhiteSpace(entry.Author))
+                {
+                    Author = entry.Author;
+                    if (!string.IsNullOrWhiteSpace(entry.Dynasty)) Dynasty = entry.Dynasty;
+                    ShowPoemHeader = true;
+                }
             }
         }
+    }
+
+    public bool IsVertical
+    {
+        get => _isVertical;
+        set
+        {
+            if (SetProperty(ref _isVertical, value)) Rebuild();
+        }
+    }
+
+    public bool ShowPoemHeader
+    {
+        get => _showPoemHeader;
+        set
+        {
+            if (SetProperty(ref _showPoemHeader, value)) Rebuild();
+        }
+    }
+
+    public bool FrameBorder
+    {
+        get => _frameBorder;
+        set
+        {
+            if (SetProperty(ref _frameBorder, value)) Rebuild();
+        }
+    }
+
+    public string Author
+    {
+        get => _author;
+        set => SetProperty(ref _author, value);
+    }
+
+    public string Dynasty
+    {
+        get => _dynasty;
+        set => SetProperty(ref _dynasty, value);
     }
 
     public bool GroupByWord
@@ -216,7 +268,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             GroupByWord = _groupByWord,
             ShowPinyin = _showPinyin,
             PinyinOnly = _pinyinOnly,
-            PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null
+            PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null,
+            Orientation = _isVertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
+            ShowPoemHeader = _showPoemHeader,
+            FrameBorder = _frameBorder,
+            Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
+            Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim()
         };
 
         Spec = spec;
@@ -264,6 +321,21 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "pinyinonly" when property.Value.GetBooleanValue(out var pinyinOnly):
                     PinyinOnly = pinyinOnly;
+                    break;
+                case "vertical" when property.Value.GetBooleanValue(out var vertical):
+                    IsVertical = vertical;
+                    break;
+                case "showpoemheader" when property.Value.GetBooleanValue(out var showPoemHeader):
+                    ShowPoemHeader = showPoemHeader;
+                    break;
+                case "frameborder" when property.Value.GetBooleanValue(out var frameBorder):
+                    FrameBorder = frameBorder;
+                    break;
+                case "author" when property.Value.GetString() is { } author:
+                    Author = author;
+                    break;
+                case "dynasty" when property.Value.GetString() is { } dynasty:
+                    Dynasty = dynasty;
                     break;
                 case "repeats" when property.Value.TryGetInt32(out var repeats):
                 {

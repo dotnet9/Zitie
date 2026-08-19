@@ -12,8 +12,14 @@ public static class LayoutEngine
     public const double MmToPt = 72.0 / 25.4;
 
     private const double TitleLineMm = 12;
+    private const double AuthorLineMm = 9;
     private const double FieldsLineMm = 10;
     private const double FooterLineMm = 10;
+
+    private static readonly char[] SentencePunctuation =
+    {
+        '，', '。', '；', '、', '！', '？', '：', '“', '”', '‘', '’', ',', '.', ';', '!', '?', ':'
+    };
 
     /// <summary>
     ///     按练习模式展开一个字符的格子角色序列：范字在前，描红居中，空格收尾。
@@ -33,13 +39,16 @@ public static class LayoutEngine
     public static IReadOnlyList<SheetPage> Paginate(CharacterSheetSpec spec)
     {
         var pages = new List<SheetPage>();
-        var groups = spec.GroupByWord
-            ? EnumerateWordGlyphGroups(spec.Text)
-            : EnumerateGlyphGroups(spec.Text);
+        var vertical = spec.Orientation == SheetOrientation.Vertical;
+        var groups = vertical
+            ? EnumerateSentenceGlyphGroups(spec.Text)
+            : spec.GroupByWord
+                ? EnumerateWordGlyphGroups(spec.Text)
+                : EnumerateGlyphGroups(spec.Text);
         if (groups.Count == 0) return pages;
 
         var roles = BuildSlotRoles(spec.Mode, spec.RepeatsPerChar, spec.TraceSlotCount);
-        // 词模式：每个字符一格，角色统一；看拼音写词语时隐藏范字只留空格
+        // 词/句模式：每个字符一格，角色统一；看拼音写词语时隐藏范字只留空格
         var wordRole = spec.PinyinOnly || spec.Mode == PracticeMode.Copy
             ? CellRole.Blank
             : CellRole.Trace;
@@ -61,24 +70,38 @@ public static class LayoutEngine
             var cells = new List<CellSlot>();
             var cursor = 0;
 
-            // 每个组（一个字或一个词）占据连续格位（行优先），放不下时整组顺延到下一页。
-            // 字符模式一组是 roles.Count 格（范字+描红+空格），词模式一组是词内字符数。
+            // 每个组（一个字、一个词或一句话）占据连续格位，放不下时整组顺延到下一页。
+            // 字符模式一组是 roles.Count 格（范字+描红+空格），词/句模式一组是组内字符数。
             while (groupIndex < groups.Count)
             {
                 var glyphs = groups[groupIndex];
-                var groupSize = spec.GroupByWord ? glyphs.Count : roles.Count;
-                if (cursor + groupSize > capacity) break;
+                var groupSize = vertical || spec.GroupByWord ? glyphs.Count : roles.Count;
+
+                // 竖排：句子必须完整放在一列内；当前列剩余空间不足时对齐到下一列首
+                if (vertical)
+                {
+                    var columnSpaceLeft = rows - cursor % rows;
+                    if (groupSize > columnSpaceLeft)
+                    {
+                        cursor = (cursor / rows + 1) * rows;
+                        if (cursor + groupSize > capacity) break;
+                    }
+                }
+                else if (cursor + groupSize > capacity)
+                {
+                    break;
+                }
 
                 for (var slot = 0; slot < groupSize; slot++)
                 {
                     var absolute = cursor + slot;
-                    var glyph = spec.GroupByWord ? glyphs[slot] : glyphs[0];
+                    var glyph = vertical || spec.GroupByWord ? glyphs[slot] : glyphs[0];
+                    var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop);
                     cells.Add(new CellSlot(
-                        spec.Page.MarginLeftMm + absolute % columns * pitch,
-                        contentTop + absolute / columns * pitch,
+                        x, y,
                         spec.GridSizeMm,
                         glyph,
-                        spec.GroupByWord ? wordRole : roles[slot],
+                        vertical || spec.GroupByWord ? wordRole : roles[slot],
                         groupIndex));
                 }
 
@@ -97,10 +120,34 @@ public static class LayoutEngine
         return pages;
     }
 
+    /// <summary>
+    ///     把游标格位换算为页面坐标。
+    ///     横排：行优先，先填满一行再换行；竖排：列从右到左、每列自上而下（传统帖式）。
+    /// </summary>
+    private static (double X, double Y) CellPosition(
+        CharacterSheetSpec spec,
+        bool vertical,
+        int absolute,
+        int columns,
+        int rows,
+        double contentTop)
+    {
+        var pitch = spec.GridSizeMm + spec.GridGapMm;
+        if (vertical)
+        {
+            var column = columns - 1 - absolute / rows;
+            var row = absolute % rows;
+            return (spec.Page.MarginLeftMm + column * pitch, contentTop + row * pitch);
+        }
+
+        return (spec.Page.MarginLeftMm + absolute % columns * pitch, contentTop + absolute / columns * pitch);
+    }
+
     public static double HeaderHeightMm(CharacterSheetSpec spec)
     {
         var height = 0.0;
         if (spec.Title is not null) height += TitleLineMm;
+        if (spec.ShowPoemHeader) height += AuthorLineMm;
         if (spec.ShowHeaderFields) height += FieldsLineMm;
         return height;
     }
@@ -135,6 +182,29 @@ public static class LayoutEngine
             if (glyphs.Count > 0) groups.Add(glyphs);
         }
 
+        return groups;
+    }
+
+    /// <summary>按标点切句（竖排帖式：一句一列，句末标点保留在句内）。</summary>
+    private static IReadOnlyList<IReadOnlyList<string>> EnumerateSentenceGlyphGroups(string text)
+    {
+        var groups = new List<IReadOnlyList<string>>();
+        var current = new List<string>();
+        var enumerator = StringInfo.GetTextElementEnumerator(text);
+        while (enumerator.MoveNext())
+        {
+            var element = enumerator.GetTextElement();
+            if (string.IsNullOrWhiteSpace(element)) continue;
+
+            current.Add(element);
+            if (element.Length > 0 && SentencePunctuation.Contains(element[0]))
+            {
+                groups.Add(current);
+                current = new List<string>();
+            }
+        }
+
+        if (current.Count > 0) groups.Add(current);
         return groups;
     }
 }

@@ -30,9 +30,25 @@ public sealed record CharacterSheetSpec
     /// <summary>首页是否显示“班级 / 姓名 / 日期”填写栏。</summary>
     public bool ShowHeaderFields { get; init; } = true;
 
+    /// <summary>排布方向：横排或竖排（传统书法帖式）。</summary>
+    public SheetOrientation Orientation { get; init; } = SheetOrientation.Horizontal;
+
+    /// <summary>题头显示作者行：标题下方追加“朝代 · 作者”。</summary>
+    public bool ShowPoemHeader { get; init; }
+
+    /// <summary>页面四周绘制装饰边框（双线）。</summary>
+    public bool FrameBorder { get; init; }
+
+    /// <summary>作者名（题头用）。</summary>
+    public string? Author { get; init; }
+
+    /// <summary>朝代（题头用）。</summary>
+    public string? Dynasty { get; init; }
+
     /// <summary>
     ///     按词分组排版：true 时以空白分隔的词为排版单位，一个词占据连续格位；
     ///     false 时每个字符一组（描红/临摹角色序列）。
+    ///     竖排时忽略此值，按句分组（一句一列）。
     /// </summary>
     public bool GroupByWord { get; init; }
 
