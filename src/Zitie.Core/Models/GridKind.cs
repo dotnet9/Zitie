@@ -16,5 +16,8 @@ public enum GridKind
     Plain,
 
     /// <summary>英文四线三格：外框 + 内部三条辅助线（上中线 / 基线 / 下中线）。</summary>
-    English
+    English,
+
+    /// <summary>九宫格：外框 + 井字虚线，分成 3×3 定位（传统临帖格）。</summary>
+    Nine
 }

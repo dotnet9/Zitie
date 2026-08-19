@@ -25,6 +25,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _practiceModeIndex;
     private int _repeatsIndex = 3;
     private int _traceSlotCount = 2;
+    private double _gridSizeMm = 14;
+    private bool _hollowGlyph;
     private bool _groupByWord;
     private bool _showPinyin;
     private bool _pinyinOnly;
@@ -199,6 +201,25 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
+    /// <summary>格子边长（毫米），大字帖调大。</summary>
+    public double GridSizeMm
+    {
+        get => _gridSizeMm;
+        set
+        {
+            if (SetProperty(ref _gridSizeMm, Math.Clamp(value, 8, 60))) Rebuild();
+        }
+    }
+
+    public bool HollowGlyph
+    {
+        get => _hollowGlyph;
+        set
+        {
+            if (SetProperty(ref _hollowGlyph, value)) Rebuild();
+        }
+    }
+
     public double Zoom
     {
         get => _zoom;
@@ -265,6 +286,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
             TraceSlotCount = _traceSlotCount,
+            GridSizeMm = GridSizeMm,
+            HollowGlyph = _hollowGlyph,
             GroupByWord = _groupByWord,
             ShowPinyin = _showPinyin,
             PinyinOnly = _pinyinOnly,
@@ -302,8 +325,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                         "huigong" => 2,
                         "plain" => 3,
                         "english" => 4,
+                        "nine" => 5,
                         _ => GridKindIndex
                     };
+                    break;
+                case "gridsize" when property.Value.ValueKind == System.Text.Json.JsonValueKind.Number:
+                    GridSizeMm = property.Value.GetDouble();
+                    break;
+                case "hollowglyph" when property.Value.GetBooleanValue(out var hollowGlyph):
+                    HollowGlyph = hollowGlyph;
                     break;
                 case "mode" when property.Value.GetString() is { } mode:
                     PracticeModeIndex = mode.ToLowerInvariant() switch

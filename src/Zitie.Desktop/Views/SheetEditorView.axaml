@@ -44,13 +44,27 @@
                             <ComboBoxItem Content="回宫格" />
                             <ComboBoxItem Content="方格" />
                             <ComboBoxItem Content="英文四线三格" />
+                            <ComboBoxItem Content="九宫格" />
                         </ComboBox>
+
+                        <TextBlock Text="格子大小" Classes="section-title" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Slider Minimum="8" Maximum="60"
+                                    Value="{Binding GridSizeMm}"
+                                    Width="200"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
 
                         <TextBlock Text="练习模式" Classes="section-title" />
                         <ComboBox SelectedIndex="{Binding PracticeModeIndex}">
                             <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
                             <ComboBoxItem Content="临摹：范字 + 空格" />
                         </ComboBox>
+
+                        <CheckBox Content="空心双钩字（范字描轮廓，供填墨）"
+                                  IsChecked="{Binding HollowGlyph}" />
 
                         <TextBlock Text="每字格数" Classes="section-title" />
                         <ComboBox ItemsSource="{Binding RepeatsChoices}"

@@ -129,7 +129,8 @@ public static class SheetRenderer
                 ? theme.ModelGlyphColor
                 : theme.TraceGlyphColor).ToSKColor();
             DrawCenteredGlyph(canvas, cell.Glyph, size * 0.74f,
-                new SKPoint(x + size / 2, y + size / 2), glyphPaint);
+                new SKPoint(x + size / 2, y + size / 2), glyphPaint,
+                hollow: spec.HollowGlyph && cell.Role == CellRole.Model);
 
             if (spec.ShowPinyin)
                 DrawPinyin(canvas, cell, spec, x, y, size, theme);
@@ -194,6 +195,16 @@ public static class SheetRenderer
                 canvas.DrawLine(x, y + size * 0.86f, x + size, y + size * 0.86f, dashPaint);
                 break;
             }
+            case GridKind.Nine:
+            {
+                // 九宫格：外框 + 井字虚线（3×3）
+                var third = size / 3f;
+                canvas.DrawLine(x + third, y, x + third, y + size, dashPaint);
+                canvas.DrawLine(x + third * 2, y, x + third * 2, y + size, dashPaint);
+                canvas.DrawLine(x, y + third, x + size, y + third, dashPaint);
+                canvas.DrawLine(x, y + third * 2, x + size, y + third * 2, dashPaint);
+                break;
+            }
             case GridKind.Plain:
                 break;
             default:
@@ -227,10 +238,28 @@ public static class SheetRenderer
         string glyph,
         float sizePt,
         SKPoint center,
-        SKPaint paint)
+        SKPaint paint,
+        bool hollow = false)
     {
         using var font = new SKFont(ZitieFonts.WenKai, sizePt);
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
+
+        if (hollow)
+        {
+            // 双钩填墨：沿字形轮廓描边，中间留空
+            using var hollowPaint = new SKPaint
+            {
+                Color = paint.Color,
+                IsAntialias = true,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = Math.Max(0.9f, sizePt * 0.018f),
+                StrokeJoin = SKStrokeJoin.Round,
+                StrokeCap = SKStrokeCap.Round
+            };
+            canvas.DrawText(glyph, center.X, baselineY, SKTextAlign.Center, font, hollowPaint);
+            return;
+        }
+
         canvas.DrawText(glyph, center.X, baselineY, SKTextAlign.Center, font, paint);
     }
 

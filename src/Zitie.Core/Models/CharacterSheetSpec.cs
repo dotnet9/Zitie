@@ -58,6 +58,9 @@ public sealed record CharacterSheetSpec
     /// <summary>只显示拼音不显示范字，用于“看拼音写词语”。</summary>
     public bool PinyinOnly { get; init; }
 
+    /// <summary>空心双钩字：范字以轮廓线描出，供填墨临摹。</summary>
+    public bool HollowGlyph { get; init; }
+
     /// <summary>字符 → 拼音（带声调），缺失时该格不标注。</summary>
     public IReadOnlyDictionary<string, string>? PinyinByGlyph { get; init; }
 

@@ -252,4 +252,33 @@ public class LayoutEngineTests
             Assert.All(groupXs, distinct => Assert.Equal(1, distinct));
         }
     }
+
+    [Fact]
+    public void Paginate_NineGrid_UsesLargerGridSize()
+    {
+        var spec = MakeSpec("永字八法", grid: GridKind.Nine, mode: PracticeMode.Copy, repeats: 1)
+            with { GridSizeMm = 30 };
+        var pages = LayoutEngine.Paginate(spec);
+
+        var slots = pages.SelectMany(page => page.Cells).ToList();
+        Assert.Equal(4, slots.Count);
+        Assert.All(slots, slot => Assert.Equal(30, slot.SizeMm));
+        // 30mm 格子 + 2mm 间距：一行 5 个、一页 7 行（含题头），4 字占第一行
+        Assert.Equal(5, pages[0].Columns);
+        Assert.Equal(7, pages[0].Rows);
+    }
+
+    [Fact]
+    public void Paginate_HollowGlyph_HasModelRoleForCopyMode()
+    {
+        // 空心双钩字属于范字，role 保持 Model（不是 Blank）
+        var spec = MakeSpec("永", grid: GridKind.Tian, mode: PracticeMode.Copy, repeats: 2)
+            with { HollowGlyph = true };
+        var pages = LayoutEngine.Paginate(spec);
+
+        var slots = pages.SelectMany(page => page.Cells).ToList();
+        Assert.Equal(2, slots.Count);
+        Assert.Equal(CellRole.Model, slots[0].Role);
+        Assert.Equal(CellRole.Blank, slots[1].Role);
+    }
 }
