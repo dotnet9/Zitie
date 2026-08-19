@@ -1,4 +1,6 @@
 using System.Windows.Input;
+using Zitie.Core.Layout;
+using Zitie.Core.Models;
 using Zitie.Desktop.Services;
 
 namespace Zitie.Desktop.ViewModels;
@@ -12,11 +14,22 @@ public sealed class ModuleCardViewModel
     {
         Module = module;
         OpenCommand = openCommand;
+        Preview = ModulePreviewFactory.Create(module);
     }
 
     public ModuleDefinition Module { get; }
 
     public ICommand OpenCommand { get; }
 
+    public CharacterSheetSpec PreviewSpec => Preview.Spec;
+
+    public IReadOnlyList<SheetPage> PreviewPages => Preview.Pages;
+
+    public double PreviewZoom => 0.13;
+
+    public string CategoryText => Preview.Category;
+
     public string StatusText => Module.Enabled ? "可用" : "即将上线";
+
+    private ModulePreview Preview { get; }
 }

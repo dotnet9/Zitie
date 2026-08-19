@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
+             xmlns:zitie="using:Zitie.Avalonia.Controls"
              x:Class="Zitie.Desktop.Views.ModuleGalleryView"
              x:DataType="vm:ModuleGalleryViewModel"
              prism:ViewModelLocator.AutoWireViewModel="True">
@@ -22,7 +23,16 @@
                         <Button Classes="module-card"
                                 Command="{Binding OpenCommand}"
                                 CommandParameter="{Binding Module}">
-                            <StackPanel Spacing="6">
+                            <StackPanel Width="226" Spacing="7">
+                                <zitie:ZitiePreview Spec="{Binding PreviewSpec}"
+                                                   Pages="{Binding PreviewPages}"
+                                                   PageIndex="0"
+                                                   Zoom="{Binding PreviewZoom}"
+                                                   Width="226"
+                                                   Height="304"
+                                                   IsHitTestVisible="False" />
+                                <TextBlock Text="{Binding CategoryText}"
+                                           Classes="module-card-category" />
                                 <TextBlock Text="{Binding Module.Name}" Classes="module-card-title" />
                                 <TextBlock Text="{Binding Module.Description}"
                                            Classes="module-card-desc"
