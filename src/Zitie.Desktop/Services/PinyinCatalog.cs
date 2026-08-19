@@ -24,8 +24,6 @@ public sealed record PinyinCategory
 /// </summary>
 public sealed class PinyinCatalog
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     public PinyinCatalog()
     {
         var directory = Path.Combine(AppContext.BaseDirectory, "pinyin");
@@ -36,7 +34,8 @@ public sealed class PinyinCatalog
             foreach (var file in Directory.EnumerateFiles(directory, "*.json"))
                 try
                 {
-                    var items = JsonSerializer.Deserialize<List<PinyinCategory>>(File.ReadAllText(file), JsonOptions);
+                    var items = JsonSerializer.Deserialize(
+                        File.ReadAllText(file), ZitieJsonContext.Default.ListPinyinCategory);
                     if (items is null) continue;
                     foreach (var category in items)
                     {

@@ -18,6 +18,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private readonly ModuleCatalog _catalog;
     private readonly TextCatalog _textCatalog;
     private readonly PinyinCatalog _pinyinCatalog;
+    private readonly FontCatalog _fontCatalog;
     private readonly IRegionNavigationJournal _journal;
 
     private string _inputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
@@ -43,7 +44,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _backgroundIndex;
     private string _author = string.Empty;
     private string _dynasty = string.Empty;
-    private string _sheetFontFamilyName = OperatingSystem.IsWindows() ? "KaiTi" : string.Empty;
+    private FontOption? _selectedSheetFont;
     private string _headerTextTemplate = "姓名_班级---年_月_日";
     private int _textEntryIndex = -1;
     private double _zoom = 1.0;
@@ -64,12 +65,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ModuleCatalog catalog,
         TextCatalog textCatalog,
         PinyinCatalog pinyinCatalog,
+        FontCatalog fontCatalog,
         IRegionNavigationJournal journal)
     {
         _catalog = catalog;
         _textCatalog = textCatalog;
         _pinyinCatalog = pinyinCatalog;
+        _fontCatalog = fontCatalog;
         _journal = journal;
+        _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
+                             _fontCatalog.Fonts.FirstOrDefault();
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
         PreviousPageCommand = new DelegateCommand(
@@ -111,6 +116,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         "诗词题头",
         "自定义"
     ];
+
+    public IReadOnlyList<FontOption> SheetFonts => _fontCatalog.Fonts;
 
     /// <summary>文本库条目（下拉选择后填充 InputText）。</summary>
     public IReadOnlyList<TextEntry> TextEntries => _textCatalog.Entries;
@@ -175,12 +182,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
-    public string SheetFontFamilyName
+    public FontOption? SelectedSheetFont
     {
-        get => _sheetFontFamilyName;
+        get => _selectedSheetFont;
         set
         {
-            if (SetProperty(ref _sheetFontFamilyName, value)) Rebuild();
+            if (SetProperty(ref _selectedSheetFont, value)) Rebuild();
         }
     }
 
@@ -463,7 +470,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             TraceIntensity = traceIntensity,
             GridColor = ColorChoiceValues[Math.Clamp(GridColorIndex, 0, ColorChoiceValues.Length - 1)],
             TextColor = ColorChoiceValues[Math.Clamp(TextColorIndex, 0, ColorChoiceValues.Length - 1)],
-            FontFamilyName = string.IsNullOrWhiteSpace(SheetFontFamilyName) ? null : SheetFontFamilyName.Trim(),
+            FontFamilyName = SelectedSheetFont?.Name,
             Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 2)
         };
 
@@ -592,7 +599,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     TextColorIndex = ColorIndexOf(textColor, TextColorIndex);
                     break;
                 case "fontfamily" when property.Value.GetString() is { } fontFamily:
-                    SheetFontFamilyName = fontFamily;
+                    SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
+                                        new FontOption(fontFamily.Trim(), false);
                     break;
                 case "headerpreset" when property.Value.GetString() is { } headerPreset:
                     HeaderPresetIndex = headerPreset.ToLowerInvariant() switch

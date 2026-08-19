@@ -29,8 +29,6 @@ public sealed record TextEntry
 /// </summary>
 public sealed class TextCatalog
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     public TextCatalog()
     {
         var directory = Path.Combine(AppContext.BaseDirectory, "texts");
@@ -40,7 +38,8 @@ public sealed class TextCatalog
             foreach (var file in Directory.EnumerateFiles(directory, "*.json"))
                 try
                 {
-                    var items = JsonSerializer.Deserialize<List<TextEntry>>(File.ReadAllText(file), JsonOptions);
+                    var items = JsonSerializer.Deserialize(
+                        File.ReadAllText(file), ZitieJsonContext.Default.ListTextEntry);
                     if (items is null) continue;
                     foreach (var item in items.Where(static item => !string.IsNullOrWhiteSpace(item.Title)))
                         entries.Add(item);

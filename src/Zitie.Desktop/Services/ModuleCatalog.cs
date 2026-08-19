@@ -29,8 +29,6 @@ public sealed record ModuleDefinition
 /// </summary>
 public sealed class ModuleCatalog
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
     public ModuleCatalog()
     {
         var directory = Path.Combine(AppContext.BaseDirectory, "modules");
@@ -41,7 +39,7 @@ public sealed class ModuleCatalog
                 try
                 {
                     var module = JsonSerializer.Deserialize<ModuleDefinition>(
-                        File.ReadAllText(file), JsonOptions);
+                        File.ReadAllText(file), ZitieJsonContext.Default.ModuleDefinition);
                     if (module is not null && !string.IsNullOrWhiteSpace(module.Id))
                         modules.Add(module);
                     else

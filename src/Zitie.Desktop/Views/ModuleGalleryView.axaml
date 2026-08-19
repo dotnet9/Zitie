@@ -1,8 +1,10 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              x:Class="Zitie.Desktop.Views.ModuleGalleryView"
-             x:DataType="vm:ModuleGalleryViewModel">
+             x:DataType="vm:ModuleGalleryViewModel"
+             prism:ViewModelLocator.AutoWireViewModel="True">
     <ScrollViewer>
         <StackPanel Margin="24,20" Spacing="18">
             <TextBlock Text="选择字帖模板" Classes="page-title" />

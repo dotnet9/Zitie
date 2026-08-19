@@ -6,6 +6,7 @@
         Width="1240"
         Height="840"
         Icon="avares://Zitie.Desktop/Assets/logo.ico"
+        FontFamily="{DynamicResource ZitieUiFontFamily}"
         WindowStartupLocation="CenterScreen">
     <DockPanel>
         <Menu DockPanel.Dock="Top">

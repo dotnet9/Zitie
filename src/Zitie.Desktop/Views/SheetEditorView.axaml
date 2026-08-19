@@ -1,9 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
+             xmlns:services="using:Zitie.Desktop.Services"
              xmlns:zitie="using:Zitie.Avalonia.Controls"
              x:Class="Zitie.Desktop.Views.SheetEditorView"
-             x:DataType="vm:SheetEditorViewModel">
+             x:DataType="vm:SheetEditorViewModel"
+             prism:ViewModelLocator.AutoWireViewModel="True">
     <DockPanel>
         <!-- 工具栏 -->
         <Border DockPanel.Dock="Top" Classes="toolbar">
@@ -95,8 +98,16 @@
                                   SelectedIndex="{Binding TextColorIndex}" />
 
                         <TextBlock Text="字帖字体" Classes="section-title" />
-                        <TextBox Text="{Binding SheetFontFamilyName}"
-                                 PlaceholderText="输入系统字体名称，如 KaiTi / SimSun" />
+                        <ComboBox ItemsSource="{Binding SheetFonts}"
+                                  SelectedItem="{Binding SelectedSheetFont}"
+                                  MaxDropDownHeight="360">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="services:FontOption">
+                                    <TextBlock Text="{Binding DisplayName}"
+                                               FontFamily="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
                         <TextBlock Text="每字格数" Classes="section-title" />
                         <ComboBox ItemsSource="{Binding RepeatsChoices}"

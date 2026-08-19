@@ -3,6 +3,9 @@
              xmlns:semi="https://irihi.tech/semi"
              x:Class="Zitie.Desktop.App"
              RequestedThemeVariant="Light">
+    <Application.Resources>
+        <FontFamily x:Key="ZitieUiFontFamily">avares://Zitie.Avalonia/Fonts#LXGW WenKai</FontFamily>
+    </Application.Resources>
 
     <Application.Styles>
         <semi:SemiTheme Locale="zh-CN" />

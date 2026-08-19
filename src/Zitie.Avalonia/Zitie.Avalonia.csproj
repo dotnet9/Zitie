@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaResource Include="Fonts\*.ttf" />
     <EmbeddedResource Include="Fonts\*.ttf" />
     <None Include="Fonts\OFL.txt"
           Pack="true"
