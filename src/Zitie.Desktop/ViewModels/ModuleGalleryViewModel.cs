@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -14,6 +15,8 @@ public class ModuleGalleryViewModel : BindableBase
     public ModuleGalleryViewModel(IRegionManager regionManager, ModuleCatalog catalog)
     {
         _regionManager = regionManager;
+        TemplateDirectory = catalog.UserDirectory;
+        OpenTemplateDirectoryCommand = new DelegateCommand(OpenTemplateDirectory);
 
         var openCommand = new DelegateCommand<ModuleDefinition>(
             OpenModule,
@@ -30,6 +33,10 @@ public class ModuleGalleryViewModel : BindableBase
     }
 
     public IReadOnlyList<ModuleCardViewModel> Modules { get; }
+
+    public string TemplateDirectory { get; }
+
+    public DelegateCommand OpenTemplateDirectoryCommand { get; }
 
     public IReadOnlyList<string> CategoryChoices { get; }
 
@@ -66,6 +73,27 @@ public class ModuleGalleryViewModel : BindableBase
         ZitieLogging.Info($"打开模块：{module.Name}（{module.Id}）");
         _regionManager.RequestNavigate("MainRegion", "SheetEditor",
             new NavigationParameters { { "moduleId", module.Id } });
+    }
+
+    private void OpenTemplateDirectory()
+    {
+        var directory = TemplateDirectory;
+        try
+        {
+            Directory.CreateDirectory(directory);
+            var startInfo = OperatingSystem.IsWindows()
+                ? new ProcessStartInfo(directory) { UseShellExecute = true }
+                : OperatingSystem.IsMacOS()
+                    ? new ProcessStartInfo("open", $"\"{directory}\"")
+                    : new ProcessStartInfo("xdg-open", $"\"{directory}\"");
+
+            Process.Start(startInfo);
+            ZitieLogging.Info($"已打开用户模板目录：{directory}");
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn($"打开用户模板目录失败：{directory}", exception);
+        }
     }
 
     private void ApplyFilter()

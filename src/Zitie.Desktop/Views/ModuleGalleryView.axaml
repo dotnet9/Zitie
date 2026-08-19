@@ -8,9 +8,18 @@
              prism:ViewModelLocator.AutoWireViewModel="True">
     <ScrollViewer>
         <StackPanel Margin="24,20" Spacing="18">
-            <TextBlock Text="选择字帖模板" Classes="page-title" />
-            <TextBlock Text="点击模板开始生成字帖；模板是 modules 目录下的 JSON 配方，可自行增删替换。"
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <TextBlock Text="选择字帖模板" Classes="page-title" />
+                <Button Grid.Column="1"
+                        Content="打开模板目录"
+                        Command="{Binding OpenTemplateDirectoryCommand}"
+                        VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Text="点击模板开始生成字帖；内置模板与用户模板都使用 JSON 配方。"
                        Classes="page-subtitle" />
+            <TextBlock Text="{Binding TemplateDirectory}"
+                       Classes="gallery-path"
+                       TextWrapping="Wrap" />
 
             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
                 <TextBox Grid.Column="0"

@@ -25,38 +25,36 @@ public sealed record ModuleDefinition
 }
 
 /// <summary>
-///     扫描输出目录 modules/*.json 构建模块目录；无效文件跳过并记录日志。
+///     扫描内置与用户模板目录构建模块目录；用户模板可用相同 Id 覆盖内置模板。
 /// </summary>
 public sealed class ModuleCatalog
 {
     public ModuleCatalog()
     {
-        var directory = Path.Combine(AppContext.BaseDirectory, "modules");
-        var modules = new List<ModuleDefinition>();
+        BuiltInDirectory = Path.Combine(AppContext.BaseDirectory, "modules");
+        var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(localApplicationData))
+            localApplicationData = AppContext.BaseDirectory;
 
-        if (Directory.Exists(directory))
-            foreach (var file in Directory.EnumerateFiles(directory, "*.json"))
-                try
-                {
-                    var module = JsonSerializer.Deserialize<ModuleDefinition>(
-                        File.ReadAllText(file), ZitieJsonContext.Default.ModuleDefinition);
-                    if (module is not null && !string.IsNullOrWhiteSpace(module.Id))
-                        modules.Add(module);
-                    else
-                        ZitieLogging.Warn($"模块文件缺少 Id，已跳过：{file}");
-                }
-                catch (Exception exception)
-                {
-                    ZitieLogging.Warn($"模块文件解析失败，已跳过：{file}", exception);
-                }
+        UserDirectory = Path.Combine(localApplicationData, "Zitie", "modules");
+
+        var modules = new List<ModuleDefinition>();
+        LoadDirectory(BuiltInDirectory, modules);
+        LoadDirectory(UserDirectory, modules);
 
         Modules = modules
+            .GroupBy(module => module.Id, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.Last())
             .OrderBy(module => module.Enabled ? 0 : 1)
             .ThenBy(module => module.Name, StringComparer.CurrentCulture)
             .ToList();
 
-        ZitieLogging.Info($"模块目录加载完成：{Modules.Count} 个模块（{directory}）");
+        ZitieLogging.Info($"模块目录加载完成：{Modules.Count} 个模块（内置：{BuiltInDirectory}；用户：{UserDirectory}）");
     }
+
+    public string BuiltInDirectory { get; }
+
+    public string UserDirectory { get; }
 
     public IReadOnlyList<ModuleDefinition> Modules { get; }
 
@@ -64,6 +62,40 @@ public sealed class ModuleCatalog
     {
         return string.IsNullOrEmpty(id)
             ? null
-            : Modules.FirstOrDefault(module => module.Id == id);
+            : Modules.FirstOrDefault(module => string.Equals(
+                module.Id,
+                id,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void LoadDirectory(string directory, ICollection<ModuleDefinition> modules)
+    {
+        if (!Directory.Exists(directory)) return;
+
+        IEnumerable<string> files;
+        try
+        {
+            files = Directory.EnumerateFiles(directory, "*.json");
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn($"无法扫描模板目录，已跳过：{directory}", exception);
+            return;
+        }
+
+        foreach (var file in files)
+            try
+            {
+                var module = JsonSerializer.Deserialize<ModuleDefinition>(
+                    File.ReadAllText(file), ZitieJsonContext.Default.ModuleDefinition);
+                if (module is not null && !string.IsNullOrWhiteSpace(module.Id))
+                    modules.Add(module);
+                else
+                    ZitieLogging.Warn($"模块文件缺少 Id，已跳过：{file}");
+            }
+            catch (Exception exception)
+            {
+                ZitieLogging.Warn($"模块文件解析失败，已跳过：{file}", exception);
+            }
     }
 }

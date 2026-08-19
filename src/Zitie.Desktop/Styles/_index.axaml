@@ -42,6 +42,11 @@
         <Setter Property="Foreground" Value="#6B6E76" />
     </Style>
 
+    <Style Selector="TextBlock.gallery-path">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="#8A8D95" />
+    </Style>
+
     <Style Selector="TextBlock.module-empty">
         <Setter Property="FontSize" Value="13" />
         <Setter Property="Foreground" Value="#6B6E76" />
