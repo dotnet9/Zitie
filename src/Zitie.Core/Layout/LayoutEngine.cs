@@ -40,14 +40,19 @@ public static class LayoutEngine
     {
         var pages = new List<SheetPage>();
         var vertical = spec.Orientation == SheetOrientation.Vertical;
-        var groups = vertical
-            ? EnumerateSentenceGlyphGroups(spec.Text)
-            : spec.GroupByWord
-                ? EnumerateWordGlyphGroups(spec.Text)
-                : EnumerateGlyphGroups(spec.Text);
+        var pinyinGrid = spec.Grid == GridKind.Pinyin;
+        var groups = pinyinGrid
+            ? EnumeratePinyinGroups(spec.Text)
+            : vertical
+                ? EnumerateSentenceGlyphGroups(spec.Text)
+                : spec.GroupByWord
+                    ? EnumerateWordGlyphGroups(spec.Text)
+                    : EnumerateGlyphGroups(spec.Text);
         if (groups.Count == 0) return pages;
 
-        var roles = BuildSlotRoles(spec.Mode, spec.RepeatsPerChar, spec.TraceSlotCount);
+        var roles = pinyinGrid
+            ? new[] { CellRole.Model }
+            : BuildSlotRoles(spec.Mode, spec.RepeatsPerChar, spec.TraceSlotCount);
         // 词/句模式：每个字符一格，角色统一；看拼音写词语时隐藏范字只留空格
         var wordRole = spec.PinyinOnly || spec.Mode == PracticeMode.Copy
             ? CellRole.Blank
@@ -70,12 +75,16 @@ public static class LayoutEngine
             var cells = new List<CellSlot>();
             var cursor = 0;
 
-            // 每个组（一个字、一个词或一句话）占据连续格位，放不下时整组顺延到下一页。
-            // 字符模式一组是 roles.Count 格（范字+描红+空格），词/句模式一组是组内字符数。
+            // 每个组（一个字、一个词、一句话或一个音节）占据连续格位，放不下时整组顺延到下一页。
+            // 字符模式一组是 roles.Count 格（范字+描红+空格），词/句/音节模式一组是组内字符数。
             while (groupIndex < groups.Count)
             {
                 var glyphs = groups[groupIndex];
-                var groupSize = vertical || spec.GroupByWord ? glyphs.Count : roles.Count;
+                var groupSize = pinyinGrid
+                    ? 1
+                    : vertical || spec.GroupByWord
+                        ? glyphs.Count
+                        : roles.Count;
 
                 // 竖排：句子必须完整放在一列内；当前列剩余空间不足时对齐到下一列首
                 if (vertical)
@@ -95,13 +104,22 @@ public static class LayoutEngine
                 for (var slot = 0; slot < groupSize; slot++)
                 {
                     var absolute = cursor + slot;
-                    var glyph = vertical || spec.GroupByWord ? glyphs[slot] : glyphs[0];
+                    var glyph = pinyinGrid
+                        ? glyphs[0]
+                        : vertical || spec.GroupByWord
+                            ? glyphs[slot]
+                            : glyphs[0];
+                    var role = pinyinGrid
+                        ? roles[0]
+                        : vertical || spec.GroupByWord
+                            ? wordRole
+                            : roles[slot];
                     var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop);
                     cells.Add(new CellSlot(
                         x, y,
                         spec.GridSizeMm,
                         glyph,
-                        vertical || spec.GroupByWord ? wordRole : roles[slot],
+                        role,
                         groupIndex));
                 }
 
@@ -181,6 +199,16 @@ public static class LayoutEngine
 
             if (glyphs.Count > 0) groups.Add(glyphs);
         }
+
+        return groups;
+    }
+
+    /// <summary>拼音四线格：按空白分音节，每个音节整体占据一个格子（如 chūn、tiān）。</summary>
+    private static IReadOnlyList<IReadOnlyList<string>> EnumeratePinyinGroups(string text)
+    {
+        var groups = new List<IReadOnlyList<string>>();
+        foreach (var syllable in text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            groups.Add(new[] { syllable });
 
         return groups;
     }

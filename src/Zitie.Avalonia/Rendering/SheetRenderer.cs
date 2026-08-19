@@ -124,11 +124,12 @@ public static class SheetRenderer
                 continue;
             }
 
-            // 范字（或浅色描红字）居中
+            // 范字（或浅色描红字）居中；拼音四线格的音节用较小字号避免溢出
             glyphPaint.Color = (cell.Role == CellRole.Model
                 ? theme.ModelGlyphColor
                 : theme.TraceGlyphColor).ToSKColor();
-            DrawCenteredGlyph(canvas, cell.Glyph, size * 0.74f,
+            var fontSize = spec.Grid == GridKind.Pinyin ? size * 0.5f : size * 0.74f;
+            DrawCenteredGlyph(canvas, cell.Glyph, fontSize,
                 new SKPoint(x + size / 2, y + size / 2), glyphPaint,
                 hollow: spec.HollowGlyph && cell.Role == CellRole.Model);
 
@@ -203,6 +204,14 @@ public static class SheetRenderer
                 canvas.DrawLine(x + third * 2, y, x + third * 2, y + size, dashPaint);
                 canvas.DrawLine(x, y + third, x + size, y + third, dashPaint);
                 canvas.DrawLine(x, y + third * 2, x + size, y + third * 2, dashPaint);
+                break;
+            }
+            case GridKind.Pinyin:
+            {
+                // 拼音四线格：与英文四线三格同构，音节主体落在基线与上中线之间，声调在顶
+                canvas.DrawLine(x, y + size * 0.34f, x + size, y + size * 0.34f, dashPaint);
+                canvas.DrawLine(x, y + size * 0.66f, x + size, y + size * 0.66f, solidPaint);
+                canvas.DrawLine(x, y + size * 0.86f, x + size, y + size * 0.86f, dashPaint);
                 break;
             }
             case GridKind.Plain:

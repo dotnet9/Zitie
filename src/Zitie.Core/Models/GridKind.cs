@@ -19,5 +19,8 @@ public enum GridKind
     English,
 
     /// <summary>九宫格：外框 + 井字虚线，分成 3×3 定位（传统临帖格）。</summary>
-    Nine
+    Nine,
+
+    /// <summary>拼音四线格：外框 + 三条内线（上中线 / 基线 / 下中线），每个音节占一格。</summary>
+    Pinyin
 }

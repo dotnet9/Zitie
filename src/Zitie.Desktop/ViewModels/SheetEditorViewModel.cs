@@ -326,6 +326,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                         "plain" => 3,
                         "english" => 4,
                         "nine" => 5,
+                        "pinyin" => 6,
                         _ => GridKindIndex
                     };
                     break;

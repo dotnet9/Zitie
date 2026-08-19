@@ -281,4 +281,17 @@ public class LayoutEngineTests
         Assert.Equal(CellRole.Model, slots[0].Role);
         Assert.Equal(CellRole.Blank, slots[1].Role);
     }
+
+    [Fact]
+    public void Paginate_PinyinGrid_OneSyllablePerCell()
+    {
+        var spec = MakeSpec("chūn tiān huā", grid: GridKind.Pinyin, mode: PracticeMode.Copy, repeats: 1)
+            with { GridSizeMm = 20 };
+        var pages = LayoutEngine.Paginate(spec);
+
+        var slots = pages.SelectMany(page => page.Cells).ToList();
+        Assert.Equal(3, slots.Count);
+        Assert.Equal(["chūn", "tiān", "huā"], slots.Select(slot => slot.Glyph));
+        Assert.All(slots, slot => Assert.Equal(CellRole.Model, slot.Role));
+    }
 }

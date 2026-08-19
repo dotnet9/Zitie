@@ -45,6 +45,7 @@
                             <ComboBoxItem Content="方格" />
                             <ComboBoxItem Content="英文四线三格" />
                             <ComboBoxItem Content="九宫格" />
+                            <ComboBoxItem Content="拼音四线格" />
                         </ComboBox>
 
                         <TextBlock Text="格子大小" Classes="section-title" />
