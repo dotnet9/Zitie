@@ -309,4 +309,20 @@ public class LayoutEngineTests
             baseline.SelectMany(page => page.Cells).Select(cell => cell.Role),
             colored.SelectMany(page => page.Cells).Select(cell => cell.Role));
     }
+
+    [Fact]
+    public void Paginate_Background_DoesNotChangeLayout()
+    {
+        // 纸张模板属于渲染外观，不影响排版
+        var baseline = LayoutEngine.Paginate(MakeSpec("山水", repeats: 3));
+        var redGrid = LayoutEngine.Paginate(MakeSpec("山水", repeats: 3) with { Background = SheetBackground.RedGrid });
+        var letter = LayoutEngine.Paginate(MakeSpec("山水", repeats: 3) with { Background = SheetBackground.Letter });
+
+        Assert.Equal(
+            baseline.SelectMany(page => page.Cells).Select(cell => cell.Role),
+            redGrid.SelectMany(page => page.Cells).Select(cell => cell.Role));
+        Assert.Equal(
+            baseline.SelectMany(page => page.Cells).Select(cell => cell.Role),
+            letter.SelectMany(page => page.Cells).Select(cell => cell.Role));
+    }
 }

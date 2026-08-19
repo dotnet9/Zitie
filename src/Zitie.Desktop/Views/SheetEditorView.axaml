@@ -93,6 +93,14 @@
                         <CheckBox Content="题头显示作者（朝代 · 作者）"
                                   IsChecked="{Binding ShowPoemHeader}" />
                         <CheckBox Content="页面装饰边框" IsChecked="{Binding FrameBorder}" />
+
+                        <TextBlock Text="纸张模板" Classes="section-title" />
+                        <ComboBox SelectedIndex="{Binding BackgroundIndex}">
+                            <ComboBoxItem Content="白底（无底纹）" />
+                            <ComboBoxItem Content="红格纸（淡红横线）" />
+                            <ComboBoxItem Content="信纸（淡蓝横线）" />
+                        </ComboBox>
+
                         <CheckBox Content="标注拼音" IsChecked="{Binding ShowPinyin}" />
                         <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
                                   IsChecked="{Binding PinyinOnly}"

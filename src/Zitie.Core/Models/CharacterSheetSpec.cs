@@ -39,6 +39,9 @@ public sealed record CharacterSheetSpec
     /// <summary>页面四周绘制装饰边框（双线）。</summary>
     public bool FrameBorder { get; init; }
 
+    /// <summary>页面背景纸张模板（白底 / 红格纸 / 信纸）。</summary>
+    public SheetBackground Background { get; init; } = SheetBackground.Plain;
+
     /// <summary>作者名（题头用）。</summary>
     public string? Author { get; init; }
 

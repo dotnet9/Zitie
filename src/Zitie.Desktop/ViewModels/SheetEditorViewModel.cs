@@ -34,6 +34,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _isVertical;
     private bool _showPoemHeader;
     private bool _frameBorder;
+    private int _backgroundIndex;
     private string _author = string.Empty;
     private string _dynasty = string.Empty;
     private int _textEntryIndex = -1;
@@ -232,6 +233,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
+    /// <summary>纸张模板索引：0 白底、1 红格纸、2 信纸。</summary>
+    public int BackgroundIndex
+    {
+        get => _backgroundIndex;
+        set
+        {
+            if (SetProperty(ref _backgroundIndex, value)) Rebuild();
+        }
+    }
+
     public double Zoom
     {
         get => _zoom;
@@ -309,7 +320,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             FrameBorder = _frameBorder,
             Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
             Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
-            TraceColor = _traceColor
+            TraceColor = _traceColor,
+            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 2)
         };
 
         Spec = spec;
@@ -374,6 +386,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "frameborder" when property.Value.GetBooleanValue(out var frameBorder):
                     FrameBorder = frameBorder;
+                    break;
+                case "background" when property.Value.GetString() is { } background:
+                    BackgroundIndex = background.ToLowerInvariant() switch
+                    {
+                        "redgrid" => 1,
+                        "letter" => 2,
+                        _ => BackgroundIndex
+                    };
                     break;
                 case "author" when property.Value.GetString() is { } author:
                     Author = author;
