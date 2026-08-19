@@ -28,6 +28,8 @@ public partial class App : PrismApplication
     {
         ZitieLogging.Initialize();
         containerRegistry.RegisterSingleton<ModuleCatalog>();
+        containerRegistry.RegisterSingleton<TextCatalog>();
+        containerRegistry.RegisterSingleton<PinyinCatalog>();
         containerRegistry.RegisterForNavigation<ModuleGalleryView, ModuleGalleryViewModel>("ModuleGallery");
         containerRegistry.RegisterForNavigation<SheetEditorView, SheetEditorViewModel>("SheetEditor");
     }

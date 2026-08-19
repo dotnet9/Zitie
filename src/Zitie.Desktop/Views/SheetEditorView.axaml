@@ -29,6 +29,11 @@
                                  VerticalContentAlignment="Top"
                                  PlaceholderText="输入要练习的字，逐字生成练习组" />
 
+                        <TextBlock Text="从文本库选择" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding TextEntries}"
+                                  SelectedIndex="{Binding TextEntryIndex}"
+                                  PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文" />
+
                         <TextBlock Text="页眉标题" Classes="section-title" />
                         <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
 
@@ -38,6 +43,7 @@
                             <ComboBoxItem Content="田字格" />
                             <ComboBoxItem Content="回宫格" />
                             <ComboBoxItem Content="方格" />
+                            <ComboBoxItem Content="英文四线三格" />
                         </ComboBox>
 
                         <TextBlock Text="练习模式" Classes="section-title" />
@@ -49,6 +55,13 @@
                         <TextBlock Text="每字格数" Classes="section-title" />
                         <ComboBox ItemsSource="{Binding RepeatsChoices}"
                                   SelectedIndex="{Binding RepeatsIndex}" />
+
+                        <CheckBox Content="按词分组（词内字符连续，不拆行）"
+                                  IsChecked="{Binding GroupByWord}" />
+                        <CheckBox Content="标注拼音" IsChecked="{Binding ShowPinyin}" />
+                        <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
+                                  IsChecked="{Binding PinyinOnly}"
+                                  IsEnabled="{Binding ShowPinyin}" />
 
                         <TextBlock Text="显示缩放" Classes="section-title" />
                         <Slider Minimum="0.5" Maximum="2"

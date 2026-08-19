@@ -32,5 +32,8 @@ public sealed record SheetRenderTheme
     /// <summary>页脚页码颜色。</summary>
     public Color FooterColor { get; init; } = Color.FromRgb(0x90, 0x90, 0x90);
 
+    /// <summary>拼音标注颜色（打印建议深灰）。</summary>
+    public Color PinyinColor { get; init; } = Color.FromRgb(0x50, 0x50, 0x50);
+
     public static SheetRenderTheme Print { get; } = new();
 }

@@ -78,14 +78,47 @@ public static class SheetRenderer
 
             DrawGrid(canvas, spec.Grid, x, y, size, solidPaint, dashPaint);
 
-            if (cell.Role == CellRole.Blank) continue;
+            if (cell.Role == CellRole.Blank)
+            {
+                // 看拼音写词语：空格 + 顶部拼音
+                if (spec.ShowPinyin)
+                    DrawPinyin(canvas, cell, spec, x, y, size, theme);
+                continue;
+            }
 
+            // 范字（或浅色描红字）居中
             glyphPaint.Color = (cell.Role == CellRole.Model
                 ? theme.ModelGlyphColor
                 : theme.TraceGlyphColor).ToSKColor();
             DrawCenteredGlyph(canvas, cell.Glyph, size * 0.74f,
                 new SKPoint(x + size / 2, y + size / 2), glyphPaint);
+
+            if (spec.ShowPinyin)
+                DrawPinyin(canvas, cell, spec, x, y, size, theme);
         }
+    }
+
+    private static void DrawPinyin(
+        SKCanvas canvas,
+        CellSlot cell,
+        CharacterSheetSpec spec,
+        float x,
+        float y,
+        float size,
+        SheetRenderTheme theme)
+    {
+        if (spec.PinyinByGlyph is null || !spec.PinyinByGlyph.TryGetValue(cell.Glyph, out var pinyin)) return;
+
+        var centerX = x + size / 2;
+        var topY = y + size * 0.13f;
+        var fontSize = Math.Max(6f, size * 0.16f);
+        // 多音节拼音（如“chūn tiān”）拆开等宽排布在格子宽度内
+        var syllables = pinyin.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var spacing = size * 0.92f / Math.Max(1, syllables.Length);
+        for (var i = 0; i < syllables.Length; i++)
+            DrawCenteredText(canvas, syllables[i], fontSize,
+                new SKPoint(centerX - spacing * (syllables.Length - 1) / 2f + spacing * i, topY),
+                theme.PinyinColor.ToSKColor());
     }
 
     private static void DrawGrid(
@@ -113,6 +146,14 @@ public static class SheetRenderer
             {
                 var inset = size * 0.2f;
                 canvas.DrawRect(x + inset, y + inset, size - inset * 2, size - inset * 2, dashPaint);
+                break;
+            }
+            case GridKind.English:
+            {
+                // 英文四线三格：自上而下 上中线 / 基线 / 下中线，字母主体落在基线与上中线之间
+                canvas.DrawLine(x, y + size * 0.34f, x + size, y + size * 0.34f, dashPaint);
+                canvas.DrawLine(x, y + size * 0.66f, x + size, y + size * 0.66f, solidPaint);
+                canvas.DrawLine(x, y + size * 0.86f, x + size, y + size * 0.86f, dashPaint);
                 break;
             }
             case GridKind.Plain:

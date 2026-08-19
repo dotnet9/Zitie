@@ -13,5 +13,8 @@ public enum GridKind
     HuiGong,
 
     /// <summary>方格：仅外框。</summary>
-    Plain
+    Plain,
+
+    /// <summary>英文四线三格：外框 + 内部三条辅助线（上中线 / 基线 / 下中线）。</summary>
+    English
 }

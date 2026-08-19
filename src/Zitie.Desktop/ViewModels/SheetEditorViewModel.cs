@@ -15,6 +15,8 @@ namespace Zitie.Desktop.ViewModels;
 public class SheetEditorViewModel : BindableBase, INavigationAware
 {
     private readonly ModuleCatalog _catalog;
+    private readonly TextCatalog _textCatalog;
+    private readonly PinyinCatalog _pinyinCatalog;
     private readonly IRegionNavigationJournal _journal;
 
     private string _inputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
@@ -23,15 +25,25 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _practiceModeIndex;
     private int _repeatsIndex = 3;
     private int _traceSlotCount = 2;
+    private bool _groupByWord;
+    private bool _showPinyin;
+    private bool _pinyinOnly;
+    private int _textEntryIndex = -1;
     private double _zoom = 1.0;
     private int _pageIndex;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
 
-    public SheetEditorViewModel(ModuleCatalog catalog, IRegionNavigationJournal journal)
+    public SheetEditorViewModel(
+        ModuleCatalog catalog,
+        TextCatalog textCatalog,
+        PinyinCatalog pinyinCatalog,
+        IRegionNavigationJournal journal)
     {
         _catalog = catalog;
+        _textCatalog = textCatalog;
+        _pinyinCatalog = pinyinCatalog;
         _journal = journal;
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
@@ -47,6 +59,48 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     }
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(2, 8).ToArray();
+
+    /// <summary>文本库条目（下拉选择后填充 InputText）。</summary>
+    public IReadOnlyList<TextEntry> TextEntries => _textCatalog.Entries;
+
+    public int TextEntryIndex
+    {
+        get => _textEntryIndex;
+        set
+        {
+            if (SetProperty(ref _textEntryIndex, value) && value >= 0 && value < TextEntries.Count)
+            {
+                InputText = TextEntries[value].Body;
+            }
+        }
+    }
+
+    public bool GroupByWord
+    {
+        get => _groupByWord;
+        set
+        {
+            if (SetProperty(ref _groupByWord, value)) Rebuild();
+        }
+    }
+
+    public bool ShowPinyin
+    {
+        get => _showPinyin;
+        set
+        {
+            if (SetProperty(ref _showPinyin, value)) Rebuild();
+        }
+    }
+
+    public bool PinyinOnly
+    {
+        get => _pinyinOnly;
+        set
+        {
+            if (SetProperty(ref _pinyinOnly, value)) Rebuild();
+        }
+    }
 
     public string InputText
     {
@@ -158,7 +212,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
-            TraceSlotCount = _traceSlotCount
+            TraceSlotCount = _traceSlotCount,
+            GroupByWord = _groupByWord,
+            ShowPinyin = _showPinyin,
+            PinyinOnly = _pinyinOnly,
+            PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null
         };
 
         Spec = spec;
@@ -186,6 +244,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                         "tian" => 1,
                         "huigong" => 2,
                         "plain" => 3,
+                        "english" => 4,
                         _ => GridKindIndex
                     };
                     break;
@@ -196,6 +255,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                         "copy" => 1,
                         _ => PracticeModeIndex
                     };
+                    break;
+                case "groupbyword" when property.Value.GetBooleanValue(out var groupByWord):
+                    GroupByWord = groupByWord;
+                    break;
+                case "showpinyin" when property.Value.GetBooleanValue(out var showPinyin):
+                    ShowPinyin = showPinyin;
+                    break;
+                case "pinyinonly" when property.Value.GetBooleanValue(out var pinyinOnly):
+                    PinyinOnly = pinyinOnly;
                     break;
                 case "repeats" when property.Value.TryGetInt32(out var repeats):
                 {
@@ -230,5 +298,22 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+    }
+}
+
+/// <summary>JsonElement 布尔取值辅助（System.Text.Json 无 TryGetBoolean）。</summary>
+internal static class JsonElementBooleanExtensions
+{
+    public static bool GetBooleanValue(this System.Text.Json.JsonElement element, out bool value)
+    {
+        if (element.ValueKind == System.Text.Json.JsonValueKind.True ||
+            element.ValueKind == System.Text.Json.JsonValueKind.False)
+        {
+            value = element.GetBoolean();
+            return true;
+        }
+
+        value = false;
+        return false;
     }
 }

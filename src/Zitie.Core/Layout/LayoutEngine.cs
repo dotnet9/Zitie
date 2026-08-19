@@ -33,10 +33,16 @@ public static class LayoutEngine
     public static IReadOnlyList<SheetPage> Paginate(CharacterSheetSpec spec)
     {
         var pages = new List<SheetPage>();
-        var glyphs = EnumerateGlyphs(spec.Text).ToList();
-        if (glyphs.Count == 0) return pages;
+        var groups = spec.GroupByWord
+            ? EnumerateWordGlyphGroups(spec.Text)
+            : EnumerateGlyphGroups(spec.Text);
+        if (groups.Count == 0) return pages;
 
         var roles = BuildSlotRoles(spec.Mode, spec.RepeatsPerChar, spec.TraceSlotCount);
+        // 词模式：每个字符一格，角色统一；看拼音写词语时隐藏范字只留空格
+        var wordRole = spec.PinyinOnly || spec.Mode == PracticeMode.Copy
+            ? CellRole.Blank
+            : CellRole.Trace;
         var pitch = spec.GridSizeMm + spec.GridGapMm;
         var columns = Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
         var firstPageRows = Math.Max(1,
@@ -46,7 +52,7 @@ public static class LayoutEngine
 
         var pageIndex = 0;
         var groupIndex = 0;
-        while (groupIndex < glyphs.Count)
+        while (groupIndex < groups.Count)
         {
             var hasHeader = pageIndex == 0;
             var rows = hasHeader ? firstPageRows : otherPageRows;
@@ -55,23 +61,28 @@ public static class LayoutEngine
             var cells = new List<CellSlot>();
             var cursor = 0;
 
-            // 每个字符组占据接下来 roles.Count 个连续格位（行优先），放不下时整组顺延到下一页
-            while (groupIndex < glyphs.Count && cursor + roles.Count <= capacity)
+            // 每个组（一个字或一个词）占据连续格位（行优先），放不下时整组顺延到下一页。
+            // 字符模式一组是 roles.Count 格（范字+描红+空格），词模式一组是词内字符数。
+            while (groupIndex < groups.Count)
             {
-                var glyph = glyphs[groupIndex];
-                for (var slot = 0; slot < roles.Count; slot++)
+                var glyphs = groups[groupIndex];
+                var groupSize = spec.GroupByWord ? glyphs.Count : roles.Count;
+                if (cursor + groupSize > capacity) break;
+
+                for (var slot = 0; slot < groupSize; slot++)
                 {
                     var absolute = cursor + slot;
+                    var glyph = spec.GroupByWord ? glyphs[slot] : glyphs[0];
                     cells.Add(new CellSlot(
                         spec.Page.MarginLeftMm + absolute % columns * pitch,
                         contentTop + absolute / columns * pitch,
                         spec.GridSizeMm,
                         glyph,
-                        roles[slot],
+                        spec.GroupByWord ? wordRole : roles[slot],
                         groupIndex));
                 }
 
-                cursor += roles.Count;
+                cursor += groupSize;
                 groupIndex++;
             }
 
@@ -94,13 +105,36 @@ public static class LayoutEngine
         return height;
     }
 
-    private static IEnumerable<string> EnumerateGlyphs(string text)
+    private static IReadOnlyList<IReadOnlyList<string>> EnumerateGlyphGroups(string text)
     {
+        var groups = new List<IReadOnlyList<string>>();
         var enumerator = StringInfo.GetTextElementEnumerator(text);
         while (enumerator.MoveNext())
         {
             var element = enumerator.GetTextElement();
-            if (!string.IsNullOrWhiteSpace(element)) yield return element;
+            if (!string.IsNullOrWhiteSpace(element)) groups.Add(new[] { element });
         }
+
+        return groups;
+    }
+
+    /// <summary>按空白分词，每词内的文本元素（字/字母）为一组；标点附着在前一个词上。</summary>
+    private static IReadOnlyList<IReadOnlyList<string>> EnumerateWordGlyphGroups(string text)
+    {
+        var groups = new List<IReadOnlyList<string>>();
+        foreach (var word in text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var glyphs = new List<string>();
+            var enumerator = StringInfo.GetTextElementEnumerator(word);
+            while (enumerator.MoveNext())
+            {
+                var element = enumerator.GetTextElement();
+                if (!string.IsNullOrWhiteSpace(element)) glyphs.Add(element);
+            }
+
+            if (glyphs.Count > 0) groups.Add(glyphs);
+        }
+
+        return groups;
     }
 }

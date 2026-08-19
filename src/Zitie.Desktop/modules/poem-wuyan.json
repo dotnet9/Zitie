@@ -1,13 +1,15 @@
 {
   "id": "poem-wuyan",
-  "name": "五言古诗抄写",
-  "description": "从内置诗词库选择五言古诗，自动逐字生成抄写页（文本库即将上线）。",
+  "name": "五言诗抄写 · 田字格",
+  "description": "从文本库挑选古诗整首抄写；默认已嵌入《静夜思》，可在编辑页从 texts/ 目录挑选更多诗词。",
   "kind": "customText",
-  "enabled": false,
+  "enabled": true,
   "defaults": {
-    "grid": "mi",
+    "grid": "tian",
     "mode": "copy",
-    "repeats": 2,
-    "title": "五言古诗抄写"
+    "repeats": 1,
+    "groupByWord": false,
+    "title": "古诗抄写",
+    "text": "床前明月光，疑是地上霜。举头望明月，低头思故乡。"
   }
 }
