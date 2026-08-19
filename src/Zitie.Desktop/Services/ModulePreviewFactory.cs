@@ -19,31 +19,40 @@ public static class ModulePreviewFactory
         var mode = ParseMode(GetString(defaults, "mode"));
         var title = GetString(defaults, "title");
         var vertical = GetBoolean(defaults, "vertical");
-        var showPoemHeader = GetBoolean(defaults, "showPoemHeader") ||
-                             vertical ||
-                             module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase);
-        var showHeaderFields = !vertical && !showPoemHeader;
+        var requestedPoemHeader = GetBoolean(defaults, "showPoemHeader");
+        var headerPreset = ParseHeaderPreset(
+            GetString(defaults, "headerPreset"),
+            title,
+            requestedPoemHeader);
+        var showPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
+                             (headerPreset != SheetHeaderPreset.None && requestedPoemHeader);
+        var showHeaderFields = headerPreset is SheetHeaderPreset.Fields
+            or SheetHeaderPreset.TitleAndFields
+            or SheetHeaderPreset.Custom;
         var text = GetString(defaults, "text") ?? FallbackText(module.Id, grid);
         var repeats = Math.Clamp(GetInt32(defaults, "repeats") ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
         var traceCount = Math.Clamp(GetInt32(defaults, "traceCount") ?? 2, 0, repeats - 1);
-        var headerPreset = showPoemHeader
-            ? SheetHeaderPreset.Poem
-            : title is null
-                ? SheetHeaderPreset.None
-                : SheetHeaderPreset.TitleAndFields;
 
         var spec = new CharacterSheetSpec
         {
             Text = text,
             Grid = grid,
             Mode = mode,
-            CharactersPerLine = vertical ? 0 : 12,
-            BlankLineCount = 0,
+            CharactersPerLine = vertical
+                ? 0
+                : Math.Clamp(GetInt32(defaults, "charactersPerLine") ?? 12, 1, 64),
+            BlankLineCount = Math.Clamp(GetInt32(defaults, "blankLineCount") ?? 0, 0, 10),
             RepeatsPerChar = repeats,
             TraceSlotCount = traceCount,
             GridSizeMm = Math.Max(8, GetDouble(defaults, "gridSize") ?? 14),
-            Title = title,
+            GridGapMm = Math.Max(0, GetDouble(defaults, "gridGap") ?? 2),
+            Title = headerPreset is SheetHeaderPreset.TitleAndFields
+                or SheetHeaderPreset.Poem
+                or SheetHeaderPreset.Custom
+                ? title
+                : null,
             HeaderPreset = headerPreset,
+            HeaderTextTemplate = GetString(defaults, "headerText"),
             ShowHeaderFields = showHeaderFields,
             Orientation = vertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
             ShowPoemHeader = showPoemHeader,
@@ -55,10 +64,11 @@ public static class ModulePreviewFactory
             ShowPinyin = GetBoolean(defaults, "showPinyin"),
             PinyinOnly = GetBoolean(defaults, "pinyinOnly"),
             HollowGlyph = GetBoolean(defaults, "hollowGlyph"),
-            TraceIntensity = TraceIntensity.Medium,
+            TraceIntensity = ParseTraceIntensity(GetString(defaults, "traceIntensity")),
+            TraceColor = GetString(defaults, "traceColor"),
             GridColor = GetString(defaults, "gridColor"),
             TextColor = GetString(defaults, "textColor"),
-            TraceColor = GetString(defaults, "traceColor"),
+            FontFamilyName = GetString(defaults, "fontFamily"),
             Page = PreviewPage
         };
 
@@ -111,6 +121,39 @@ public static class ModulePreviewFactory
             "redgrid" => SheetBackground.RedGrid,
             "letter" => SheetBackground.Letter,
             _ => SheetBackground.Plain
+        };
+    }
+
+    private static TraceIntensity ParseTraceIntensity(string? value)
+    {
+        return value?.ToLowerInvariant() switch
+        {
+            "verydark" => TraceIntensity.VeryDark,
+            "dark" => TraceIntensity.Dark,
+            "mediumdark" => TraceIntensity.MediumDark,
+            "light" => TraceIntensity.Light,
+            "verylight" => TraceIntensity.VeryLight,
+            "white" => TraceIntensity.White,
+            "hollow" => TraceIntensity.Hollow,
+            _ => TraceIntensity.Medium
+        };
+    }
+
+    private static SheetHeaderPreset ParseHeaderPreset(
+        string? value,
+        string? title,
+        bool showPoemHeader)
+    {
+        return value?.ToLowerInvariant() switch
+        {
+            "none" => SheetHeaderPreset.None,
+            "fields" => SheetHeaderPreset.Fields,
+            "titleandfields" => SheetHeaderPreset.TitleAndFields,
+            "poem" => SheetHeaderPreset.Poem,
+            "custom" => SheetHeaderPreset.Custom,
+            _ when showPoemHeader => SheetHeaderPreset.Poem,
+            _ when title is not null => SheetHeaderPreset.TitleAndFields,
+            _ => SheetHeaderPreset.None
         };
     }
 

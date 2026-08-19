@@ -25,7 +25,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private string _title = string.Empty;
     private int _gridKindIndex;
     private int _practiceModeIndex;
-    private int _repeatsIndex = 3;
+    private int _repeatsIndex = 4;
     private int _charactersPerLineIndex;
     private int _blankLineCount;
     private int _traceIntensityIndex = 3;
@@ -88,7 +88,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             .ObservesProperty(() => PageCount);
     }
 
-    public int[] RepeatsChoices { get; } = Enumerable.Range(2, 8).ToArray();
+    public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
 
     public int[] CharactersPerLineChoices { get; } = [12, 16];
 
@@ -461,7 +461,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             PinyinOnly = _pinyinOnly,
             PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null,
             Orientation = _isVertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
-            ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem || _showPoemHeader,
+            ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
+                             (headerPreset != SheetHeaderPreset.None && _showPoemHeader),
             ShowHeaderFields = showHeaderFields,
             FrameBorder = _frameBorder,
             Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
@@ -488,6 +489,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         _module = module;
         if (module.Defaults is not { ValueKind: JsonValueKind.Object } defaults) return;
+
+        var hasHeaderPreset = defaults.TryGetProperty("headerPreset", out var headerPresetValue) &&
+                              headerPresetValue.ValueKind == JsonValueKind.String;
 
         foreach (var property in defaults.EnumerateObject())
             switch (property.Name.ToLowerInvariant())
@@ -620,6 +624,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     InputText = text;
                     break;
             }
+
+        // 旧模板用 showPoemHeader 表示诗词题头，升级后统一映射到“诗词题头”预设。
+        if (!hasHeaderPreset && _showPoemHeader)
+            HeaderPresetIndex = (int)SheetHeaderPreset.Poem;
     }
 
     private static int ColorIndexOf(string color, int fallback)
@@ -631,10 +639,75 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
+        ResetEditorState();
         var module = _catalog.Find(navigationContext.Parameters.GetValue<string?>("moduleId"));
         if (module is not null) ApplyModuleDefaults(module);
 
         Rebuild();
+    }
+
+    private void ResetEditorState()
+    {
+        _inputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
+        _title = string.Empty;
+        _gridKindIndex = 0;
+        _practiceModeIndex = 0;
+        _repeatsIndex = 4;
+        _charactersPerLineIndex = 0;
+        _blankLineCount = 0;
+        _traceIntensityIndex = 3;
+        _gridColorIndex = 0;
+        _textColorIndex = 1;
+        _headerPresetIndex = 2;
+        _traceSlotCount = 2;
+        _gridSizeMm = 14;
+        _hollowGlyph = false;
+        _groupByWord = false;
+        _showPinyin = false;
+        _pinyinOnly = false;
+        _isVertical = false;
+        _showPoemHeader = false;
+        _frameBorder = false;
+        _backgroundIndex = 0;
+        _author = string.Empty;
+        _dynasty = string.Empty;
+        _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
+                             _fontCatalog.Fonts.FirstOrDefault();
+        _headerTextTemplate = "姓名_班级---年_月_日";
+        _textEntryIndex = -1;
+        _zoom = 1.0;
+        _pageIndex = 0;
+        _traceColor = string.Empty;
+        _module = null;
+
+        RaisePropertyChanged(nameof(InputText));
+        RaisePropertyChanged(nameof(Title));
+        RaisePropertyChanged(nameof(GridKindIndex));
+        RaisePropertyChanged(nameof(PracticeModeIndex));
+        RaisePropertyChanged(nameof(RepeatsIndex));
+        RaisePropertyChanged(nameof(CharactersPerLineIndex));
+        RaisePropertyChanged(nameof(BlankLineCount));
+        RaisePropertyChanged(nameof(TraceIntensityIndex));
+        RaisePropertyChanged(nameof(GridColorIndex));
+        RaisePropertyChanged(nameof(TextColorIndex));
+        RaisePropertyChanged(nameof(HeaderPresetIndex));
+        RaisePropertyChanged(nameof(GridSizeMm));
+        RaisePropertyChanged(nameof(HollowGlyph));
+        RaisePropertyChanged(nameof(GroupByWord));
+        RaisePropertyChanged(nameof(ShowPinyin));
+        RaisePropertyChanged(nameof(PinyinOnly));
+        RaisePropertyChanged(nameof(IsVertical));
+        RaisePropertyChanged(nameof(ShowPoemHeader));
+        RaisePropertyChanged(nameof(FrameBorder));
+        RaisePropertyChanged(nameof(BackgroundIndex));
+        RaisePropertyChanged(nameof(Author));
+        RaisePropertyChanged(nameof(Dynasty));
+        RaisePropertyChanged(nameof(SelectedSheetFont));
+        RaisePropertyChanged(nameof(HeaderTextTemplate));
+        RaisePropertyChanged(nameof(TextEntryIndex));
+        RaisePropertyChanged(nameof(Zoom));
+        RaisePropertyChanged(nameof(PageIndex));
+        RaisePropertyChanged(nameof(TraceColor));
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext)
