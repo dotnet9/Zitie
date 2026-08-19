@@ -268,6 +268,35 @@ public class LayoutEngineTests
         Assert.Equal(7, pages[0].Rows);
     }
 
+    [Theory]
+    [InlineData(12)]
+    [InlineData(16)]
+    public void Paginate_CharactersPerLine_ControlsColumnsAndGridSize(int charactersPerLine)
+    {
+        var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 1)
+            with { CharactersPerLine = charactersPerLine };
+
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.NotEmpty(pages);
+        Assert.Equal(charactersPerLine, pages[0].Columns);
+        var expectedSize = (spec.Page.UsableWidthMm - spec.GridGapMm * (charactersPerLine - 1)) / charactersPerLine;
+        Assert.All(pages.SelectMany(page => page.Cells), slot => Assert.Equal(expectedSize, slot.SizeMm, 3));
+    }
+
+    [Fact]
+    public void Paginate_BlankLineCount_InsertsRowsBetweenContentRows()
+    {
+        var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with { CharactersPerLine = 3, BlankLineCount = 1, ShowHeaderFields = false };
+
+        var slots = LayoutEngine.Paginate(spec).SelectMany(page => page.Cells).ToList();
+
+        Assert.Equal(6, slots.Count);
+        var pitch = slots[0].SizeMm + spec.GridGapMm;
+        Assert.Equal(slots[0].YMm + pitch * 2, slots[3].YMm, 3);
+    }
+
     [Fact]
     public void Paginate_HollowGlyph_HasModelRoleForCopyMode()
     {

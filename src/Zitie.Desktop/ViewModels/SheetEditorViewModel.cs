@@ -25,6 +25,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _gridKindIndex;
     private int _practiceModeIndex;
     private int _repeatsIndex = 3;
+    private int _charactersPerLineIndex;
+    private int _blankLineCount;
+    private int _traceIntensityIndex = 3;
+    private int _gridColorIndex;
+    private int _textColorIndex = 1;
+    private int _headerPresetIndex = 2;
     private int _traceSlotCount = 2;
     private double _gridSizeMm = 14;
     private bool _hollowGlyph;
@@ -37,13 +43,22 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private int _backgroundIndex;
     private string _author = string.Empty;
     private string _dynasty = string.Empty;
+    private string _sheetFontFamilyName = OperatingSystem.IsWindows() ? "KaiTi" : string.Empty;
+    private string _headerTextTemplate = "姓名_班级---年_月_日";
     private int _textEntryIndex = -1;
     private double _zoom = 1.0;
     private int _pageIndex;
-    private string _traceColor = "#DF9C93";
+    private string _traceColor = string.Empty;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
+
+    private static readonly string[] ColorChoiceValues =
+    [
+        "#B04A3F",
+        "#1A1A1A",
+        "#2F9E44"
+    ];
 
     public SheetEditorViewModel(
         ModuleCatalog catalog,
@@ -70,8 +85,113 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(2, 8).ToArray();
 
+    public int[] CharactersPerLineChoices { get; } = [12, 16];
+
+    public int[] BlankLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
+
+    public string[] ColorChoices { get; } = ["红色", "黑色", "绿色"];
+
+    public string[] TraceIntensityChoices { get; } =
+    [
+        "非常深",
+        "深",
+        "较深",
+        "适中",
+        "略浅",
+        "非常浅",
+        "白色",
+        "空心"
+    ];
+
+    public string[] HeaderPresetChoices { get; } =
+    [
+        "无页头",
+        "填写栏",
+        "标题 + 填写栏",
+        "诗词题头",
+        "自定义"
+    ];
+
     /// <summary>文本库条目（下拉选择后填充 InputText）。</summary>
     public IReadOnlyList<TextEntry> TextEntries => _textCatalog.Entries;
+
+    public int CharactersPerLineIndex
+    {
+        get => _charactersPerLineIndex;
+        set
+        {
+            if (SetProperty(ref _charactersPerLineIndex,
+                    Math.Clamp(value, 0, CharactersPerLineChoices.Length - 1))) Rebuild();
+        }
+    }
+
+    public int BlankLineCount
+    {
+        get => _blankLineCount;
+        set
+        {
+            if (SetProperty(ref _blankLineCount, Math.Clamp(value, 0, 10))) Rebuild();
+        }
+    }
+
+    public int TraceIntensityIndex
+    {
+        get => _traceIntensityIndex;
+        set
+        {
+            if (!SetProperty(ref _traceIntensityIndex, Math.Clamp(value, 0, TraceIntensityChoices.Length - 1)))
+                return;
+
+            _traceColor = string.Empty;
+            RaisePropertyChanged(nameof(TraceColor));
+            Rebuild();
+        }
+    }
+
+    public int GridColorIndex
+    {
+        get => _gridColorIndex;
+        set
+        {
+            if (SetProperty(ref _gridColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1))) Rebuild();
+        }
+    }
+
+    public int TextColorIndex
+    {
+        get => _textColorIndex;
+        set
+        {
+            if (SetProperty(ref _textColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1))) Rebuild();
+        }
+    }
+
+    public int HeaderPresetIndex
+    {
+        get => _headerPresetIndex;
+        set
+        {
+            if (SetProperty(ref _headerPresetIndex, Math.Clamp(value, 0, HeaderPresetChoices.Length - 1))) Rebuild();
+        }
+    }
+
+    public string SheetFontFamilyName
+    {
+        get => _sheetFontFamilyName;
+        set
+        {
+            if (SetProperty(ref _sheetFontFamilyName, value)) Rebuild();
+        }
+    }
+
+    public string HeaderTextTemplate
+    {
+        get => _headerTextTemplate;
+        set
+        {
+            if (SetProperty(ref _headerTextTemplate, value)) Rebuild();
+        }
+    }
 
     public int TextEntryIndex
     {
@@ -301,10 +421,28 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void Rebuild()
     {
+        var headerPreset = (SheetHeaderPreset)Math.Clamp(HeaderPresetIndex, 0, HeaderPresetChoices.Length - 1);
+        var traceIntensity = (TraceIntensity)Math.Clamp(TraceIntensityIndex, 0, TraceIntensityChoices.Length - 1);
+        var title = string.IsNullOrWhiteSpace(Title) ? null : Title.Trim();
+        var showTitle = headerPreset is SheetHeaderPreset.TitleAndFields
+                        or SheetHeaderPreset.Poem
+                        or SheetHeaderPreset.Custom;
+        var showHeaderFields = headerPreset is SheetHeaderPreset.Fields
+                               or SheetHeaderPreset.TitleAndFields
+                               or SheetHeaderPreset.Custom;
+
         var spec = new CharacterSheetSpec
         {
             Text = InputText,
-            Title = string.IsNullOrWhiteSpace(Title) ? null : Title.Trim(),
+            Title = showTitle ? title : null,
+            HeaderPreset = headerPreset,
+            HeaderTextTemplate = headerPreset == SheetHeaderPreset.Custom &&
+                                 !string.IsNullOrWhiteSpace(HeaderTextTemplate)
+                ? HeaderTextTemplate.Trim()
+                : null,
+            CharactersPerLine = CharactersPerLineChoices[
+                Math.Clamp(CharactersPerLineIndex, 0, CharactersPerLineChoices.Length - 1)],
+            BlankLineCount = BlankLineCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
@@ -316,11 +454,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             PinyinOnly = _pinyinOnly,
             PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null,
             Orientation = _isVertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
-            ShowPoemHeader = _showPoemHeader,
+            ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem || _showPoemHeader,
+            ShowHeaderFields = showHeaderFields,
             FrameBorder = _frameBorder,
             Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
             Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
-            TraceColor = _traceColor,
+            TraceColor = string.IsNullOrWhiteSpace(_traceColor) ? null : _traceColor,
+            TraceIntensity = traceIntensity,
+            GridColor = ColorChoiceValues[Math.Clamp(GridColorIndex, 0, ColorChoiceValues.Length - 1)],
+            TextColor = ColorChoiceValues[Math.Clamp(TextColorIndex, 0, ColorChoiceValues.Length - 1)],
+            FontFamilyName = string.IsNullOrWhiteSpace(SheetFontFamilyName) ? null : SheetFontFamilyName.Trim(),
             Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 2)
         };
 
@@ -417,10 +560,65 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                                        && Color.TryParse(traceColor, out _):
                     TraceColor = traceColor;
                     break;
+                case "traceintensity" when property.Value.GetString() is { } traceIntensity:
+                    TraceIntensityIndex = traceIntensity.ToLowerInvariant() switch
+                    {
+                        "verydark" => 0,
+                        "dark" => 1,
+                        "mediumdark" => 2,
+                        "medium" => 3,
+                        "light" => 4,
+                        "verylight" => 5,
+                        "white" => 6,
+                        "hollow" => 7,
+                        _ => TraceIntensityIndex
+                    };
+                    break;
+                case "charactersperline" when property.Value.TryGetInt32(out var charactersPerLine):
+                {
+                    var index = Array.IndexOf(CharactersPerLineChoices, charactersPerLine);
+                    if (index >= 0) CharactersPerLineIndex = index;
+                    break;
+                }
+                case "blanklinecount" when property.Value.TryGetInt32(out var blankLineCount):
+                    BlankLineCount = blankLineCount;
+                    break;
+                case "gridcolor" when property.Value.GetString() is { } gridColor
+                                      && Color.TryParse(gridColor, out _):
+                    GridColorIndex = ColorIndexOf(gridColor, GridColorIndex);
+                    break;
+                case "textcolor" when property.Value.GetString() is { } textColor
+                                      && Color.TryParse(textColor, out _):
+                    TextColorIndex = ColorIndexOf(textColor, TextColorIndex);
+                    break;
+                case "fontfamily" when property.Value.GetString() is { } fontFamily:
+                    SheetFontFamilyName = fontFamily;
+                    break;
+                case "headerpreset" when property.Value.GetString() is { } headerPreset:
+                    HeaderPresetIndex = headerPreset.ToLowerInvariant() switch
+                    {
+                        "none" => 0,
+                        "fields" => 1,
+                        "titleandfields" => 2,
+                        "poem" => 3,
+                        "custom" => 4,
+                        _ => HeaderPresetIndex
+                    };
+                    break;
+                case "headertext" when property.Value.GetString() is { } headerText:
+                    HeaderTextTemplate = headerText;
+                    break;
                 case "text" when property.Value.GetString() is { } text:
                     InputText = text;
                     break;
             }
+    }
+
+    private static int ColorIndexOf(string color, int fallback)
+    {
+        var index = Array.FindIndex(ColorChoiceValues, item =>
+            string.Equals(item, color, StringComparison.OrdinalIgnoreCase));
+        return index >= 0 ? index : fallback;
     }
 
     public void OnNavigatedTo(NavigationContext navigationContext)

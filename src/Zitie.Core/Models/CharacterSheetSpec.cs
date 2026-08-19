@@ -12,6 +12,14 @@ public sealed record CharacterSheetSpec
 
     public PracticeMode Mode { get; init; } = PracticeMode.Trace;
 
+    /// <summary>
+    ///     每行字数。0 表示按格子大小自动计算；桌面端默认提供 12 / 16 两档。
+    /// </summary>
+    public int CharactersPerLine { get; init; }
+
+    /// <summary>练习行之间插入的空白行数，范围 0-10。</summary>
+    public int BlankLineCount { get; init; }
+
     /// <summary>每个字的总格数（含范字与描红格）。</summary>
     public int RepeatsPerChar { get; init; } = 5;
 
@@ -26,6 +34,12 @@ public sealed record CharacterSheetSpec
 
     /// <summary>页眉标题；null 时不显示标题行。</summary>
     public string? Title { get; init; }
+
+    /// <summary>页头预设，用于区分普通生字帖、诗词帖和自定义页头。</summary>
+    public SheetHeaderPreset HeaderPreset { get; init; } = SheetHeaderPreset.TitleAndFields;
+
+    /// <summary>自定义页头文本；为空时使用默认“班级/姓名/日期”填写栏。</summary>
+    public string? HeaderTextTemplate { get; init; }
 
     /// <summary>首页是否显示“班级 / 姓名 / 日期”填写栏。</summary>
     public bool ShowHeaderFields { get; init; } = true;
@@ -62,10 +76,22 @@ public sealed record CharacterSheetSpec
     public bool PinyinOnly { get; init; }
 
     /// <summary>
-    ///     描红字颜色（十六进制，如 "#DF9C93"）；null 时用渲染主题默认色。
-    ///     浅色适合打印后手描，深色适合屏幕直接临摹。
-    /// </summary>
+     ///     描红字颜色（十六进制，如 "#DF9C93"）；null 时用渲染主题默认色。
+     ///     浅色适合打印后手描，深色适合屏幕直接临摹。
+     /// </summary>
     public string? TraceColor { get; init; }
+
+    /// <summary>描红字迹深浅预设。</summary>
+    public TraceIntensity TraceIntensity { get; init; } = TraceIntensity.Medium;
+
+    /// <summary>格线颜色（十六进制或 Avalonia 颜色名）；null 时使用渲染主题。</summary>
+    public string? GridColor { get; init; }
+
+    /// <summary>范字/正文颜色（十六进制或 Avalonia 颜色名）；null 时使用渲染主题。</summary>
+    public string? TextColor { get; init; }
+
+    /// <summary>字帖内容字体族名称；为空时由渲染层选择内置或系统回退字体。</summary>
+    public string? FontFamilyName { get; init; }
 
     /// <summary>空心双钩字：范字以轮廓线描出，供填墨临摹。</summary>
     public bool HollowGlyph { get; init; }

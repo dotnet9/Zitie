@@ -59,10 +59,35 @@ public static class SheetRenderer
     /// <summary>解析描红字颜色：规格指定时优先，否则回退到主题默认色。</summary>
     private static Color TraceGlyphColor(CharacterSheetSpec spec, SheetRenderTheme theme)
     {
-        return spec.TraceColor is { } hex
-            && Color.TryParse(hex, out var color)
-                ? color
-                : theme.TraceGlyphColor;
+        if (spec.TraceColor is { } hex && Color.TryParse(hex, out var color)) return color;
+
+        return spec.TraceIntensity switch
+        {
+            TraceIntensity.VeryDark => Color.FromRgb(0xA5, 0x48, 0x3E),
+            TraceIntensity.Dark => Color.FromRgb(0xBF, 0x66, 0x5C),
+            TraceIntensity.MediumDark => Color.FromRgb(0xD5, 0x8A, 0x7F),
+            TraceIntensity.Medium => theme.TraceGlyphColor,
+            TraceIntensity.Light => Color.FromRgb(0xEC, 0xBF, 0xB9),
+            TraceIntensity.VeryLight => Color.FromRgb(0xF5, 0xDA, 0xD6),
+            TraceIntensity.White => Colors.White,
+            TraceIntensity.Hollow => ResolveColor(spec.TextColor, theme.ModelGlyphColor),
+            _ => theme.TraceGlyphColor
+        };
+    }
+
+    private static Color ResolveColor(string? value, Color fallback)
+    {
+        return !string.IsNullOrWhiteSpace(value) && Color.TryParse(value, out var color)
+            ? color
+            : fallback;
+    }
+
+    private static Color GridDashColor(CharacterSheetSpec spec, SheetRenderTheme theme)
+    {
+        if (string.IsNullOrWhiteSpace(spec.GridColor) || !Color.TryParse(spec.GridColor, out var color))
+            return theme.GridDashColor;
+
+        return Color.FromArgb((byte)Math.Max(80, color.A * 0.55), color.R, color.G, color.B);
     }
 
     /// <summary>页面装饰边框：距边缘双线框。</summary>
@@ -102,7 +127,7 @@ public static class SheetRenderer
         if (spec.Title is not null)
         {
             var titleHeightPt = (float)(12 * LayoutEngine.MmToPt);
-            DrawCenteredText(canvas, spec.Title, 16f,
+            DrawCenteredText(canvas, spec, spec.Title, 16f,
                 new SKPoint(pageWidthPt / 2, lineY + titleHeightPt / 2), theme.TitleColor.ToSKColor());
             lineY += titleHeightPt;
         }
@@ -113,7 +138,7 @@ public static class SheetRenderer
             var authorLine = spec.Dynasty is { Length: > 0 }
                 ? $"{spec.Dynasty} · {spec.Author}"
                 : spec.Author;
-            DrawCenteredText(canvas, authorLine, 11f,
+            DrawCenteredText(canvas, spec, authorLine, 11f,
                 new SKPoint(pageWidthPt / 2, lineY + authorHeightPt / 2), theme.TitleColor.ToSKColor());
             lineY += authorHeightPt;
         }
@@ -121,7 +146,7 @@ public static class SheetRenderer
         if (spec.ShowHeaderFields)
         {
             var fieldsHeightPt = (float)(10 * LayoutEngine.MmToPt);
-            DrawLeftText(canvas, "班级：____________　　姓名：____________　　日期：____________", 10.5f,
+            DrawLeftText(canvas, spec, HeaderFieldsText(spec), 10.5f,
                 new SKPoint((float)(spec.Page.MarginLeftMm * LayoutEngine.MmToPt),
                     lineY + fieldsHeightPt / 2), theme.FieldColor.ToSKColor());
         }
@@ -131,14 +156,14 @@ public static class SheetRenderer
     {
         using var solidPaint = new SKPaint
         {
-            Color = theme.GridSolidColor.ToSKColor(),
+            Color = ResolveColor(spec.GridColor, theme.GridSolidColor).ToSKColor(),
             StrokeWidth = theme.GridSolidStrokePt,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke
         };
         using var dashPaint = new SKPaint
         {
-            Color = theme.GridDashColor.ToSKColor(),
+            Color = GridDashColor(spec, theme).ToSKColor(),
             StrokeWidth = theme.GridDashStrokePt,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
@@ -164,12 +189,13 @@ public static class SheetRenderer
 
             // 范字（或浅色描红字）居中；拼音四线格的音节用较小字号避免溢出
             glyphPaint.Color = (cell.Role == CellRole.Model
-                ? theme.ModelGlyphColor
+                ? ResolveColor(spec.TextColor, theme.ModelGlyphColor)
                 : TraceGlyphColor(spec, theme)).ToSKColor();
             var fontSize = spec.Grid == GridKind.Pinyin ? size * 0.5f : size * 0.74f;
-            DrawCenteredGlyph(canvas, cell.Glyph, fontSize,
+            DrawCenteredGlyph(canvas, spec, cell.Glyph, fontSize,
                 new SKPoint(x + size / 2, y + size / 2), glyphPaint,
-                hollow: spec.HollowGlyph && cell.Role == CellRole.Model);
+                hollow: spec.TraceIntensity == TraceIntensity.Hollow ||
+                        spec.HollowGlyph && cell.Role == CellRole.Model);
 
             if (spec.ShowPinyin)
                 DrawPinyin(canvas, cell, spec, x, y, size, theme);
@@ -194,7 +220,7 @@ public static class SheetRenderer
         var syllables = pinyin.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var spacing = size * 0.92f / Math.Max(1, syllables.Length);
         for (var i = 0; i < syllables.Length; i++)
-            DrawCenteredText(canvas, syllables[i], fontSize,
+            DrawCenteredText(canvas, spec, syllables[i], fontSize,
                 new SKPoint(centerX - spacing * (syllables.Length - 1) / 2f + spacing * i, topY),
                 theme.PinyinColor.ToSKColor());
     }
@@ -276,19 +302,20 @@ public static class SheetRenderer
         var pageHeightPt = (float)(spec.Page.HeightMm * LayoutEngine.MmToPt);
         var footerCenterY = pageHeightPt - (float)(5 * LayoutEngine.MmToPt);
 
-        DrawCenteredText(canvas, $"第 {page.Index + 1} 页 / 共 {totalPages} 页", 9f,
+        DrawCenteredText(canvas, spec, $"第 {page.Index + 1} 页 / 共 {totalPages} 页", 9f,
             new SKPoint(pageWidthPt / 2, footerCenterY), theme.FooterColor.ToSKColor());
     }
 
     private static void DrawCenteredGlyph(
         SKCanvas canvas,
+        CharacterSheetSpec spec,
         string glyph,
         float sizePt,
         SKPoint center,
         SKPaint paint,
         bool hollow = false)
     {
-        using var font = new SKFont(ZitieFonts.WenKai, sizePt);
+        using var font = CreateFont(spec, glyph, sizePt);
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
 
         if (hollow)
@@ -310,19 +337,56 @@ public static class SheetRenderer
         canvas.DrawText(glyph, center.X, baselineY, SKTextAlign.Center, font, paint);
     }
 
-    private static void DrawCenteredText(SKCanvas canvas, string text, float sizePt, SKPoint center, SKColor color)
+    private static void DrawCenteredText(
+        SKCanvas canvas,
+        CharacterSheetSpec spec,
+        string text,
+        float sizePt,
+        SKPoint center,
+        SKColor color)
     {
-        using var font = new SKFont(ZitieFonts.WenKai, sizePt);
+        using var font = CreateFont(spec, text, sizePt);
         using var paint = new SKPaint { Color = color, IsAntialias = true };
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
         canvas.DrawText(text, center.X, baselineY, SKTextAlign.Center, font, paint);
     }
 
-    private static void DrawLeftText(SKCanvas canvas, string text, float sizePt, SKPoint center, SKColor color)
+    private static void DrawLeftText(
+        SKCanvas canvas,
+        CharacterSheetSpec spec,
+        string text,
+        float sizePt,
+        SKPoint center,
+        SKColor color)
     {
-        using var font = new SKFont(ZitieFonts.WenKai, sizePt);
+        using var font = CreateFont(spec, text, sizePt);
         using var paint = new SKPaint { Color = color, IsAntialias = true };
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
         canvas.DrawText(text, center.X, baselineY, SKTextAlign.Left, font, paint);
+    }
+
+    private static string HeaderFieldsText(CharacterSheetSpec spec)
+    {
+        return string.IsNullOrWhiteSpace(spec.HeaderTextTemplate)
+            ? "班级：____________　　姓名：____________　　日期：____________"
+            : spec.HeaderTextTemplate.Replace("---", "　　").Replace("_", "　");
+    }
+
+    private static SKFont CreateFont(CharacterSheetSpec spec, string text, float sizePt)
+    {
+        return new SKFont(ResolveTypeface(spec, text), sizePt);
+    }
+
+    private static SKTypeface ResolveTypeface(CharacterSheetSpec spec, string text)
+    {
+        if (string.IsNullOrWhiteSpace(spec.FontFamilyName)) return ZitieFonts.WenKai;
+
+        var family = spec.FontFamilyName.Trim();
+        var character = text.FirstOrDefault(value => value > 127);
+        return character == default
+            ? SKTypeface.FromFamilyName(family) ?? ZitieFonts.WenKai
+            : SKFontManager.Default.MatchCharacter(family, character) ??
+              SKTypeface.FromFamilyName(family) ??
+              ZitieFonts.WenKai;
     }
 }

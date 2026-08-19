@@ -57,8 +57,10 @@ public static class LayoutEngine
         var wordRole = spec.PinyinOnly || spec.Mode == PracticeMode.Copy
             ? CellRole.Blank
             : CellRole.Trace;
-        var pitch = spec.GridSizeMm + spec.GridGapMm;
-        var columns = Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
+        var gridSizeMm = ResolveGridSizeMm(spec, vertical);
+        var pitch = gridSizeMm + Math.Max(0, spec.GridGapMm);
+        var columns = ResolveColumnCount(spec, vertical, pitch);
+        var blankLineCount = vertical ? 0 : Math.Clamp(spec.BlankLineCount, 0, 10);
         var firstPageRows = Math.Max(1,
             (int)Math.Floor((spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm) / pitch));
         var otherPageRows = Math.Max(1,
@@ -96,7 +98,13 @@ public static class LayoutEngine
                         if (cursor + groupSize > capacity) break;
                     }
                 }
-                else if (cursor + groupSize > capacity)
+                else
+                {
+                    cursor = AlignHorizontalCursor(cursor, groupSize, columns, blankLineCount);
+                    if (cursor + groupSize > capacity) break;
+                }
+
+                if (!vertical && cursor + groupSize > capacity)
                 {
                     break;
                 }
@@ -114,16 +122,18 @@ public static class LayoutEngine
                         : vertical || spec.GroupByWord
                             ? wordRole
                             : roles[slot];
-                    var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop);
+                    var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop, pitch);
                     cells.Add(new CellSlot(
                         x, y,
-                        spec.GridSizeMm,
+                        gridSizeMm,
                         glyph,
                         role,
                         groupIndex));
                 }
 
-                cursor += groupSize;
+                cursor = vertical
+                    ? cursor + groupSize
+                    : AdvanceCursor(cursor, groupSize, columns, blankLineCount);
                 groupIndex++;
             }
 
@@ -138,6 +148,51 @@ public static class LayoutEngine
         return pages;
     }
 
+    private static double ResolveGridSizeMm(CharacterSheetSpec spec, bool vertical)
+    {
+        if (vertical || spec.CharactersPerLine <= 0)
+            return Math.Max(1, spec.GridSizeMm);
+
+        var columns = Math.Clamp(spec.CharactersPerLine, 1, 64);
+        var gap = Math.Max(0, spec.GridGapMm);
+        var available = spec.Page.UsableWidthMm - gap * (columns - 1);
+        return available > columns
+            ? available / columns
+            : Math.Max(1, spec.GridSizeMm);
+    }
+
+    private static int ResolveColumnCount(CharacterSheetSpec spec, bool vertical, double pitch)
+    {
+        if (!vertical && spec.CharactersPerLine > 0)
+            return Math.Clamp(spec.CharactersPerLine, 1, 64);
+
+        return Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
+    }
+
+    private static int AdvanceCursor(int cursor, int groupSize, int columns, int blankLineCount)
+    {
+        var next = cursor + groupSize;
+        if (blankLineCount <= 0 || columns <= 0 || next % columns != 0) return next;
+
+        return next + columns * blankLineCount;
+    }
+
+    private static int AlignHorizontalCursor(int cursor, int groupSize, int columns, int blankLineCount)
+    {
+        if (columns <= 0 || groupSize > columns) return cursor;
+
+        var column = cursor % columns;
+        if (column == 0 || column + groupSize <= columns) return cursor;
+
+        return NextContentRowCursor(cursor, columns, blankLineCount);
+    }
+
+    private static int NextContentRowCursor(int cursor, int columns, int blankLineCount)
+    {
+        var row = cursor / columns;
+        return (row + 1 + Math.Max(0, blankLineCount)) * columns;
+    }
+
     /// <summary>
     ///     把游标格位换算为页面坐标。
     ///     横排：行优先，先填满一行再换行；竖排：列从右到左、每列自上而下（传统帖式）。
@@ -148,9 +203,9 @@ public static class LayoutEngine
         int absolute,
         int columns,
         int rows,
-        double contentTop)
+        double contentTop,
+        double pitch)
     {
-        var pitch = spec.GridSizeMm + spec.GridGapMm;
         if (vertical)
         {
             var column = columns - 1 - absolute / rows;

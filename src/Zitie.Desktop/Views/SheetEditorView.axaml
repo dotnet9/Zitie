@@ -36,6 +36,14 @@
                         <TextBlock Text="页眉标题" Classes="section-title" />
                         <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
 
+                        <TextBlock Text="页头样式" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
+                                  SelectedIndex="{Binding HeaderPresetIndex}" />
+
+                        <TextBlock Text="自定义页头" Classes="section-title" />
+                        <TextBox Text="{Binding HeaderTextTemplate}"
+                                 PlaceholderText="姓名_班级---年_月_日" />
+
                         <TextBlock Text="格子类型" Classes="section-title" />
                         <ComboBox SelectedIndex="{Binding GridKindIndex}">
                             <ComboBoxItem Content="米字格" />
@@ -46,6 +54,14 @@
                             <ComboBoxItem Content="九宫格" />
                             <ComboBoxItem Content="拼音四线格" />
                         </ComboBox>
+
+                        <TextBlock Text="每行字数" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}"
+                                  SelectedIndex="{Binding CharactersPerLineIndex}" />
+
+                        <TextBlock Text="隔空行" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding BlankLineChoices}"
+                                  SelectedItem="{Binding BlankLineCount}" />
 
                         <TextBlock Text="格子大小" Classes="section-title" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -66,20 +82,21 @@
                         <CheckBox Content="空心双钩字（范字描轮廓，供填墨）"
                                   IsChecked="{Binding HollowGlyph}" />
 
-                        <TextBlock Text="描红字颜色" Classes="section-title" />
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <Border Width="22" Height="22" CornerRadius="4"
-                                    Background="{Binding TraceColor}"
-                                    BorderBrush="#888888" BorderThickness="1"
-                                    VerticalAlignment="Center" />
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding TraceColor}"
-                                     PlaceholderText="#DF9C93 或 red" />
-                            <TextBlock Grid.Column="2"
-                                       Text="浅色适合打印后手描"
-                                       FontSize="11" Foreground="#777777"
-                                       VerticalAlignment="Center" />
-                        </Grid>
+                        <TextBlock Text="描红深浅" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}"
+                                  SelectedIndex="{Binding TraceIntensityIndex}" />
+
+                        <TextBlock Text="格子颜色" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding ColorChoices}"
+                                  SelectedIndex="{Binding GridColorIndex}" />
+
+                        <TextBlock Text="文字颜色" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding ColorChoices}"
+                                  SelectedIndex="{Binding TextColorIndex}" />
+
+                        <TextBlock Text="字帖字体" Classes="section-title" />
+                        <TextBox Text="{Binding SheetFontFamilyName}"
+                                 PlaceholderText="输入系统字体名称，如 KaiTi / SimSun" />
 
                         <TextBlock Text="每字格数" Classes="section-title" />
                         <ComboBox ItemsSource="{Binding RepeatsChoices}"
