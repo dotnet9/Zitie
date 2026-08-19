@@ -28,7 +28,7 @@ public partial class SheetEditorView : UserControl
         try
         {
             viewModel.ExportPdfTo(path);
-            OpenWithSystem(path);
+            OpenFolderAndSelectFile(path);
         }
         catch (Exception exception)
         {
@@ -46,26 +46,11 @@ public partial class SheetEditorView : UserControl
         try
         {
             viewModel.ExportPngTo(path);
+            OpenFolderAndSelectFile(path);
         }
         catch (Exception exception)
         {
             ZitieLogging.Error("导出 PNG 失败", exception);
-        }
-    }
-
-    private void PrintButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (ViewModel is not { CanExport: true } viewModel) return;
-
-        var path = Path.Combine(Path.GetTempPath(), $"zitie-print-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
-        try
-        {
-            viewModel.ExportPdfTo(path);
-            PrintPdf(path);
-        }
-        catch (Exception exception)
-        {
-            ZitieLogging.Error("打印失败", exception);
         }
     }
 
@@ -93,35 +78,90 @@ public partial class SheetEditorView : UserControl
         return file?.TryGetLocalPath();
     }
 
-    private static void PrintPdf(string path)
+    /// <summary>
+    ///     打开资源管理器并选中导出文件（参考 CodeWF.Tools 的 FileHelper）。
+    ///     Windows 用 Explorer /select；Linux/macOS 分别用对应文件管理器。
+    /// </summary>
+    private static void OpenFolderAndSelectFile(string fileFullName)
     {
-        // 先尝试系统“打印”动词，不支持打印关联的系统退回直接打开文件
+        if (!File.Exists(fileFullName))
+        {
+            ZitieLogging.Warn($"导出文件不存在，无法定位：{fileFullName}");
+            return;
+        }
+
+        var normalizedPath = NormalizePathSeparators(fileFullName);
         try
         {
-            using var process = Process.Start(new ProcessStartInfo(path)
+            if (OperatingSystem.IsWindows())
             {
-                Verb = "print",
-                UseShellExecute = true
-            });
-            if (process is not null) return;
+                Process.Start(new ProcessStartInfo("Explorer.exe")
+                {
+                    Arguments = $"/e,/select,\"{normalizedPath}\""
+                });
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                // 常见文件管理器优先，未知桌面环境退回打开所在目录
+                var desktop = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP")?.ToLower() ?? "";
+                var (manager, args) = desktop switch
+                {
+                    var d when d.Contains("gnome") || d.Contains("unity") => ("nautilus", $"--select \"{normalizedPath}\""),
+                    var d when d.Contains("kde") => ("dolphin", $"--select \"{normalizedPath}\""),
+                    var d when d.Contains("xfce") => ("thunar", $"--select \"{normalizedPath}\""),
+                    var d when d.Contains("mate") => ("caja", $"--select \"{normalizedPath}\""),
+                    var d when d.Contains("lxqt") => ("pcmanfm-qt", $"--select \"{normalizedPath}\""),
+                    _ => ("xdg-open", $"\"{Path.GetDirectoryName(normalizedPath) ?? "."}\"")
+                };
+                Process.Start(new ProcessStartInfo(manager)
+                {
+                    Arguments = args,
+                    UseShellExecute = false
+                });
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                Process.Start(new ProcessStartInfo("open")
+                {
+                    Arguments = $"-R \"{normalizedPath}\"",
+                    UseShellExecute = false
+                });
+            }
+            else
+            {
+                var folder = Path.GetDirectoryName(Path.GetFullPath(normalizedPath));
+                if (folder is not null) OpenFolder(folder);
+            }
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn($"系统打印动词不可用，改为打开文件：{path}", exception);
+            ZitieLogging.Error($"无法定位导出文件：{fileFullName}", exception);
         }
-
-        OpenWithSystem(path);
     }
 
-    private static void OpenWithSystem(string path)
+    /// <summary>仅打开目录（未知系统兜底）。</summary>
+    private static void OpenFolder(string folder)
     {
         try
         {
-            using var _ = Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+            if (OperatingSystem.IsWindows())
+                Process.Start(new ProcessStartInfo("Explorer.exe") { Arguments = folder });
+            else if (OperatingSystem.IsLinux())
+                Process.Start(new ProcessStartInfo("xdg-open") { Arguments = $"\"{folder}\"", UseShellExecute = false });
+            else if (OperatingSystem.IsMacOS())
+                Process.Start(new ProcessStartInfo("open") { Arguments = $"\"{folder}\"", UseShellExecute = false });
         }
         catch (Exception exception)
         {
-            ZitieLogging.Error($"无法打开文件：{path}", exception);
+            ZitieLogging.Error($"无法打开文件夹：{folder}", exception);
         }
+    }
+
+    /// <summary>统一路径分隔符为系统标准。</summary>
+    private static string NormalizePathSeparators(string path)
+    {
+        var target = Path.DirectorySeparatorChar;
+        var source = target == '\\' ? '/' : '\\';
+        return path.Replace(source, target);
     }
 }

@@ -30,6 +30,9 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<ModuleCatalog>();
         containerRegistry.RegisterSingleton<TextCatalog>();
         containerRegistry.RegisterSingleton<PinyinCatalog>();
+        // fork 把导航历史注册为瞬时实例，导致注入到 ViewModel 的 journal 与区域导航服务
+        // 各自持有一份空历史，返回按钮点击无效。改为单例共享同一历史。
+        containerRegistry.RegisterSingleton<IRegionNavigationJournal, RegionNavigationJournal>();
         containerRegistry.RegisterForNavigation<ModuleGalleryView, ModuleGalleryViewModel>("ModuleGallery");
         containerRegistry.RegisterForNavigation<SheetEditorView, SheetEditorViewModel>("SheetEditor");
     }

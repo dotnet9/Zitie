@@ -12,7 +12,6 @@
                 <Separator Margin="4,0" />
                 <Button Content="导出 PDF" Click="ExportPdfButton_OnClick" Classes="primary" />
                 <Button Content="导出 PNG" Click="ExportPngButton_OnClick" />
-                <Button Content="打印" Click="PrintButton_OnClick" />
             </StackPanel>
         </Border>
 
