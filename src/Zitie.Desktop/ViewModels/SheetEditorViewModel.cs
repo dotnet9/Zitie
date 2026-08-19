@@ -178,9 +178,21 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _headerPresetIndex;
         set
         {
-            if (SetProperty(ref _headerPresetIndex, Math.Clamp(value, 0, HeaderPresetChoices.Length - 1))) Rebuild();
+            if (!SetProperty(ref _headerPresetIndex, Math.Clamp(value, 0, HeaderPresetChoices.Length - 1)))
+                return;
+
+            RaisePropertyChanged(nameof(IsCustomHeader));
+            RaisePropertyChanged(nameof(IsPoemHeader));
+            Rebuild();
         }
     }
+
+    public bool IsCustomHeader => HeaderPresetIndex == (int)SheetHeaderPreset.Custom;
+
+    public bool IsPoemHeader => HeaderPresetIndex != (int)SheetHeaderPreset.None &&
+                                (HeaderPresetIndex == (int)SheetHeaderPreset.Poem || ShowPoemHeader);
+
+    public bool IsTraceMode => PracticeModeIndex == (int)PracticeMode.Trace;
 
     public FontOption? SelectedSheetFont
     {
@@ -234,7 +246,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _showPoemHeader;
         set
         {
-            if (SetProperty(ref _showPoemHeader, value)) Rebuild();
+            if (!SetProperty(ref _showPoemHeader, value))
+                return;
+
+            RaisePropertyChanged(nameof(IsPoemHeader));
+            Rebuild();
         }
     }
 
@@ -250,13 +266,19 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public string Author
     {
         get => _author;
-        set => SetProperty(ref _author, value);
+        set
+        {
+            if (SetProperty(ref _author, value)) Rebuild();
+        }
     }
 
     public string Dynasty
     {
         get => _dynasty;
-        set => SetProperty(ref _dynasty, value);
+        set
+        {
+            if (SetProperty(ref _dynasty, value)) Rebuild();
+        }
     }
 
     public bool GroupByWord
@@ -328,7 +350,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _practiceModeIndex;
         set
         {
-            if (SetProperty(ref _practiceModeIndex, value)) Rebuild();
+            if (!SetProperty(ref _practiceModeIndex, value))
+                return;
+
+            RaisePropertyChanged(nameof(IsTraceMode));
+            Rebuild();
         }
     }
 
@@ -684,6 +710,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         RaisePropertyChanged(nameof(Title));
         RaisePropertyChanged(nameof(GridKindIndex));
         RaisePropertyChanged(nameof(PracticeModeIndex));
+        RaisePropertyChanged(nameof(IsTraceMode));
         RaisePropertyChanged(nameof(RepeatsIndex));
         RaisePropertyChanged(nameof(CharactersPerLineIndex));
         RaisePropertyChanged(nameof(BlankLineCount));
@@ -691,6 +718,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         RaisePropertyChanged(nameof(GridColorIndex));
         RaisePropertyChanged(nameof(TextColorIndex));
         RaisePropertyChanged(nameof(HeaderPresetIndex));
+        RaisePropertyChanged(nameof(IsCustomHeader));
+        RaisePropertyChanged(nameof(IsPoemHeader));
         RaisePropertyChanged(nameof(GridSizeMm));
         RaisePropertyChanged(nameof(HollowGlyph));
         RaisePropertyChanged(nameof(GroupByWord));

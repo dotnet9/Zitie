@@ -18,6 +18,20 @@
         <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
 
+    <Style Selector="Border.settings-section">
+        <Setter Property="Padding" Value="0,0,0,12" />
+        <Setter Property="Margin" Value="0,0,0,2" />
+        <Setter Property="BorderBrush" Value="#E5E6EB" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="TextBlock.settings-section-title">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#2C2D31" />
+        <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+
     <!-- 模块卡片 -->
     <Style Selector="Button.module-card">
         <Setter Property="Width" Value="252" />

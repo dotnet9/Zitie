@@ -22,121 +22,165 @@
             <!-- 左侧配置面板 -->
             <Border Grid.Column="0" Classes="config-panel">
                 <ScrollViewer>
-                    <StackPanel Spacing="14">
-                        <TextBlock Text="文本内容" Classes="section-title" />
-                        <TextBox Text="{Binding InputText}"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 MinHeight="140"
-                                 VerticalContentAlignment="Top"
-                                 PlaceholderText="输入要练习的字，逐字生成练习组" />
+                    <StackPanel Spacing="10">
+                        <Border Classes="settings-section">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="内容与页头" Classes="settings-section-title" />
+                                <TextBlock Text="练习文本" Classes="section-title" />
+                                <TextBox Text="{Binding InputText}"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="120"
+                                         VerticalContentAlignment="Top"
+                                         PlaceholderText="输入要练习的字，逐字生成练习组" />
+                                <TextBlock Text="从文本库选择" Classes="section-title" />
+                                <ComboBox ItemsSource="{Binding TextEntries}"
+                                          SelectedIndex="{Binding TextEntryIndex}"
+                                          PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文" />
+                                <TextBlock Text="标题" Classes="section-title" />
+                                <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
+                                <TextBlock Text="页头样式" Classes="section-title" />
+                                <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
+                                          SelectedIndex="{Binding HeaderPresetIndex}" />
+                                <TextBlock Text="自定义页头内容" Classes="section-title" />
+                                <TextBox Text="{Binding HeaderTextTemplate}"
+                                         IsEnabled="{Binding IsCustomHeader}"
+                                         PlaceholderText="姓名_班级---年_月_日" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="朝代" Classes="section-title" />
+                                        <TextBox Text="{Binding Dynasty}"
+                                                 IsEnabled="{Binding IsPoemHeader}"
+                                                 PlaceholderText="唐" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="作者" Classes="section-title" />
+                                        <TextBox Text="{Binding Author}"
+                                                 IsEnabled="{Binding IsPoemHeader}"
+                                                 PlaceholderText="李白" />
+                                    </StackPanel>
+                                </Grid>
+                                <CheckBox Content="题头显示作者（朝代 · 作者）"
+                                          IsChecked="{Binding ShowPoemHeader}" />
+                            </StackPanel>
+                        </Border>
 
-                        <TextBlock Text="从文本库选择" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding TextEntries}"
-                                  SelectedIndex="{Binding TextEntryIndex}"
-                                  PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文" />
+                        <Border Classes="settings-section">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="格子与排版" Classes="settings-section-title" />
+                                <TextBlock Text="格子类型" Classes="section-title" />
+                                <ComboBox SelectedIndex="{Binding GridKindIndex}">
+                                    <ComboBoxItem Content="米字格" />
+                                    <ComboBoxItem Content="田字格" />
+                                    <ComboBoxItem Content="回宫格" />
+                                    <ComboBoxItem Content="方格" />
+                                    <ComboBoxItem Content="英文四线三格" />
+                                    <ComboBoxItem Content="九宫格" />
+                                    <ComboBoxItem Content="拼音四线格" />
+                                </ComboBox>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="每行字数" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}"
+                                                  SelectedIndex="{Binding CharactersPerLineIndex}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="隔空行" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding BlankLineChoices}"
+                                                  SelectedItem="{Binding BlankLineCount}" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="格子大小" Classes="section-title" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Slider Minimum="8" Maximum="60"
+                                            Value="{Binding GridSizeMm}"
+                                            Width="190"
+                                            VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                                <CheckBox Content="按词分组（词内字符连续，不拆行）"
+                                          IsChecked="{Binding GroupByWord}" />
+                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）"
+                                          IsChecked="{Binding IsVertical}" />
+                            </StackPanel>
+                        </Border>
 
-                        <TextBlock Text="页眉标题" Classes="section-title" />
-                        <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
+                        <Border Classes="settings-section">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="练习方式" Classes="settings-section-title" />
+                                <TextBlock Text="练习模式" Classes="section-title" />
+                                <ComboBox SelectedIndex="{Binding PracticeModeIndex}">
+                                    <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
+                                    <ComboBoxItem Content="临摹：范字 + 空格" />
+                                </ComboBox>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="每字格数" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding RepeatsChoices}"
+                                                  SelectedIndex="{Binding RepeatsIndex}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="描红深浅" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}"
+                                                  SelectedIndex="{Binding TraceIntensityIndex}"
+                                                  IsEnabled="{Binding IsTraceMode}" />
+                                    </StackPanel>
+                                </Grid>
+                                <CheckBox Content="空心双钩字（范字描轮廓，供填墨）"
+                                          IsChecked="{Binding HollowGlyph}" />
+                            </StackPanel>
+                        </Border>
 
-                        <TextBlock Text="页头样式" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
-                                  SelectedIndex="{Binding HeaderPresetIndex}" />
+                        <Border Classes="settings-section">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="字迹与纸张" Classes="settings-section-title" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="格子颜色" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}"
+                                                  SelectedIndex="{Binding GridColorIndex}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="文字颜色" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}"
+                                                  SelectedIndex="{Binding TextColorIndex}" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="字帖字体" Classes="section-title" />
+                                <ComboBox ItemsSource="{Binding SheetFonts}"
+                                          SelectedItem="{Binding SelectedSheetFont}"
+                                          MaxDropDownHeight="360">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="services:FontOption">
+                                            <TextBlock Text="{Binding DisplayName}"
+                                                       FontFamily="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Text="纸张模板" Classes="section-title" />
+                                <ComboBox SelectedIndex="{Binding BackgroundIndex}">
+                                    <ComboBoxItem Content="白底（无底纹）" />
+                                    <ComboBoxItem Content="红格纸（淡红横线）" />
+                                    <ComboBoxItem Content="信纸（淡蓝横线）" />
+                                </ComboBox>
+                                <CheckBox Content="页面装饰边框" IsChecked="{Binding FrameBorder}" />
+                            </StackPanel>
+                        </Border>
 
-                        <TextBlock Text="自定义页头" Classes="section-title" />
-                        <TextBox Text="{Binding HeaderTextTemplate}"
-                                 PlaceholderText="姓名_班级---年_月_日" />
-
-                        <TextBlock Text="格子类型" Classes="section-title" />
-                        <ComboBox SelectedIndex="{Binding GridKindIndex}">
-                            <ComboBoxItem Content="米字格" />
-                            <ComboBoxItem Content="田字格" />
-                            <ComboBoxItem Content="回宫格" />
-                            <ComboBoxItem Content="方格" />
-                            <ComboBoxItem Content="英文四线三格" />
-                            <ComboBoxItem Content="九宫格" />
-                            <ComboBoxItem Content="拼音四线格" />
-                        </ComboBox>
-
-                        <TextBlock Text="每行字数" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}"
-                                  SelectedIndex="{Binding CharactersPerLineIndex}" />
-
-                        <TextBlock Text="隔空行" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding BlankLineChoices}"
-                                  SelectedItem="{Binding BlankLineCount}" />
-
-                        <TextBlock Text="格子大小" Classes="section-title" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Slider Minimum="8" Maximum="60"
-                                    Value="{Binding GridSizeMm}"
-                                    Width="200"
-                                    VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-
-                        <TextBlock Text="练习模式" Classes="section-title" />
-                        <ComboBox SelectedIndex="{Binding PracticeModeIndex}">
-                            <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
-                            <ComboBoxItem Content="临摹：范字 + 空格" />
-                        </ComboBox>
-
-                        <CheckBox Content="空心双钩字（范字描轮廓，供填墨）"
-                                  IsChecked="{Binding HollowGlyph}" />
-
-                        <TextBlock Text="描红深浅" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}"
-                                  SelectedIndex="{Binding TraceIntensityIndex}" />
-
-                        <TextBlock Text="格子颜色" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding ColorChoices}"
-                                  SelectedIndex="{Binding GridColorIndex}" />
-
-                        <TextBlock Text="文字颜色" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding ColorChoices}"
-                                  SelectedIndex="{Binding TextColorIndex}" />
-
-                        <TextBlock Text="字帖字体" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding SheetFonts}"
-                                  SelectedItem="{Binding SelectedSheetFont}"
-                                  MaxDropDownHeight="360">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="services:FontOption">
-                                    <TextBlock Text="{Binding DisplayName}"
-                                               FontFamily="{Binding Name}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-
-                        <TextBlock Text="每字格数" Classes="section-title" />
-                        <ComboBox ItemsSource="{Binding RepeatsChoices}"
-                                  SelectedIndex="{Binding RepeatsIndex}" />
-
-                        <CheckBox Content="按词分组（词内字符连续，不拆行）"
-                                  IsChecked="{Binding GroupByWord}" />
-                        <CheckBox Content="竖排版式（从右到左，传统书法帖式）"
-                                  IsChecked="{Binding IsVertical}" />
-                        <CheckBox Content="题头显示作者（朝代 · 作者）"
-                                  IsChecked="{Binding ShowPoemHeader}" />
-                        <CheckBox Content="页面装饰边框" IsChecked="{Binding FrameBorder}" />
-
-                        <TextBlock Text="纸张模板" Classes="section-title" />
-                        <ComboBox SelectedIndex="{Binding BackgroundIndex}">
-                            <ComboBoxItem Content="白底（无底纹）" />
-                            <ComboBoxItem Content="红格纸（淡红横线）" />
-                            <ComboBoxItem Content="信纸（淡蓝横线）" />
-                        </ComboBox>
-
-                        <CheckBox Content="标注拼音" IsChecked="{Binding ShowPinyin}" />
-                        <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
-                                  IsChecked="{Binding PinyinOnly}"
-                                  IsEnabled="{Binding ShowPinyin}" />
-
-                        <TextBlock Text="显示缩放" Classes="section-title" />
-                        <Slider Minimum="0.5" Maximum="2"
-                                TickFrequency="0.25" TickPlacement="BottomRight"
-                                Value="{Binding Zoom}" />
+                        <Border Classes="settings-section">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="拼音与预览" Classes="settings-section-title" />
+                                <CheckBox Content="标注拼音" IsChecked="{Binding ShowPinyin}" />
+                                <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
+                                          IsChecked="{Binding PinyinOnly}"
+                                          IsEnabled="{Binding ShowPinyin}" />
+                                <TextBlock Text="显示缩放" Classes="section-title" />
+                                <Slider Minimum="0.5" Maximum="2"
+                                        TickFrequency="0.25" TickPlacement="BottomRight"
+                                        Value="{Binding Zoom}" />
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
