@@ -163,6 +163,7 @@
                                     <ComboBoxItem Content="白底（无底纹）" />
                                     <ComboBoxItem Content="红格纸（淡红横线）" />
                                     <ComboBoxItem Content="信纸（淡蓝横线）" />
+                                    <ComboBoxItem Content="宣纸（暖白米色横线）" />
                                 </ComboBox>
                                 <CheckBox Content="页面装饰边框" IsChecked="{Binding FrameBorder}" />
                             </StackPanel>

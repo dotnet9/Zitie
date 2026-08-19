@@ -58,6 +58,9 @@ public static class ModulePreviewFactory
             ShowPoemHeader = showPoemHeader,
             FrameBorder = GetBoolean(defaults, "frameBorder"),
             Background = ParseBackground(GetString(defaults, "background")),
+            BackgroundColor = GetString(defaults, "backgroundColor"),
+            BackgroundLineColor = GetString(defaults, "backgroundLineColor"),
+            BackgroundLineSpacingMm = GetDouble(defaults, "backgroundLineSpacing"),
             Author = GetString(defaults, "author"),
             Dynasty = GetString(defaults, "dynasty"),
             GroupByWord = GetBoolean(defaults, "groupByWord"),
@@ -120,6 +123,7 @@ public static class ModulePreviewFactory
         {
             "redgrid" => SheetBackground.RedGrid,
             "letter" => SheetBackground.Letter,
+            "ricepaper" => SheetBackground.RicePaper,
             _ => SheetBackground.Plain
         };
     }

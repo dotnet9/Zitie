@@ -53,8 +53,17 @@ public sealed record CharacterSheetSpec
     /// <summary>页面四周绘制装饰边框（双线）。</summary>
     public bool FrameBorder { get; init; }
 
-    /// <summary>页面背景纸张模板（白底 / 红格纸 / 信纸）。</summary>
+    /// <summary>页面背景纸张模板（白底 / 红格纸 / 信纸 / 宣纸）。</summary>
     public SheetBackground Background { get; init; } = SheetBackground.Plain;
+
+    /// <summary>页面背景底色；为空时由背景模板决定。</summary>
+    public string? BackgroundColor { get; init; }
+
+    /// <summary>页面底纹线颜色；为空时由背景模板决定。</summary>
+    public string? BackgroundLineColor { get; init; }
+
+    /// <summary>页面底纹行距（毫米）；为空时由背景模板决定。</summary>
+    public double? BackgroundLineSpacingMm { get; init; }
 
     /// <summary>作者名（题头用）。</summary>
     public string? Author { get; init; }

@@ -1,7 +1,7 @@
 namespace Zitie.Core.Models;
 
 /// <summary>
-///     字帖页面背景样式：白底之外的纸张模板（红格纸、信纸）。
+///     字帖页面背景样式：白底、练习纸、信纸与宣纸风格。
 /// </summary>
 public enum SheetBackground
 {
@@ -12,5 +12,8 @@ public enum SheetBackground
     RedGrid,
 
     /// <summary>信纸：淡蓝横线底纹。</summary>
-    Letter
+    Letter,
+
+    /// <summary>宣纸：暖白底色与低对比米色横线。</summary>
+    RicePaper
 }

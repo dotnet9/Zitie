@@ -42,6 +42,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _showPoemHeader;
     private bool _frameBorder;
     private int _backgroundIndex;
+    private string? _backgroundColor;
+    private string? _backgroundLineColor;
+    private double? _backgroundLineSpacingMm;
     private string _author = string.Empty;
     private string _dynasty = string.Empty;
     private FontOption? _selectedSheetFont;
@@ -491,6 +494,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                              (headerPreset != SheetHeaderPreset.None && _showPoemHeader),
             ShowHeaderFields = showHeaderFields,
             FrameBorder = _frameBorder,
+            BackgroundColor = _backgroundColor,
+            BackgroundLineColor = _backgroundLineColor,
+            BackgroundLineSpacingMm = _backgroundLineSpacingMm,
             Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
             Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
             TraceColor = string.IsNullOrWhiteSpace(_traceColor) ? null : _traceColor,
@@ -498,7 +504,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             GridColor = ColorChoiceValues[Math.Clamp(GridColorIndex, 0, ColorChoiceValues.Length - 1)],
             TextColor = ColorChoiceValues[Math.Clamp(TextColorIndex, 0, ColorChoiceValues.Length - 1)],
             FontFamilyName = SelectedSheetFont?.Name,
-            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 2)
+            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 3)
         };
 
         Spec = spec;
@@ -572,8 +578,20 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     {
                         "redgrid" => 1,
                         "letter" => 2,
+                        "ricepaper" => 3,
                         _ => BackgroundIndex
                     };
+                    break;
+                case "backgroundcolor" when property.Value.GetString() is { } backgroundColor
+                                            && Color.TryParse(backgroundColor, out _):
+                    _backgroundColor = backgroundColor;
+                    break;
+                case "backgroundlinecolor" when property.Value.GetString() is { } backgroundLineColor
+                                                && Color.TryParse(backgroundLineColor, out _):
+                    _backgroundLineColor = backgroundLineColor;
+                    break;
+                case "backgroundlinespacing" when property.Value.TryGetDouble(out var backgroundLineSpacing):
+                    _backgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60);
                     break;
                 case "author" when property.Value.GetString() is { } author:
                     Author = author;
@@ -695,6 +713,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _showPoemHeader = false;
         _frameBorder = false;
         _backgroundIndex = 0;
+        _backgroundColor = null;
+        _backgroundLineColor = null;
+        _backgroundLineSpacingMm = null;
         _author = string.Empty;
         _dynasty = string.Empty;
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??

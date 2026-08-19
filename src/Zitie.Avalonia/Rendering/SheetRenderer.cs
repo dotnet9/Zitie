@@ -20,8 +20,6 @@ public static class SheetRenderer
         int totalPages,
         SheetRenderTheme theme)
     {
-        canvas.Clear(SKColors.White);
-
         DrawBackground(canvas, spec);
         if (spec.FrameBorder) DrawFrame(canvas, spec, theme);
         DrawHeader(canvas, spec, page, theme);
@@ -29,17 +27,28 @@ public static class SheetRenderer
         DrawFooter(canvas, spec, page, totalPages, theme);
     }
 
-    /// <summary>纸张模板底纹：红格纸为淡红横线，信纸为淡蓝横线。</summary>
+    /// <summary>纸张模板底纹：内置风格与 JSON 自定义颜色共用同一条矢量绘制路径。</summary>
     private static void DrawBackground(SKCanvas canvas, CharacterSheetSpec spec)
     {
+        var defaultBackground = spec.Background switch
+        {
+            SheetBackground.RicePaper => Color.FromRgb(0xFB, 0xF8, 0xEF),
+            _ => Colors.White
+        };
+        canvas.Clear(ResolveColor(spec.BackgroundColor, defaultBackground).ToSKColor());
+
         if (spec.Background == SheetBackground.Plain) return;
 
-        var color = spec.Background == SheetBackground.RedGrid
-            ? Color.FromRgb(0xF2, 0xC8, 0xC8)
-            : Color.FromRgb(0xC9, 0xD8, 0xF0);
+        var defaultLineColor = spec.Background switch
+        {
+            SheetBackground.RedGrid => Color.FromRgb(0xF2, 0xC8, 0xC8),
+            SheetBackground.Letter => Color.FromRgb(0xC9, 0xD8, 0xF0),
+            SheetBackground.RicePaper => Color.FromRgb(0xDE, 0xD1, 0xB8),
+            _ => Color.FromRgb(0xE0, 0xE0, 0xE0)
+        };
         using var paint = new SKPaint
         {
-            Color = color.ToSKColor(),
+            Color = ResolveColor(spec.BackgroundLineColor, defaultLineColor).ToSKColor(),
             StrokeWidth = 0.8f,
             IsAntialias = true
         };
@@ -47,10 +56,17 @@ public static class SheetRenderer
         var widthPt = (float)(spec.Page.WidthMm * LayoutEngine.MmToPt);
         var topPt = (float)(spec.Page.MarginTopMm * LayoutEngine.MmToPt);
         var bottomPt = (float)((spec.Page.HeightMm - spec.Page.MarginBottomMm) * LayoutEngine.MmToPt);
-        // 红格纸行距与格子一致，信纸固定 8mm 行距
-        var linePitch = spec.Background == SheetBackground.RedGrid
-            ? (float)((spec.GridSizeMm + spec.GridGapMm) * LayoutEngine.MmToPt)
-            : (float)(8 * LayoutEngine.MmToPt);
+        var defaultLineSpacing = spec.Background switch
+        {
+            SheetBackground.RedGrid => spec.GridSizeMm + spec.GridGapMm,
+            SheetBackground.Letter => 8,
+            SheetBackground.RicePaper => 11,
+            _ => 10
+        };
+        var lineSpacingMm = spec.BackgroundLineSpacingMm is > 0
+            ? spec.BackgroundLineSpacingMm.Value
+            : defaultLineSpacing;
+        var linePitch = (float)(lineSpacingMm * LayoutEngine.MmToPt);
 
         for (var y = topPt; y < bottomPt; y += linePitch)
             canvas.DrawLine(0, y, widthPt, y, paint);
