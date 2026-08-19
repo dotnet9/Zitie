@@ -1,0 +1,12 @@
+{
+  "id": "pinyin-write-words",
+  "name": "看拼音写词语",
+  "description": "拼音行 + 田字格，看拼音写词语（拼音数据将随外置 pinyin 目录提供）。",
+  "kind": "customText",
+  "enabled": false,
+  "defaults": {
+    "grid": "tian",
+    "mode": "copy",
+    "repeats": 2
+  }
+}

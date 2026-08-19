@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 格线 -->
+    <Color x:Key="ZitieGridSolidColor">#B04A3F</Color>
+    <Color x:Key="ZitieGridDashColor">#D28C83</Color>
+    <x:Double x:Key="ZitieGridSolidStrokePt">1.1</x:Double>
+    <x:Double x:Key="ZitieGridDashStrokePt">0.7</x:Double>
+
+    <!-- 文字 -->
+    <Color x:Key="ZitieModelGlyphColor">#1A1A1A</Color>
+    <Color x:Key="ZitieTraceGlyphColor">#DF9C93</Color>
+    <Color x:Key="ZitieTitleColor">#1A1A1A</Color>
+    <Color x:Key="ZitieFieldColor">#404040</Color>
+    <Color x:Key="ZitieFooterColor">#909090</Color>
+
+    <!-- 预览控件 -->
+    <Color x:Key="ZitiePreviewBackgroundColor">#F7F7F5</Color>
+    <SolidColorBrush x:Key="ZitiePreviewBackgroundBrush" Color="{StaticResource ZitiePreviewBackgroundColor}" />
+</ResourceDictionary>

@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:zitie="using:Zitie.Avalonia.Controls">
+    <ControlTheme x:Key="{x:Type zitie:ZitiePreview}"
+                  TargetType="zitie:ZitiePreview">
+        <Setter Property="Background" Value="{DynamicResource ZitiePreviewBackgroundBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="zitie:ZitiePreview">
+                <Border Background="{TemplateBinding Background}"
+                        CornerRadius="6"
+                        ClipToBounds="True"
+                        Padding="12">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <Image Source="{TemplateBinding PageImage}" Stretch="None" />
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

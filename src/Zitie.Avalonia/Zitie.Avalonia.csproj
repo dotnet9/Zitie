@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>字帖控件库：预览控件、Skia 渲染器、PDF/PNG 导出与内嵌霞鹜文楷字体。</Description>
+    <PackageTags>zitie;字帖;calligraphy;copybook;avalonia;描红;米字格</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zitie.Core\Zitie.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts\*.ttf" />
+    <None Include="Fonts\OFL.txt"
+          Pack="true"
+          PackagePath="licenses\"
+          Visible="false" />
+  </ItemGroup>
+
+</Project>

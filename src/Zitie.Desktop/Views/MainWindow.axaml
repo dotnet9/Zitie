@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        x:Class="Zitie.Desktop.Views.MainWindow"
+        Title="字帖 Zitie"
+        Width="1240"
+        Height="840"
+        Icon="avares://Zitie.Desktop/Assets/logo.ico"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="查看">
+                <MenuItem Header="显示日志" Click="ToggleLogMenuItem_OnClick" />
+            </MenuItem>
+        </Menu>
+
+        <Grid RowDefinitions="*,Auto">
+            <ContentControl Grid.Row="0" prism:RegionManager.RegionName="MainRegion" />
+
+            <!-- 日志面板：默认隐藏，菜单打开 -->
+            <Border Grid.Row="1"
+                    x:Name="LogPanel"
+                    IsVisible="False"
+                    Classes="log-panel">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Padding="12,6">
+                        <DockPanel>
+                            <TextBlock Text="日志" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <Button DockPanel.Dock="Right"
+                                    Content="关闭"
+                                    Classes="quartz"
+                                    Click="CloseLogButton_OnClick" />
+                        </DockPanel>
+                    </Border>
+                    <ContentControl x:Name="LogHost" Margin="8,0,8,8" />
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,0 +1,35 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Avalonia -->
+    <PackageVersion Include="Avalonia" Version="12.1.1" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageVersion Include="Avalonia.Headless" Version="12.1.1" />
+    <!-- 渲染 -->
+    <PackageVersion Include="SkiaSharp" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3.119.4" />
+    <!-- 主题与控件 -->
+    <PackageVersion Include="Semi.Avalonia" Version="12.1.0.1" />
+    <PackageVersion Include="Irihi.Ursa" Version="2.2.0" />
+    <PackageVersion Include="Irihi.Ursa.Themes.Semi" Version="2.2.0" />
+    <!-- MVVM / DI / 日志 -->
+    <PackageVersion Include="CodeWF.Log.Avalonia" Version="12.1.1.2" />
+    <PackageVersion Include="Prism.Avalonia" Version="8.1.97.11073" />
+    <PackageVersion Include="Prism.DryIoc.Avalonia" Version="8.1.97.11073" />
+    <!-- 旧系统兼容（仅 Windows） -->
+    <PackageVersion Include="VC-LTL" Version="5.3.1" />
+    <PackageVersion Include="YY-Thunks" Version="1.2.2" />
+    <!-- 测试 -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <!-- 传递依赖钉版（消除旧版漏洞告警） -->
+    <PackageVersion Include="System.Drawing.Common" Version="10.0.10" />
+  </ItemGroup>
+</Project>

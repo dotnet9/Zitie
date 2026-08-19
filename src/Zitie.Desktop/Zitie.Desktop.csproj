@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ApplicationIcon>..\..\logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Semi.Avalonia" />
+    <PackageReference Include="Irihi.Ursa" />
+    <PackageReference Include="Irihi.Ursa.Themes.Semi" />
+    <PackageReference Include="Prism.DryIoc.Avalonia" />
+    <PackageReference Include="CodeWF.Log.Avalonia" />
+    <PackageReference Include="VC-LTL" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="YY-Thunks" Condition="'$(OS)' == 'Windows_NT'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Zitie.Avalonia\Zitie.Avalonia.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="..\..\logo.png" Link="Assets\logo.png" />
+    <AvaloniaResource Include="..\..\logo.ico" Link="Assets\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="modules\*.json"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

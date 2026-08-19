@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Zitie.Desktop.ViewModels"
+             x:Class="Zitie.Desktop.Views.ModuleGalleryView"
+             x:DataType="vm:ModuleGalleryViewModel">
+    <ScrollViewer>
+        <StackPanel Margin="24,20" Spacing="18">
+            <TextBlock Text="选择字帖模板" Classes="page-title" />
+            <TextBlock Text="点击模板开始生成字帖；模板是 modules 目录下的 JSON 配方，可自行增删替换。"
+                       Classes="page-subtitle" />
+
+            <ItemsControl ItemsSource="{Binding Modules}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ModuleCardViewModel">
+                        <Button Classes="module-card"
+                                Command="{Binding OpenCommand}"
+                                CommandParameter="{Binding Module}">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="{Binding Module.Name}" Classes="module-card-title" />
+                                <TextBlock Text="{Binding Module.Description}"
+                                           Classes="module-card-desc"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding StatusText}" Classes="module-card-status" />
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

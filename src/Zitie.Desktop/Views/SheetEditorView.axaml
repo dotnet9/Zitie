@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Zitie.Desktop.ViewModels"
+             xmlns:zitie="using:Zitie.Avalonia.Controls"
+             x:Class="Zitie.Desktop.Views.SheetEditorView"
+             x:DataType="vm:SheetEditorViewModel">
+    <DockPanel>
+        <!-- 工具栏 -->
+        <Border DockPanel.Dock="Top" Classes="toolbar">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="← 返回" Command="{Binding GoBackCommand}" />
+                <Separator Margin="4,0" />
+                <Button Content="导出 PDF" Click="ExportPdfButton_OnClick" Classes="primary" />
+                <Button Content="导出 PNG" Click="ExportPngButton_OnClick" />
+                <Button Content="打印" Click="PrintButton_OnClick" />
+            </StackPanel>
+        </Border>
+
+        <Grid ColumnDefinitions="300,*">
+            <!-- 左侧配置面板 -->
+            <Border Grid.Column="0" Classes="config-panel">
+                <ScrollViewer>
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="文本内容" Classes="section-title" />
+                        <TextBox Text="{Binding InputText}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="140"
+                                 VerticalContentAlignment="Top"
+                                 PlaceholderText="输入要练习的字，逐字生成练习组" />
+
+                        <TextBlock Text="页眉标题" Classes="section-title" />
+                        <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
+
+                        <TextBlock Text="格子类型" Classes="section-title" />
+                        <ComboBox SelectedIndex="{Binding GridKindIndex}">
+                            <ComboBoxItem Content="米字格" />
+                            <ComboBoxItem Content="田字格" />
+                            <ComboBoxItem Content="回宫格" />
+                            <ComboBoxItem Content="方格" />
+                        </ComboBox>
+
+                        <TextBlock Text="练习模式" Classes="section-title" />
+                        <ComboBox SelectedIndex="{Binding PracticeModeIndex}">
+                            <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
+                            <ComboBoxItem Content="临摹：范字 + 空格" />
+                        </ComboBox>
+
+                        <TextBlock Text="每字格数" Classes="section-title" />
+                        <ComboBox ItemsSource="{Binding RepeatsChoices}"
+                                  SelectedIndex="{Binding RepeatsIndex}" />
+
+                        <TextBlock Text="显示缩放" Classes="section-title" />
+                        <Slider Minimum="0.5" Maximum="2"
+                                TickFrequency="0.25" TickPlacement="BottomRight"
+                                Value="{Binding Zoom}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- 右侧预览 -->
+            <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="12,12,12,6">
+                <zitie:ZitiePreview Grid.Row="0"
+                                   Spec="{Binding Spec}"
+                                   Pages="{Binding Pages}"
+                                   PageIndex="{Binding PageIndex}"
+                                   Zoom="{Binding Zoom}" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10"
+                            HorizontalAlignment="Center" Margin="0,8">
+                    <Button Content="上一页" Command="{Binding PreviousPageCommand}" />
+                    <TextBlock Text="{Binding PageIndicator}" VerticalAlignment="Center" />
+                    <Button Content="下一页" Command="{Binding NextPageCommand}" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</UserControl>

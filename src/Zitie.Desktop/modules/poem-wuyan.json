@@ -1,0 +1,13 @@
+{
+  "id": "poem-wuyan",
+  "name": "五言古诗抄写",
+  "description": "从内置诗词库选择五言古诗，自动逐字生成抄写页（文本库即将上线）。",
+  "kind": "customText",
+  "enabled": false,
+  "defaults": {
+    "grid": "mi",
+    "mode": "copy",
+    "repeats": 2,
+    "title": "五言古诗抄写"
+  }
+}

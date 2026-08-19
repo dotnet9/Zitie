@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Zitie.Core/Zitie.Core.csproj" />
+  <Project Path="src/Zitie.Avalonia/Zitie.Avalonia.csproj" />
+  <Project Path="src/Zitie.Desktop/Zitie.Desktop.csproj" />
+  <Project Path="tests/Zitie.Core.Tests/Zitie.Core.Tests.csproj" />
+</Solution>
