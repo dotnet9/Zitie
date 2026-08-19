@@ -1,6 +1,6 @@
 ﻿param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("win-x64", "linux-x64", "linux-arm64")]
+    [ValidateSet("win-x64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64")]
     [string] $RuntimeIdentifier
 )
 
@@ -10,7 +10,7 @@ $repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Pat
 $projectPath = Join-Path $repositoryRoot "src\Zitie.Desktop\Zitie.Desktop.csproj"
 $publishRoot = Join-Path $repositoryRoot "artifacts\publish"
 $outputPath = Join-Path $publishRoot "$RuntimeIdentifier\Zitie.Desktop"
-$targetFramework = "net10.0"
+$targetFramework = if ($RuntimeIdentifier -like "win-*") { "net10.0-windows" } else { "net10.0" }
 $resolvedPublishRoot = [IO.Path]::GetFullPath($publishRoot)
 $resolvedOutputPath = [IO.Path]::GetFullPath($outputPath)
 
@@ -37,15 +37,20 @@ $publishArguments = @(
     "-o", $resolvedOutputPath
 )
 
-if ($RuntimeIdentifier -eq "win-x64") {
-    # Zitie 依赖 Prism / CodeWF.Log（反射）与 SkiaSharp，NativeAOT 兼容性风险高，
-    # 故 Windows 也采用单文件 + 不裁剪，保证打包后开箱即用。
+if ($RuntimeIdentifier -like "win-*") {
+    # Windows：NativeAOT 单文件。反射保留由 Roots.xml（TrimmerRootDescriptor）声明。
+    # StripSymbols 去除符号；IlcSingleThreaded 减少内存占用。VC-LTL / YY-Thunks 兼容旧系统。
     $publishArguments += @(
-        "-p:PublishSingleFile=true",
-        "-p:PublishTrimmed=false"
+        "-p:PublishAot=true",
+        "-p:PublishTrimmed=true",
+        "-p:StripSymbols=true",
+        "-p:IlcSingleThreaded=true",
+        "-p:TreatWarningsAsErrors=false",
+        "-p:ILLinkTreatWarningsAsErrors=false"
     )
 }
 else {
+    # macOS / Linux：常规单文件，不裁剪（反射库 Prism / CodeWF.Log 兼容性最稳）
     $publishArguments += @(
         "-p:PublishSingleFile=true",
         "-p:PublishTrimmed=false"
