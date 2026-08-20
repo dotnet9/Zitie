@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -40,6 +41,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private string _statusMessage = "已就绪";
     private bool _isDirty;
     private bool _suppressDirty;
+    private bool _suppressRebuild;
+    private bool _isRebuildQueued;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
@@ -332,7 +335,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         {
             if (!SetProperty(ref _selectedSheetFont, value)) return;
             _editorState = _editorState with { FontFamilyName = value?.Name };
-            Rebuild();
+            RequestRebuild();
         }
     }
 
@@ -616,6 +619,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void ExportPdfTo(string path)
     {
+        FlushPendingRebuild();
         SheetExporter.ExportPdf(path, Spec, Pages);
         SetStatus($"已导出 PDF：{Path.GetFileName(path)}");
         ZitieLogging.Info($"已导出 PDF：{path}");
@@ -623,6 +627,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void ExportPngTo(string path)
     {
+        FlushPendingRebuild();
         if (PageIndex < 0 || PageIndex >= Pages.Count) return;
 
         SheetExporter.ExportPng(path, Spec, Pages[PageIndex], PageCount);
@@ -633,6 +638,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public void ExportPngsTo(string directory, double dpi = 300)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        FlushPendingRebuild();
         Directory.CreateDirectory(directory);
         for (var index = 0; index < Pages.Count; index++)
         {
@@ -646,6 +652,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void SaveDocumentTo(string path)
     {
+        FlushPendingRebuild();
         SheetDocumentStore.Save(path, Spec, _module?.Id);
         DocumentPath = path;
         IsDirty = false;
@@ -669,13 +676,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
 
         DocumentPath = path;
-        Rebuild();
+        RebuildImmediately();
         IsDirty = false;
         SetStatus($"已打开：{Path.GetFileName(path)}");
     }
 
     public void SaveTemplateTo(string path, string? name = null)
     {
+        FlushPendingRebuild();
         SheetDocumentStore.SaveTemplate(path, Spec, name ?? Title);
         SetStatus($"已保存模板：{Path.GetFileName(path)}");
     }
@@ -706,8 +714,30 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
         _editorState = state;
         RaisePropertyChanged(propertyName);
-        Rebuild();
+        RequestRebuild();
         return true;
+    }
+
+    private void RequestRebuild()
+    {
+        if (_suppressRebuild || _isRebuildQueued) return;
+
+        _isRebuildQueued = true;
+        Dispatcher.UIThread.Post(FlushPendingRebuild, DispatcherPriority.Render);
+    }
+
+    private void FlushPendingRebuild()
+    {
+        if (!_isRebuildQueued || _suppressRebuild) return;
+
+        _isRebuildQueued = false;
+        Rebuild();
+    }
+
+    private void RebuildImmediately()
+    {
+        _isRebuildQueued = false;
+        Rebuild();
     }
 
     private void Rebuild()
@@ -927,14 +957,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     _editorState = _editorState with { GridColor = gridColor };
                     RaisePropertyChanged(nameof(GridColorIndex));
                     RaisePropertyChanged(nameof(GridColorHex));
-                    Rebuild();
+                    RequestRebuild();
                     break;
                 case "textcolor" when property.Value.GetString() is { } textColor
                                       && Color.TryParse(textColor, out _):
                     _editorState = _editorState with { TextColor = textColor };
                     RaisePropertyChanged(nameof(TextColorIndex));
                     RaisePropertyChanged(nameof(TextColorHex));
-                    Rebuild();
+                    RequestRebuild();
                     break;
                 case "pagesize" when property.Value.GetString() is { } pageSize:
                     PageSizeIndex = pageSize.ToLowerInvariant() switch
@@ -994,19 +1024,20 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
         _suppressDirty = true;
+        _suppressRebuild = true;
         try
         {
             ResetEditorState();
             var module = _catalog.Find(navigationContext.Parameters.GetValue<string?>("moduleId"));
             if (module is not null) ApplyModuleDefaults(module);
-
-            Rebuild();
         }
         finally
         {
+            _suppressRebuild = false;
             _suppressDirty = false;
         }
 
+        RebuildImmediately();
         IsDirty = false;
         SetStatus("已就绪");
     }
@@ -1022,6 +1053,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _documentPath = null;
         _statusMessage = "已就绪";
         _isDirty = false;
+        _isRebuildQueued = false;
         _module = null;
 
         RaisePropertyChanged(string.Empty);
