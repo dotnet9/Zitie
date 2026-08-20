@@ -329,16 +329,24 @@ public class LayoutEngineTests
     }
 
     [Fact]
-    public void Paginate_BlankLineCount_InsertsRowsBetweenContentRows()
+    public void Paginate_BlankCellRowCount_GeneratesBlankCellRows()
     {
         var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 1, title: null)
-            with { CharactersPerLine = 3, BlankLineCount = 1, ShowHeaderFields = false };
+            with { CharactersPerLine = 3, BlankCellRowCount = 1, ShowHeaderFields = false };
 
         var slots = LayoutEngine.Paginate(spec).SelectMany(page => page.Cells).ToList();
 
-        Assert.Equal(6, slots.Count);
+        Assert.Equal(12, slots.Count);
+        Assert.Equal(["一", "二", "三"], slots.Take(3).Select(slot => slot.Glyph));
+        Assert.All(slots.Skip(3).Take(3), slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+        Assert.Equal(["四", "五", "六"], slots.Skip(6).Take(3).Select(slot => slot.Glyph));
         var pitch = slots[0].SizeMm + spec.GridGapMm;
-        Assert.Equal(slots[0].YMm + pitch * 2, slots[3].YMm, 3);
+        Assert.Equal(slots[0].YMm + pitch, slots[3].YMm, 3);
+        Assert.Equal(slots[0].YMm + pitch * 2, slots[6].YMm, 3);
     }
 
     [Fact]

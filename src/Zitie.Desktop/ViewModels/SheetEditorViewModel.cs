@@ -213,7 +213,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private static readonly int[] CharactersPerLineValues = [0, 12, 16];
 
-    public int[] BlankLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
+    public int[] BlankCellRowChoices { get; } = Enumerable.Range(0, 11).ToArray();
 
     public string[] ColorChoices { get; } = ["红色", "黑色", "绿色"];
 
@@ -264,10 +264,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
-    public int BlankLineCount
+    public int BlankCellRowCount
     {
-        get => _editorState.BlankLineCount;
-        set => SetEditorState(_editorState with { BlankLineCount = Math.Clamp(value, 0, 10) });
+        get => _editorState.BlankCellRowCount;
+        set => SetEditorState(_editorState with { BlankCellRowCount = Math.Clamp(value, 0, 10) });
     }
 
     public int TraceIntensityIndex
@@ -753,7 +753,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 : null,
             CharactersPerLine = CharactersPerLineValues[
                 Math.Clamp(CharactersPerLineIndex, 0, CharactersPerLineValues.Length - 1)],
-            BlankLineCount = BlankLineCount,
+            BlankCellRowCount = BlankCellRowCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
@@ -936,8 +936,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     if (index >= 0) CharactersPerLineIndex = index;
                     break;
                 }
-                case "blanklinecount" when property.Value.TryGetInt32(out var blankLineCount):
-                    BlankLineCount = blankLineCount;
+                case "blankcellrowcount" when property.Value.TryGetInt32(out var blankCellRowCount):
+                    BlankCellRowCount = blankCellRowCount;
                     break;
                 case "gridcolor" when property.Value.GetString() is { } gridColor
                                       && Color.TryParse(gridColor, out _):

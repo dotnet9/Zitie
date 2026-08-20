@@ -60,7 +60,7 @@ public static class LayoutEngine
         var gridSizeMm = ResolveGridSizeMm(spec, vertical);
         var pitch = gridSizeMm + Math.Max(0, spec.GridGapMm);
         var columns = ResolveColumnCount(spec, vertical, pitch);
-        var blankLineCount = vertical ? 0 : Math.Clamp(spec.BlankLineCount, 0, 10);
+        var blankCellRowCount = vertical ? 0 : Math.Clamp(spec.BlankCellRowCount, 0, 10);
         var firstPageRows = Math.Max(1,
             (int)Math.Floor((spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm) / pitch));
         var otherPageRows = Math.Max(1,
@@ -110,7 +110,23 @@ public static class LayoutEngine
                 }
                 else
                 {
-                    cursor = AlignHorizontalCursor(cursor, groupSize, columns, blankLineCount);
+                    var alignedCursor = AlignHorizontalCursor(cursor, groupSize, columns, blankCellRowCount);
+                    if (blankCellRowCount > 0 && alignedCursor > cursor)
+                    {
+                        var blankStart = (cursor / columns + 1) * columns;
+                        AddBlankSlots(
+                            cells,
+                            spec,
+                            blankStart,
+                            alignedCursor,
+                            columns,
+                            rows,
+                            contentTop,
+                            pitch,
+                            gridSizeMm);
+                    }
+
+                    cursor = alignedCursor;
                     if (cursor + groupSize > capacity) break;
                 }
 
@@ -141,9 +157,28 @@ public static class LayoutEngine
                         groupIndex));
                 }
 
-                cursor = vertical
-                    ? cursor + groupSize
-                    : AdvanceCursor(cursor, groupSize, columns, blankLineCount);
+                if (vertical)
+                {
+                    cursor += groupSize;
+                }
+                else
+                {
+                    var contentEnd = cursor + groupSize;
+                    var nextCursor = AdvanceCursor(cursor, groupSize, columns, blankCellRowCount);
+                    if (nextCursor > contentEnd)
+                        AddBlankSlots(
+                            cells,
+                            spec,
+                            contentEnd,
+                            nextCursor,
+                            columns,
+                            rows,
+                            contentTop,
+                            pitch,
+                            gridSizeMm);
+
+                    cursor = nextCursor;
+                }
                 groupIndex++;
             }
 
@@ -179,28 +214,53 @@ public static class LayoutEngine
         return Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
     }
 
-    private static int AdvanceCursor(int cursor, int groupSize, int columns, int blankLineCount)
+    private static int AdvanceCursor(int cursor, int groupSize, int columns, int blankCellRowCount)
     {
         var next = cursor + groupSize;
-        if (blankLineCount <= 0 || columns <= 0 || next % columns != 0) return next;
+        if (blankCellRowCount <= 0 || columns <= 0 || next % columns != 0) return next;
 
-        return next + columns * blankLineCount;
+        return next + columns * blankCellRowCount;
     }
 
-    private static int AlignHorizontalCursor(int cursor, int groupSize, int columns, int blankLineCount)
+    private static int AlignHorizontalCursor(int cursor, int groupSize, int columns, int blankCellRowCount)
     {
         if (columns <= 0 || groupSize > columns) return cursor;
 
         var column = cursor % columns;
         if (column == 0 || column + groupSize <= columns) return cursor;
 
-        return NextContentRowCursor(cursor, columns, blankLineCount);
+        return NextContentRowCursor(cursor, columns, blankCellRowCount);
     }
 
-    private static int NextContentRowCursor(int cursor, int columns, int blankLineCount)
+    private static int NextContentRowCursor(int cursor, int columns, int blankCellRowCount)
     {
         var row = cursor / columns;
-        return (row + 1 + Math.Max(0, blankLineCount)) * columns;
+        return (row + 1 + Math.Max(0, blankCellRowCount)) * columns;
+    }
+
+    private static void AddBlankSlots(
+        List<CellSlot> cells,
+        CharacterSheetSpec spec,
+        int start,
+        int end,
+        int columns,
+        int rows,
+        double contentTop,
+        double pitch,
+        double gridSizeMm)
+    {
+        var capacity = columns * rows;
+        for (var absolute = Math.Max(0, start); absolute < Math.Min(end, capacity); absolute++)
+        {
+            var (x, y) = CellPosition(spec, false, absolute, columns, rows, contentTop, pitch);
+            cells.Add(new CellSlot(
+                x,
+                y,
+                gridSizeMm,
+                string.Empty,
+                CellRole.Blank,
+                -1));
+        }
     }
 
     private static IReadOnlyList<IReadOnlyList<string>> SplitOversizedGroups(

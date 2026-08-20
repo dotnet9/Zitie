@@ -41,7 +41,7 @@ public static class ModulePreviewFactory
             CharactersPerLine = vertical
                 ? 0
                 : Math.Clamp(GetInt32(defaults, "charactersPerLine") ?? 12, 1, 64),
-            BlankLineCount = Math.Clamp(GetInt32(defaults, "blankLineCount") ?? 0, 0, 10),
+            BlankCellRowCount = Math.Clamp(GetInt32(defaults, "blankCellRowCount") ?? 0, 0, 10),
             RepeatsPerChar = repeats,
             TraceSlotCount = traceCount,
             GridSizeMm = Math.Max(8, GetDouble(defaults, "gridSize") ?? 14),

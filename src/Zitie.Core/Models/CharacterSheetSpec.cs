@@ -17,8 +17,8 @@ public sealed record CharacterSheetSpec
     /// </summary>
     public int CharactersPerLine { get; init; }
 
-    /// <summary>练习行之间插入的空白行数，范围 0-10。</summary>
-    public int BlankLineCount { get; init; }
+    /// <summary>练习行后生成的空格子行数，范围 0-10；格线保留，格子角色为 Blank。</summary>
+    public int BlankCellRowCount { get; init; }
 
     /// <summary>每个字的总格数（含范字与描红格）。</summary>
     public int RepeatsPerChar { get; init; } = 5;

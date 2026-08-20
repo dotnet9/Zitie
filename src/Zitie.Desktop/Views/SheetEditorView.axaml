@@ -251,8 +251,8 @@
                                         <ComboBox ItemsSource="{Binding CharactersPerLineChoices}" SelectedIndex="{Binding CharactersPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行字数" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="隔空行" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding BlankLineChoices}" SelectedItem="{Binding BlankLineCount}" Classes="editor-input" AutomationProperties.Name="隔空行" />
+                                        <TextBlock Text="空格子行" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding BlankCellRowChoices}" SelectedItem="{Binding BlankCellRowCount}" Classes="editor-input" AutomationProperties.Name="空格子行" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">

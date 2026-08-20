@@ -85,7 +85,7 @@ public static class SheetDocumentStore
             ["headerPreset"] = spec.HeaderPreset.ToString().ToLowerInvariant(),
             ["headerText"] = spec.HeaderTextTemplate,
             ["charactersPerLine"] = spec.CharactersPerLine,
-            ["blankLineCount"] = spec.BlankLineCount,
+            ["blankCellRowCount"] = spec.BlankCellRowCount,
             ["vertical"] = spec.Orientation == SheetOrientation.Vertical,
             ["frameBorder"] = spec.FrameBorder,
             ["background"] = spec.Background.ToString().ToLowerInvariant(),
