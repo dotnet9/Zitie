@@ -31,6 +31,8 @@ public sealed record ModuleDefaults
 
     public double? GridGap { get; set; }
 
+    public double? GroupGap { get; set; }
+
     public bool? HollowGlyph { get; set; }
 
     public string? Mode { get; set; }

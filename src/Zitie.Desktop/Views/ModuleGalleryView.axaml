@@ -8,7 +8,7 @@
              Background="{DynamicResource ZitiePaperBrush}"
              prism:ViewModelLocator.AutoWireViewModel="True"
              xmlns:prism="http://prismlibrary.com/">
-    <Grid RowDefinitions="Auto,*" Background="{DynamicResource ZitiePaperBrush}">
+    <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource ZitiePaperBrush}">
         <StackPanel Grid.Row="0" Margin="26,22,26,0" Spacing="0">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                 <StackPanel Spacing="5">
@@ -31,7 +31,7 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Margin="0,18,0,0" ColumnDefinitions="300,*,220" ColumnSpacing="14">
+            <Grid Margin="0,18,0,0" ColumnDefinitions="300,*" ColumnSpacing="14">
                 <TextBox Grid.Column="0"
                          Classes="gallery-search"
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
@@ -60,29 +60,6 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Grid Grid.Column="2"
-                      ColumnDefinitions="Auto,*,Auto"
-                      ColumnSpacing="8"
-                      VerticalAlignment="Center">
-                    <TextBlock Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
-                               Classes="gallery-count"
-                               VerticalAlignment="Center" />
-                    <Slider Grid.Column="1"
-                            Classes="gallery-zoom"
-                            AutomationProperties.Name="模板缩略图缩放"
-                            ToolTip.Tip="缩放模板缩略图"
-                            Minimum="0.18"
-                            Maximum="0.48"
-                            TickFrequency="0.02"
-                            IsSnapToTickEnabled="True"
-                            Value="{Binding ThumbnailZoom}" />
-                    <TextBlock Grid.Column="2"
-                               Text="{Binding ThumbnailZoom, StringFormat={}{0:P0}}"
-                               Classes="gallery-count"
-                               MinWidth="38"
-                               TextAlignment="Right"
-                               VerticalAlignment="Center" />
-                </Grid>
             </Grid>
         </StackPanel>
 
@@ -100,13 +77,16 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ModuleCardViewModel">
                             <Button Classes="module-card"
+                                    Width="{Binding CardWidth}"
+                                    Height="{Binding CardHeight}"
                                     AutomationProperties.Name="{Binding Module.Name}"
                                     Command="{Binding OpenCommand}"
                                     CommandParameter="{Binding Module}">
-                                <Grid RowDefinitions="190,*">
+                                <Grid RowDefinitions="Auto,*">
                                     <Border Grid.RowSpan="2" Classes="card-shadow-layer" />
                                     <Grid Grid.Row="0">
-                                        <Border Classes="module-thumb">
+                                        <Border Classes="module-thumb"
+                                                Height="{Binding ThumbHeight}">
                                             <zitie:ZitiePreview Spec="{Binding PreviewSpec}"
                                                                Pages="{Binding PreviewPages}"
                                                                PageIndex="0"
@@ -146,5 +126,37 @@
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
+
+        <Border Grid.Row="2" Classes="gallery-status-bar">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                           Classes="gallery-count"
+                           VerticalAlignment="Center" />
+                <Grid Grid.Column="2"
+                      ColumnDefinitions="Auto,Auto,Auto"
+                      ColumnSpacing="8"
+                      VerticalAlignment="Center">
+                    <TextBlock Text="缩放"
+                               Classes="gallery-count"
+                               VerticalAlignment="Center" />
+                    <Slider Grid.Column="1"
+                            Width="{StaticResource ZitieStageZoomSliderWidth}"
+                            Classes="gallery-zoom"
+                            AutomationProperties.Name="模板块缩放"
+                            ToolTip.Tip="缩放模板块大小"
+                            Minimum="{Binding MinimumZoom}"
+                            Maximum="{Binding MaximumZoom}"
+                            TickFrequency="0.05"
+                            IsSnapToTickEnabled="True"
+                            Value="{Binding GalleryZoom}" />
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding GalleryZoom, StringFormat={}{0:P0}}"
+                               Classes="gallery-count"
+                               MinWidth="{StaticResource ZitieStageZoomValueWidth}"
+                               TextAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

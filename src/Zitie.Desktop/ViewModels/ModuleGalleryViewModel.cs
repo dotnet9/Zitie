@@ -7,13 +7,17 @@ namespace Zitie.Desktop.ViewModels;
 
 public class ModuleGalleryViewModel : BindableBase
 {
+    public const double MinimumGalleryZoom = 0.8;
+    public const double MaximumGalleryZoom = 1.6;
+    public const double DefaultGalleryZoom = 1;
+
     private readonly IRegionManager _regionManager;
     private readonly ModuleCatalog _catalog;
     private readonly ISystemDialogs _dialogs;
     private readonly DelegateCommand<ModuleDefinition> _openCommand;
     private string _searchText = string.Empty;
     private string _selectedCategory = "全部";
-    private double _thumbnailZoom = 0.26;
+    private double _galleryZoom = DefaultGalleryZoom;
 
     public ModuleGalleryViewModel(
         IRegionManager regionManager,
@@ -50,15 +54,20 @@ public class ModuleGalleryViewModel : BindableBase
 
     public bool IsEmpty => FilteredModules.Count == 0;
 
-    public double ThumbnailZoom
+    public double MinimumZoom => MinimumGalleryZoom;
+
+    public double MaximumZoom => MaximumGalleryZoom;
+
+    public double GalleryZoom
     {
-        get => _thumbnailZoom;
+        get => _galleryZoom;
         set
         {
-            var zoom = Math.Clamp(value, 0.18, 0.48);
-            if (!SetProperty(ref _thumbnailZoom, zoom)) return;
+            var zoom = Math.Round(Math.Clamp(value, MinimumGalleryZoom, MaximumGalleryZoom), 2,
+                MidpointRounding.AwayFromZero);
+            if (!SetProperty(ref _galleryZoom, zoom)) return;
             foreach (var module in Modules)
-                module.PreviewZoom = zoom;
+                module.CardZoom = zoom;
         }
     }
 
@@ -104,7 +113,7 @@ public class ModuleGalleryViewModel : BindableBase
             .Select(module => new ModuleCardViewModel(module, _openCommand))
             .ToList();
         foreach (var module in Modules)
-            module.PreviewZoom = ThumbnailZoom;
+            module.CardZoom = GalleryZoom;
         var categoryNames = new[] { "全部" }
             .Concat(Modules
                 .Select(module => module.CategoryText)
@@ -162,5 +171,10 @@ public class ModuleGalleryViewModel : BindableBase
         RaisePropertyChanged(nameof(FilteredModules));
         RaisePropertyChanged(nameof(FilteredModuleCount));
         RaisePropertyChanged(nameof(IsEmpty));
+    }
+
+    public void AdjustZoom(double delta)
+    {
+        GalleryZoom += delta;
     }
 }

@@ -60,11 +60,15 @@ public sealed class TextContentSelection : BindableBase
     private string _selectedUnit = All;
     private string _searchText = string.Empty;
     private TextEntry? _selectedEntry;
+    private TextContentSearchResult? _selectedResult;
     private IReadOnlyList<string> _editions = [All];
     private IReadOnlyList<string> _grades = [All];
     private IReadOnlyList<string> _semesters = [All];
     private IReadOnlyList<string> _units = [All];
     private IReadOnlyList<TextEntry> _filteredEntries = [];
+    private IReadOnlyList<TextContentSearchResult> _filteredItems = [];
+    private IReadOnlyList<TextEntry> _recentEntries = [];
+    private IReadOnlyList<TextContentSearchResult> _recentItems = [];
 
     public TextContentSelection(IReadOnlyList<TextEntry> entries)
     {
@@ -135,6 +139,24 @@ public sealed class TextContentSelection : BindableBase
         }
     }
 
+    public IReadOnlyList<TextContentSearchResult> FilteredItems
+    {
+        get => _filteredItems;
+        private set => SetProperty(ref _filteredItems, value);
+    }
+
+    public IReadOnlyList<TextContentSearchResult> RecentItems
+    {
+        get => _recentItems;
+        private set
+        {
+            if (!SetProperty(ref _recentItems, value)) return;
+            RaisePropertyChanged(nameof(HasRecentItems));
+        }
+    }
+
+    public bool HasRecentItems => RecentItems.Count > 0;
+
     public string SelectedEdition
     {
         get => _selectedEdition;
@@ -182,11 +204,22 @@ public sealed class TextContentSelection : BindableBase
     public TextEntry? SelectedEntry
     {
         get => _selectedEntry;
+        set => SelectEntry(value);
+    }
+
+    public TextContentSearchResult? SelectedResult
+    {
+        get => _selectedResult;
         set
         {
-            if (value is not null && !FilteredEntries.Contains(value)) return;
-            if (!SetProperty(ref _selectedEntry, value) || value is null) return;
-            EntrySelected?.Invoke(this, value);
+            if (value is null)
+            {
+                if (SetProperty(ref _selectedResult, null))
+                    SelectedEntry = null;
+                return;
+            }
+
+            SelectEntry(value.Entry, value);
         }
     }
 
@@ -202,6 +235,7 @@ public sealed class TextContentSelection : BindableBase
         _selectedUnit = All;
         _searchText = string.Empty;
         _selectedEntry = null;
+        _selectedResult = null;
         Rebuild(resetEdition: true, resetGrade: true, resetSemester: true, resetUnit: true);
         if (!changed) return;
 
@@ -212,6 +246,7 @@ public sealed class TextContentSelection : BindableBase
         RaisePropertyChanged(nameof(SelectedUnit));
         RaisePropertyChanged(nameof(SearchText));
         RaisePropertyChanged(nameof(SelectedEntry));
+        RaisePropertyChanged(nameof(SelectedResult));
     }
 
     private void Rebuild(
@@ -245,13 +280,32 @@ public sealed class TextContentSelection : BindableBase
         Semesters = semesters;
         Units = units;
 
-        FilteredEntries = Search(Filter(bySemester, static entry => entry.Unit, unit), SearchText)
+        var terms = ParseTerms(SearchText);
+        FilteredEntries = Search(Filter(bySemester, static entry => entry.Unit, unit), terms)
             .OrderBy(static entry => entry.Unit, StringComparer.CurrentCulture)
             .ThenBy(static entry => entry.Title, StringComparer.CurrentCulture)
             .ToArray();
+        FilteredItems = FilteredEntries
+            .Select(entry => TextContentSearchResult.Create(entry, terms))
+            .ToArray();
+        RecentItems = _recentEntries
+            .Select(entry => TextContentSearchResult.Create(entry, terms))
+            .ToArray();
 
-        if (_selectedEntry is null || FilteredEntries.Contains(_selectedEntry)) return;
+        if (_selectedEntry is null)
+        {
+            SetSelectedResult(null);
+            return;
+        }
+
+        if (FilteredEntries.Contains(_selectedEntry))
+        {
+            SetSelectedResult(FilteredItems.FirstOrDefault(item => item.Entry == _selectedEntry));
+            return;
+        }
+
         _selectedEntry = null;
+        SetSelectedResult(null);
         RaisePropertyChanged(nameof(SelectedEntry));
     }
 
@@ -265,13 +319,19 @@ public sealed class TextContentSelection : BindableBase
             : source.Where(entry => string.Equals(selector(entry), choice, StringComparison.Ordinal)).ToArray();
     }
 
-    private static IEnumerable<TextEntry> Search(IEnumerable<TextEntry> source, string keyword)
+    private static IEnumerable<TextEntry> Search(IEnumerable<TextEntry> source, IReadOnlyList<string> terms)
     {
-        var terms = keyword
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (terms.Length == 0) return source;
+        if (terms.Count == 0) return source;
 
         return source.Where(entry => terms.All(term => Matches(entry, term)));
+    }
+
+    private static IReadOnlyList<string> ParseTerms(string keyword)
+    {
+        return keyword
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
     }
 
     private static bool Matches(TextEntry entry, string term)
@@ -326,5 +386,34 @@ public sealed class TextContentSelection : BindableBase
         if (field.SequenceEqual(value, StringComparer.Ordinal)) return;
         field = value;
         RaisePropertyChanged(propertyName);
+    }
+
+    private void SelectEntry(TextEntry? entry, TextContentSearchResult? result = null)
+    {
+        if (entry is not null && !_entries.Contains(entry)) return;
+        if (!SetProperty(ref _selectedEntry, entry, nameof(SelectedEntry))) return;
+
+        SetSelectedResult(result ?? FilteredItems.FirstOrDefault(item => item.Entry == entry));
+        if (entry is null) return;
+
+        AddRecentEntry(entry);
+        EntrySelected?.Invoke(this, entry);
+    }
+
+    private void AddRecentEntry(TextEntry entry)
+    {
+        _recentEntries = _recentEntries
+            .Where(item => !string.Equals(item.Identity, entry.Identity, StringComparison.Ordinal))
+            .Prepend(entry)
+            .Take(8)
+            .ToArray();
+        RecentItems = _recentEntries
+            .Select(item => TextContentSearchResult.Create(item, ParseTerms(SearchText)))
+            .ToArray();
+    }
+
+    private void SetSelectedResult(TextContentSearchResult? result)
+    {
+        SetProperty(ref _selectedResult, result, nameof(SelectedResult));
     }
 }

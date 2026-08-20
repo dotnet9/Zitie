@@ -4,84 +4,75 @@ using YamlDotNet.RepresentationModel;
 
 namespace Zitie.Desktop.Services;
 
-public enum UiFontSizeMode
-{
-    Small,
-    Medium,
-    Large
-}
-
 public sealed class DeviceSettingsService
 {
-    private static readonly IReadOnlyList<UiFontSizeOption> FontSizeOptions =
-    [
-        new("小", UiFontSizeMode.Small, 0.92),
-        new("中", UiFontSizeMode.Medium, 1.0),
-        new("大", UiFontSizeMode.Large, 1.16)
-    ];
+    public const double MinimumUiFontSize = 12;
+    public const double MaximumUiFontSize = 30;
+    public const double DefaultUiFontSize = 13;
 
     public DeviceSettingsService()
+        : this(CreateDefaultSettingsPath())
     {
-        var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        if (string.IsNullOrWhiteSpace(localApplicationData))
-            localApplicationData = AppContext.BaseDirectory;
+    }
 
-        SettingsPath = Path.Combine(localApplicationData, "Zitie", "settings.yml");
-        FontSizeMode = LoadFontSizeMode();
+    public DeviceSettingsService(string settingsPath)
+    {
+        SettingsPath = settingsPath;
+        UiFontSize = LoadUiFontSize();
         ApplyFontSizeResources();
     }
 
     public string SettingsPath { get; }
 
-    public UiFontSizeMode FontSizeMode { get; private set; }
+    public double UiFontSize { get; private set; }
 
-    public IReadOnlyList<string> FontSizeLabels => FontSizeOptions.Select(static option => option.Label).ToArray();
-
-    public int FontSizeIndex
+    public double FontSize
     {
-        get
-        {
-            var index = FontSizeOptions
-                .Select(static (option, index) => (option, index))
-                .FirstOrDefault(item => item.option.Mode == FontSizeMode).index;
-            return Math.Clamp(index, 0, FontSizeOptions.Count - 1);
-        }
+        get => UiFontSize;
         set
         {
-            var index = Math.Clamp(value, 0, FontSizeOptions.Count - 1);
-            var mode = FontSizeOptions[index].Mode;
-            if (FontSizeMode == mode) return;
+            var fontSize = NormalizeFontSize(value);
+            if (Math.Abs(UiFontSize - fontSize) < 0.01) return;
 
-            FontSizeMode = mode;
+            UiFontSize = fontSize;
             ApplyFontSizeResources();
             Save();
         }
     }
 
-    private UiFontSizeMode LoadFontSizeMode()
+    private static string CreateDefaultSettingsPath()
+    {
+        var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(localApplicationData))
+            localApplicationData = AppContext.BaseDirectory;
+
+        return Path.Combine(localApplicationData, "Zitie", "settings.yml");
+    }
+
+    private double LoadUiFontSize()
     {
         try
         {
-            if (!File.Exists(SettingsPath)) return UiFontSizeMode.Medium;
+            if (!File.Exists(SettingsPath)) return DefaultUiFontSize;
 
             using var reader = File.OpenText(SettingsPath);
             var yaml = new YamlStream();
             yaml.Load(reader);
             if (yaml.Documents.Count == 0 ||
                 yaml.Documents[0].RootNode is not YamlMappingNode map)
-                return UiFontSizeMode.Medium;
+                return DefaultUiFontSize;
 
             foreach (var (key, value) in map.Children)
                 if (key is YamlScalarNode { Value: "fontSize" } &&
                     value is YamlScalarNode scalar)
-                    return ParseMode(scalar.Value);
+                    return ParseFontSize(scalar.Value);
         }
         catch (Exception exception)
         {
             ZitieLogging.Warn($"设备设置读取失败，已使用默认设置：{SettingsPath}", exception);
         }
 
-        return UiFontSizeMode.Medium;
+        return DefaultUiFontSize;
     }
 
     private void Save()
@@ -89,7 +80,8 @@ public sealed class DeviceSettingsService
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-            File.WriteAllLines(SettingsPath, [$"fontSize: {ModeName(FontSizeMode)}"]);
+            File.WriteAllLines(SettingsPath,
+                [$"fontSize: {UiFontSize.ToString("0.#", CultureInfo.InvariantCulture)}"]);
         }
         catch (Exception exception)
         {
@@ -99,7 +91,7 @@ public sealed class DeviceSettingsService
 
     private void ApplyFontSizeResources()
     {
-        var scale = FontSizeOptions.First(option => option.Mode == FontSizeMode).Scale;
+        var scale = UiFontSize / DefaultUiFontSize;
         var resources = Application.Current?.Resources;
         if (resources is null) return;
 
@@ -113,30 +105,28 @@ public sealed class DeviceSettingsService
         resources["ZitieUiFontSizeSeal"] = Size(22, scale);
     }
 
+    private static double ParseFontSize(string? value)
+    {
+        var normalized = value?.Trim();
+        if (double.TryParse(normalized, NumberStyles.Float, CultureInfo.InvariantCulture, out var fontSize) ||
+            double.TryParse(normalized, NumberStyles.Float, CultureInfo.CurrentCulture, out fontSize))
+            return NormalizeFontSize(fontSize);
+
+        return normalized?.ToLowerInvariant() switch
+        {
+            "small" or "小" => 12,
+            "large" or "大" => 15,
+            _ => DefaultUiFontSize
+        };
+    }
+
+    private static double NormalizeFontSize(double value)
+    {
+        return Math.Round(Math.Clamp(value, MinimumUiFontSize, MaximumUiFontSize), 1, MidpointRounding.AwayFromZero);
+    }
+
     private static double Size(double value, double scale)
     {
         return Math.Round(value * scale, 1, MidpointRounding.AwayFromZero);
     }
-
-    private static UiFontSizeMode ParseMode(string? value)
-    {
-        return value?.Trim().ToLowerInvariant() switch
-        {
-            "small" or "小" => UiFontSizeMode.Small,
-            "large" or "大" => UiFontSizeMode.Large,
-            _ => UiFontSizeMode.Medium
-        };
-    }
-
-    private static string ModeName(UiFontSizeMode mode)
-    {
-        return mode switch
-        {
-            UiFontSizeMode.Small => "small",
-            UiFontSizeMode.Large => "large",
-            _ => "medium"
-        };
-    }
-
-    private sealed record UiFontSizeOption(string Label, UiFontSizeMode Mode, double Scale);
 }

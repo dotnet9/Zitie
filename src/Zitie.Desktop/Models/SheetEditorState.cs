@@ -23,6 +23,7 @@ public sealed record SheetEditorState
     public string HeaderTextTemplate { get; init; } = "姓名_班级---年_月_日";
     public int TraceSlotCount { get; init; } = 2;
     public double GridSizeMm { get; init; } = 14;
+    public double GroupGapMm { get; init; } = 2;
     public bool HollowGlyph { get; init; }
     public bool GroupByWord { get; init; }
     public bool ShowPinyin { get; init; }
@@ -68,6 +69,7 @@ public sealed record SheetEditorState
             HeaderTextTemplate = spec.HeaderTextTemplate ?? "姓名_班级---年_月_日",
             TraceSlotCount = spec.TraceSlotCount,
             GridSizeMm = spec.GridSizeMm,
+            GroupGapMm = spec.GroupGapMm,
             HollowGlyph = spec.HollowGlyph,
             GroupByWord = spec.GroupByWord,
             ShowPinyin = spec.ShowPinyin,

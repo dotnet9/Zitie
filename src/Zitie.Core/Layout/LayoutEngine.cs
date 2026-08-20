@@ -53,18 +53,23 @@ public static class LayoutEngine
         var roles = pinyinGrid
             ? new[] { CellRole.Model }
             : BuildSlotRoles(spec.Mode, spec.RepeatsPerChar, spec.TraceSlotCount);
+        var repeatedCharacterMode = !pinyinGrid && !vertical && !spec.GroupByWord;
+        var repeatedGroupSize = repeatedCharacterMode ? roles.Count : 0;
         // 词/句模式：每个字符一格，角色统一；看拼音写词语时隐藏范字只留空格
         var wordRole = spec.PinyinOnly || spec.Mode == PracticeMode.Copy
             ? CellRole.Blank
             : CellRole.Trace;
-        var gridSizeMm = ResolveGridSizeMm(spec, vertical);
-        var pitch = gridSizeMm + Math.Max(0, spec.GridGapMm);
-        var columns = ResolveColumnCount(spec, vertical, pitch);
+        var groupGapMm = Math.Clamp(spec.GroupGapMm, 0, 10);
+        var gridSizeMm = ResolveGridSizeMm(spec, vertical, repeatedGroupSize, groupGapMm);
+        var cellPitch = gridSizeMm + Math.Max(0, spec.GridGapMm);
+        var rowPitch = vertical ? cellPitch : cellPitch + groupGapMm;
+        var columnPitch = vertical ? cellPitch + groupGapMm : cellPitch;
+        var columns = ResolveColumnCount(spec, vertical, repeatedGroupSize, gridSizeMm, cellPitch, columnPitch);
         var blankCellLineCount = Math.Clamp(spec.BlankCellLineCount, 0, 10);
         var firstPageRows = Math.Max(1,
-            (int)Math.Floor((spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm) / pitch));
+            CountThatFits(spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm, gridSizeMm, rowPitch));
         var otherPageRows = Math.Max(1,
-            (int)Math.Floor((spec.Page.UsableHeightMm - FooterLineMm) / pitch));
+            CountThatFits(spec.Page.UsableHeightMm - FooterLineMm, gridSizeMm, rowPitch));
 
         // 一个词或句子理论上应保持连续，但不能因为它超过单页容量而静默丢失。
         // 极端长词/长句按页容量拆成连续分组，普通内容仍保持原有“不拆组”行为。
@@ -114,7 +119,11 @@ public static class LayoutEngine
                             columns,
                             rows,
                             contentTop,
-                            pitch,
+                            cellPitch,
+                            rowPitch,
+                            columnPitch,
+                            groupGapMm,
+                            repeatedGroupSize,
                             gridSizeMm);
                     }
 
@@ -136,7 +145,11 @@ public static class LayoutEngine
                             columns,
                             rows,
                             contentTop,
-                            pitch,
+                            cellPitch,
+                            rowPitch,
+                            columnPitch,
+                            groupGapMm,
+                            repeatedGroupSize,
                             gridSizeMm);
                     }
 
@@ -162,7 +175,18 @@ public static class LayoutEngine
                         : vertical || spec.GroupByWord
                             ? wordRole
                             : roles[slot];
-                    var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop, pitch);
+                    var (x, y) = CellPosition(
+                        spec,
+                        vertical,
+                        absolute,
+                        columns,
+                        rows,
+                        contentTop,
+                        cellPitch,
+                        rowPitch,
+                        columnPitch,
+                        groupGapMm,
+                        repeatedGroupSize);
                     cells.Add(new CellSlot(
                         x, y,
                         gridSizeMm,
@@ -189,7 +213,11 @@ public static class LayoutEngine
                             columns,
                             rows,
                             contentTop,
-                            pitch,
+                            cellPitch,
+                            rowPitch,
+                            columnPitch,
+                            groupGapMm,
+                            repeatedGroupSize,
                             gridSizeMm);
                     }
 
@@ -209,7 +237,11 @@ public static class LayoutEngine
                             columns,
                             rows,
                             contentTop,
-                            pitch,
+                            cellPitch,
+                            rowPitch,
+                            columnPitch,
+                            groupGapMm,
+                            repeatedGroupSize,
                             gridSizeMm);
 
                     cursor = nextCursor;
@@ -228,25 +260,58 @@ public static class LayoutEngine
         return pages;
     }
 
-    private static double ResolveGridSizeMm(CharacterSheetSpec spec, bool vertical)
+    private static double ResolveGridSizeMm(
+        CharacterSheetSpec spec,
+        bool vertical,
+        int repeatedGroupSize,
+        double groupGapMm)
     {
         if (vertical || spec.CellsPerLine <= 0)
             return Math.Max(1, spec.GridSizeMm);
 
-        var columns = Math.Clamp(spec.CellsPerLine, 1, 64);
+        var columns = EffectiveHorizontalColumns(Math.Clamp(spec.CellsPerLine, 1, 64), repeatedGroupSize);
         var gap = Math.Max(0, spec.GridGapMm);
-        var available = spec.Page.UsableWidthMm - gap * (columns - 1);
+        var groupGapCount = repeatedGroupSize > 0
+            ? Math.Max(0, columns / repeatedGroupSize - 1)
+            : 0;
+        var available = spec.Page.UsableWidthMm - gap * (columns - 1) - groupGapMm * groupGapCount;
         return available > columns
             ? available / columns
             : Math.Max(1, spec.GridSizeMm);
     }
 
-    private static int ResolveColumnCount(CharacterSheetSpec spec, bool vertical, double pitch)
+    private static int ResolveColumnCount(
+        CharacterSheetSpec spec,
+        bool vertical,
+        int repeatedGroupSize,
+        double gridSizeMm,
+        double cellPitch,
+        double columnPitch)
     {
         if (!vertical && spec.CellsPerLine > 0)
-            return Math.Clamp(spec.CellsPerLine, 1, 64);
+            return EffectiveHorizontalColumns(Math.Clamp(spec.CellsPerLine, 1, 64), repeatedGroupSize);
 
-        return Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
+        var count = CountThatFits(spec.Page.UsableWidthMm, gridSizeMm, columnPitch);
+        return vertical
+            ? Math.Max(1, count)
+            : EffectiveHorizontalColumns(Math.Max(1, count), repeatedGroupSize);
+    }
+
+    private static int CountThatFits(double availableMm, double itemSizeMm, double pitchMm)
+    {
+        if (availableMm <= 0 || itemSizeMm <= 0 || pitchMm <= 0) return 1;
+        if (availableMm <= itemSizeMm) return 1;
+
+        return Math.Max(1, (int)Math.Floor((availableMm - itemSizeMm) / pitchMm) + 1);
+    }
+
+    private static int EffectiveHorizontalColumns(int requestedColumns, int repeatedGroupSize)
+    {
+        requestedColumns = Math.Clamp(requestedColumns, 1, 64);
+        if (repeatedGroupSize <= 1 || requestedColumns <= repeatedGroupSize)
+            return requestedColumns;
+
+        return Math.Max(repeatedGroupSize, requestedColumns / repeatedGroupSize * repeatedGroupSize);
     }
 
     private static int AdvanceHorizontalCursor(int cursor, int groupSize, int columns, int blankCellLineCount)
@@ -307,13 +372,28 @@ public static class LayoutEngine
         int columns,
         int rows,
         double contentTop,
-        double pitch,
+        double cellPitch,
+        double rowPitch,
+        double columnPitch,
+        double groupGapMm,
+        int repeatedGroupSize,
         double gridSizeMm)
     {
         var capacity = columns * rows;
         for (var absolute = Math.Max(0, start); absolute < Math.Min(end, capacity); absolute++)
         {
-            var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop, pitch);
+            var (x, y) = CellPosition(
+                spec,
+                vertical,
+                absolute,
+                columns,
+                rows,
+                contentTop,
+                cellPitch,
+                rowPitch,
+                columnPitch,
+                groupGapMm,
+                repeatedGroupSize);
             cells.Add(new CellSlot(
                 x,
                 y,
@@ -357,16 +437,27 @@ public static class LayoutEngine
         int columns,
         int rows,
         double contentTop,
-        double pitch)
+        double cellPitch,
+        double rowPitch,
+        double columnPitch,
+        double groupGapMm,
+        int repeatedGroupSize)
     {
         if (vertical)
         {
             var column = columns - 1 - absolute / rows;
             var row = absolute % rows;
-            return (spec.Page.MarginLeftMm + column * pitch, contentTop + row * pitch);
+            return (spec.Page.MarginLeftMm + column * columnPitch, contentTop + row * rowPitch);
         }
 
-        return (spec.Page.MarginLeftMm + absolute % columns * pitch, contentTop + absolute / columns * pitch);
+        var rowIndex = absolute / columns;
+        var columnIndex = absolute % columns;
+        var groupGap = repeatedGroupSize > 0
+            ? columnIndex / repeatedGroupSize * groupGapMm
+            : 0;
+        return (
+            spec.Page.MarginLeftMm + columnIndex * cellPitch + groupGap,
+            contentTop + rowIndex * rowPitch);
     }
 
     public static double HeaderHeightMm(CharacterSheetSpec spec)

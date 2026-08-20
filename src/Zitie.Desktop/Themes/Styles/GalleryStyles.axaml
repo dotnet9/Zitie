@@ -50,6 +50,13 @@
         <Setter Property="MinHeight" Value="24" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <Style Selector="Border.gallery-status-bar">
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="26,0" />
+        <Setter Property="Background" Value="{DynamicResource ZitieRailBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+    </Style>
     <Style Selector="TextBlock.gallery-count">
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />

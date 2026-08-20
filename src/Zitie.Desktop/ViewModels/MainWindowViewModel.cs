@@ -48,16 +48,18 @@ public class MainWindowViewModel : BindableBase
 
     public DelegateCommand ToggleLogCommand { get; }
 
-    public IReadOnlyList<string> UiFontSizeChoices => _deviceSettings.FontSizeLabels;
+    public double MinimumUiFontSize => DeviceSettingsService.MinimumUiFontSize;
 
-    public int UiFontSizeIndex
+    public double MaximumUiFontSize => DeviceSettingsService.MaximumUiFontSize;
+
+    public double UiFontSize
     {
-        get => _deviceSettings.FontSizeIndex;
+        get => _deviceSettings.FontSize;
         set
         {
-            var previous = _deviceSettings.FontSizeIndex;
-            _deviceSettings.FontSizeIndex = value;
-            if (previous != _deviceSettings.FontSizeIndex)
+            var previous = _deviceSettings.FontSize;
+            _deviceSettings.FontSize = value;
+            if (Math.Abs(previous - _deviceSettings.FontSize) >= 0.01)
                 RaisePropertyChanged();
         }
     }

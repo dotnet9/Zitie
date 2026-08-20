@@ -324,8 +324,31 @@ public class LayoutEngineTests
 
         Assert.NotEmpty(pages);
         Assert.Equal(cellsPerLine, pages[0].Columns);
-        var expectedSize = (spec.Page.UsableWidthMm - spec.GridGapMm * (cellsPerLine - 1)) / cellsPerLine;
+        var expectedSize = (spec.Page.UsableWidthMm -
+                            spec.GridGapMm * (cellsPerLine - 1) -
+                            spec.GroupGapMm * (cellsPerLine - 1)) / cellsPerLine;
         Assert.All(pages.SelectMany(page => page.Cells), slot => Assert.Equal(expectedSize, slot.SizeMm, 3));
+    }
+
+    [Fact]
+    public void Paginate_RepeatedGroups_UseEffectiveLineWidthForBlankRows()
+    {
+        var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 3, title: null)
+            with { CellsPerLine = 11, BlankCellLineCount = 1, ShowHeaderFields = false };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+        var rows = page.Cells
+            .GroupBy(slot => Math.Round(slot.YMm, 3))
+            .Select(group => group.ToList())
+            .ToList();
+
+        Assert.Equal(9, page.Columns);
+        Assert.Equal(4, rows.Count);
+        Assert.All(rows, row => Assert.Equal(9, row.Count));
+        Assert.Equal(9, rows[0].Count(slot => slot.GroupIndex >= 0));
+        Assert.Equal(9, rows[1].Count(slot => slot.GroupIndex < 0));
+        Assert.Equal(9, rows[2].Count(slot => slot.GroupIndex >= 0));
+        Assert.Equal(9, rows[3].Count(slot => slot.GroupIndex < 0));
     }
 
     [Fact]
@@ -344,7 +367,7 @@ public class LayoutEngineTests
             Assert.Equal(string.Empty, slot.Glyph);
         });
         Assert.Equal(["四", "五", "六"], slots.Skip(6).Take(3).Select(slot => slot.Glyph));
-        var pitch = slots[0].SizeMm + spec.GridGapMm;
+        var pitch = slots[0].SizeMm + spec.GridGapMm + spec.GroupGapMm;
         Assert.Equal(slots[0].YMm + pitch, slots[3].YMm, 3);
         Assert.Equal(slots[0].YMm + pitch * 2, slots[6].YMm, 3);
     }
@@ -373,7 +396,7 @@ public class LayoutEngineTests
             Assert.Equal(string.Empty, slot.Glyph);
         });
 
-        var pitch = slots[0].SizeMm + spec.GridGapMm;
+        var pitch = slots[0].SizeMm + spec.GridGapMm + spec.GroupGapMm;
         var blankColumnXs = blankSlots.Select(slot => Math.Round(slot.XMm, 3)).Distinct().ToList();
         Assert.Equal(2, blankColumnXs.Count);
         Assert.Contains(Math.Round(contentSlots[0].XMm - pitch, 3), blankColumnXs);

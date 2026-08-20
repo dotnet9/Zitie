@@ -61,6 +61,7 @@ internal static class YamlResourceSerializer
             Grid = GetOptionalString(map, "grid"),
             GridSize = GetDouble(map, "gridSize"),
             GridGap = GetDouble(map, "gridGap"),
+            GroupGap = GetDouble(map, "groupGap"),
             HollowGlyph = GetBoolean(map, "hollowGlyph"),
             Mode = GetOptionalString(map, "mode"),
             GroupByWord = GetBoolean(map, "groupByWord"),
@@ -158,6 +159,7 @@ internal static class YamlResourceSerializer
         Add(lines, 2, "grid", defaults.Grid);
         Add(lines, 2, "gridSize", defaults.GridSize);
         Add(lines, 2, "gridGap", defaults.GridGap);
+        Add(lines, 2, "groupGap", defaults.GroupGap);
         Add(lines, 2, "hollowGlyph", defaults.HollowGlyph);
         Add(lines, 2, "mode", defaults.Mode);
         Add(lines, 2, "groupByWord", defaults.GroupByWord);

@@ -40,6 +40,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _suppressDirty;
     private bool _suppressRebuild;
     private bool _isRebuildQueued;
+    private bool _isContentPickerOpen;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
@@ -87,6 +88,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ExportPdfCommand = new AsyncDelegateCommand(ExportPdfAsync);
         ExportPngCommand = new AsyncDelegateCommand(ExportPngAsync);
         ExportPngsCommand = new AsyncDelegateCommand(ExportPngsAsync);
+        OpenContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = true);
+        CloseContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = false);
+        ResetContentFiltersCommand = new DelegateCommand(ContentSelection.Reset);
     }
 
     private async Task OpenDocumentAsync()
@@ -433,6 +437,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         Author = entry.Author;
         Dynasty = entry.Dynasty;
         ShowPoemHeader = !string.IsNullOrWhiteSpace(entry.Author);
+        IsContentPickerOpen = false;
     }
 
     public string GridColorHex
@@ -501,6 +506,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetEditorState(_editorState with { GridSizeMm = Math.Clamp(value, 8, 60) });
     }
 
+    /// <summary>每个字的练习组之间、行之间的额外间距。</summary>
+    public double GroupGapMm
+    {
+        get => _editorState.GroupGapMm;
+        set => SetEditorState(_editorState with
+        {
+            GroupGapMm = Math.Round(Math.Clamp(value, 1, 10), 1, MidpointRounding.AwayFromZero)
+        });
+    }
+
     public bool HollowGlyph
     {
         get => _editorState.HollowGlyph;
@@ -539,10 +554,21 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetProperty(ref _zoom, Math.Clamp(value, MinimumZoom, MaximumZoom));
     }
 
+    public void AdjustZoom(double delta)
+    {
+        Zoom = Math.Round(Zoom + delta, 2, MidpointRounding.AwayFromZero);
+    }
+
     public int SettingsTabIndex
     {
         get => _settingsTabIndex;
         set => SetProperty(ref _settingsTabIndex, Math.Clamp(value, 0, 4));
+    }
+
+    public bool IsContentPickerOpen
+    {
+        get => _isContentPickerOpen;
+        set => SetProperty(ref _isContentPickerOpen, value);
     }
 
     public int PageIndex
@@ -592,6 +618,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public AsyncDelegateCommand ExportPngCommand { get; }
 
     public AsyncDelegateCommand ExportPngsCommand { get; }
+
+    public DelegateCommand OpenContentPickerCommand { get; }
+
+    public DelegateCommand CloseContentPickerCommand { get; }
+
+    public DelegateCommand ResetContentFiltersCommand { get; }
 
     public string? DocumentPath
     {
@@ -766,6 +798,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
             TraceSlotCount = _editorState.TraceSlotCount,
             GridSizeMm = GridSizeMm,
+            GroupGapMm = GroupGapMm,
             HollowGlyph = HollowGlyph,
             GroupByWord = GroupByWord,
             ShowPinyin = ShowPinyin,
@@ -915,6 +948,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
         if (defaults.BlankCellLineCount is { } blankCellLineCount)
             BlankCellLineCount = blankCellLineCount;
+        if (defaults.GroupGap is { } groupGap)
+            GroupGapMm = groupGap;
         if (defaults.GridColor is { Length: > 0 } gridColor && Color.TryParse(gridColor, out _))
         {
             _editorState = _editorState with { GridColor = gridColor };

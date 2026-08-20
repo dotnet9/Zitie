@@ -48,11 +48,22 @@
             <TextBlock Classes="device-label"
                        VerticalAlignment="Center"
                        Text="字号" />
-            <ComboBox ItemsSource="{Binding UiFontSizeChoices}"
-                      SelectedIndex="{Binding UiFontSizeIndex}"
-                      Classes="device-option"
-                      AutomationProperties.Name="软件字号"
-                      ToolTip.Tip="调整软件界面字号" />
+            <Grid ColumnDefinitions="120,Auto"
+                  ColumnSpacing="8"
+                  VerticalAlignment="Center">
+                <Slider Classes="device-font-slider"
+                        AutomationProperties.Name="软件字号"
+                        ToolTip.Tip="调整软件界面字号"
+                        Minimum="{Binding MinimumUiFontSize}"
+                        Maximum="{Binding MaximumUiFontSize}"
+                        TickFrequency="1"
+                        IsSnapToTickEnabled="True"
+                        Value="{Binding UiFontSize}" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding UiFontSize, StringFormat={}{0:0}}"
+                           Classes="device-value"
+                           VerticalAlignment="Center" />
+            </Grid>
         </StackPanel>
     </zitie:ZitieWindow.TitleBarContent>
 

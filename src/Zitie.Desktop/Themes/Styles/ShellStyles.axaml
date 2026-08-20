@@ -34,17 +34,15 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Background" Value="{DynamicResource ZitieBorderBrush}" />
     </Style>
-    <Style Selector="ComboBox.device-option">
-        <Setter Property="Width" Value="66" />
-        <Setter Property="MinHeight" Value="28" />
-        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
-        <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
+    <Style Selector="Slider.device-font-slider">
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    <Style Selector="ComboBox.device-option:focus">
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+    <Style Selector="TextBlock.device-value">
+        <Setter Property="MinWidth" Value="22" />
+        <Setter Property="TextAlignment" Value="Right" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
 
     <Style Selector="Border.app-rail">

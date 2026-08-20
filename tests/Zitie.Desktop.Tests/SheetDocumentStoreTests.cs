@@ -63,6 +63,7 @@ public sealed class SheetDocumentStoreTests
             {
                 Text = "一二三",
                 GridColor = "#123456",
+                GroupGapMm = 7,
                 Page = PageSettings.A4 with { MarginTopMm = 22 }
             }, "我的模板");
 
@@ -72,6 +73,7 @@ public sealed class SheetDocumentStoreTests
             var module = deserializer.Deserialize<ModuleDefinition>(File.ReadAllText(path));
             Assert.Equal("我的模板", module.Name);
             Assert.Equal("#123456", module.Defaults.GridColor);
+            Assert.Equal(7d, module.Defaults.GroupGap);
             Assert.Equal("a4Portrait", module.Defaults.PageSize);
             Assert.Equal(22d, module.Defaults.PageMargin);
         }
@@ -90,8 +92,9 @@ public sealed class SheetDocumentStoreTests
             Title = "大字帖",
             Grid = GridKind.HuiGong,
             Mode = PracticeMode.Copy,
-            CellsPerLine = 16,
-            GridColor = "#123456",
+                CellsPerLine = 16,
+                GroupGapMm = 6,
+                GridColor = "#123456",
             TextColor = "#654321",
             HeaderPreset = SheetHeaderPreset.Custom,
             HeaderTextTemplate = "姓名---日期",
@@ -105,6 +108,7 @@ public sealed class SheetDocumentStoreTests
         Assert.Equal(spec.Grid, state.Grid);
         Assert.Equal(spec.Mode, state.Mode);
         Assert.Equal(16, state.CellsPerLine);
+        Assert.Equal(6, state.GroupGapMm);
         Assert.Equal("#123456", state.GridColor);
         Assert.Equal(SheetHeaderPreset.Custom, state.HeaderPreset);
         Assert.Equal(SheetOrientation.Vertical, state.Orientation);

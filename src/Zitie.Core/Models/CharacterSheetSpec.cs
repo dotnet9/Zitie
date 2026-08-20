@@ -32,6 +32,9 @@ public sealed record CharacterSheetSpec
     /// <summary>格子间距（毫米）。</summary>
     public double GridGapMm { get; init; } = 2;
 
+    /// <summary>练习组之间、横排各行之间的额外间距（毫米）。</summary>
+    public double GroupGapMm { get; init; } = 2;
+
     /// <summary>页眉标题；null 时不显示标题行。</summary>
     public string? Title { get; init; }
 

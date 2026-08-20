@@ -62,6 +62,7 @@ public static class SheetDocumentStore
             TraceCount = spec.TraceSlotCount,
             GridSize = spec.GridSizeMm,
             GridGap = spec.GridGapMm,
+            GroupGap = spec.GroupGapMm,
             Title = spec.Title,
             HeaderPreset = spec.HeaderPreset.ToString().ToLowerInvariant(),
             HeaderText = spec.HeaderTextTemplate,

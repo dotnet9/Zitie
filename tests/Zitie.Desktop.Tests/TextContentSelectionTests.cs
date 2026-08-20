@@ -121,4 +121,33 @@ public sealed class TextContentSelectionTests
         entry = Assert.Single(selection.FilteredEntries);
         Assert.Equal("Hello", entry.Title);
     }
+
+    [Fact]
+    public void FilteredItems_ExposeHighlightSegments()
+    {
+        var selection = new TextContentSelection(Entries)
+        {
+            SearchText = "文学"
+        };
+
+        var item = Assert.Single(selection.FilteredItems);
+        Assert.Equal("文学鉴赏", item.Title);
+        Assert.Contains(item.TitleSegments, segment => segment is { Text: "文学", IsHighlight: true });
+    }
+
+    [Fact]
+    public void SelectingResult_AddsRecentItem()
+    {
+        var selection = new TextContentSelection(Entries)
+        {
+            SearchText = "晨读"
+        };
+        var result = Assert.Single(selection.FilteredItems);
+
+        selection.SelectedResult = result;
+
+        var recent = Assert.Single(selection.RecentItems);
+        Assert.Equal("晨读", recent.Title);
+        Assert.True(selection.HasRecentItems);
+    }
 }

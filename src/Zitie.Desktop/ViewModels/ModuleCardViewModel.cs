@@ -11,14 +11,19 @@ namespace Zitie.Desktop.ViewModels;
 /// </summary>
 public sealed class ModuleCardViewModel : BindableBase
 {
-    private double _previewZoom;
+    private const double BaseCardWidth = 260;
+    private const double BaseCardHeight = 320;
+    private const double BaseThumbHeight = 190;
+    private const double BasePreviewZoom = 0.26;
+
+    private double _cardZoom;
 
     public ModuleCardViewModel(ModuleDefinition module, ICommand openCommand)
     {
         Module = module;
         OpenCommand = openCommand;
         Preview = ModulePreviewFactory.Create(module);
-        _previewZoom = 0.26;
+        _cardZoom = 1;
     }
 
     public ModuleDefinition Module { get; }
@@ -29,11 +34,28 @@ public sealed class ModuleCardViewModel : BindableBase
 
     public IReadOnlyList<SheetPage> PreviewPages => Preview.Pages;
 
-    public double PreviewZoom
+    public double CardZoom
     {
-        get => _previewZoom;
-        set => SetProperty(ref _previewZoom, Math.Clamp(value, 0.18, 0.48));
+        get => _cardZoom;
+        set
+        {
+            var zoom = Math.Clamp(value, ModuleGalleryViewModel.MinimumGalleryZoom, ModuleGalleryViewModel.MaximumGalleryZoom);
+            if (!SetProperty(ref _cardZoom, zoom)) return;
+
+            RaisePropertyChanged(nameof(CardWidth));
+            RaisePropertyChanged(nameof(CardHeight));
+            RaisePropertyChanged(nameof(ThumbHeight));
+            RaisePropertyChanged(nameof(PreviewZoom));
+        }
     }
+
+    public double CardWidth => Math.Round(BaseCardWidth * CardZoom);
+
+    public double CardHeight => Math.Round(BaseCardHeight * CardZoom);
+
+    public double ThumbHeight => Math.Round(BaseThumbHeight * CardZoom);
+
+    public double PreviewZoom => Math.Round(BasePreviewZoom * CardZoom, 3, MidpointRounding.AwayFromZero);
 
     public string CategoryText => Preview.Category;
 

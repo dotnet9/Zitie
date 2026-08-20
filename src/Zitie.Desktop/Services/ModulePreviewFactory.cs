@@ -43,6 +43,7 @@ public static class ModulePreviewFactory
             TraceSlotCount = traceCount,
             GridSizeMm = Math.Max(8, defaults.GridSize ?? 14),
             GridGapMm = Math.Max(0, defaults.GridGap ?? 2),
+            GroupGapMm = Math.Clamp(defaults.GroupGap ?? 2, 1, 10),
             Title = headerPreset is SheetHeaderPreset.TitleAndFields
                 or SheetHeaderPreset.Poem
                 or SheetHeaderPreset.Custom
