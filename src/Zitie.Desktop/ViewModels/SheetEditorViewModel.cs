@@ -53,6 +53,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private double _zoom = 1.0;
     private int _pageIndex;
     private string _traceColor = string.Empty;
+    private string _gridColorValue = "#B04A3F";
+    private string _textColorValue = "#1A1A1A";
+    private int _pageSizeIndex;
+    private double _pageMarginMm = 15;
+    private string? _documentPath;
+    private string _statusMessage = "已就绪";
+    private bool _isDirty;
+    private bool _suppressDirty;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private ModuleDefinition? _module;
@@ -93,7 +101,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
 
-    public int[] CharactersPerLineChoices { get; } = [12, 16];
+    public string[] CharactersPerLineChoices { get; } = ["自动", "12", "16"];
+
+    private static readonly int[] CharactersPerLineValues = [0, 12, 16];
 
     public int[] BlankLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
 
@@ -118,6 +128,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         "标题 + 填写栏",
         "诗词题头",
         "自定义"
+    ];
+
+    public string[] PageSizeChoices { get; } =
+    [
+        "A4 纵向",
+        "A4 横向",
+        "A3 纵向",
+        "Letter 纵向"
     ];
 
     public IReadOnlyList<FontOption> SheetFonts => _fontCatalog.Fonts;
@@ -163,7 +181,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _gridColorIndex;
         set
         {
-            if (SetProperty(ref _gridColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1))) Rebuild();
+            if (SetProperty(ref _gridColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1)))
+            {
+                _gridColorValue = ColorChoiceValues[_gridColorIndex];
+                RaisePropertyChanged(nameof(GridColorHex));
+                Rebuild();
+            }
         }
     }
 
@@ -172,7 +195,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _textColorIndex;
         set
         {
-            if (SetProperty(ref _textColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1))) Rebuild();
+            if (SetProperty(ref _textColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1)))
+            {
+                _textColorValue = ColorChoiceValues[_textColorIndex];
+                RaisePropertyChanged(nameof(TextColorHex));
+                Rebuild();
+            }
         }
     }
 
@@ -330,6 +358,48 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
+    public string GridColorHex
+    {
+        get => _gridColorValue;
+        set
+        {
+            value ??= string.Empty;
+            if (!Color.TryParse(value, out _))
+            {
+                SetProperty(ref _gridColorValue, value);
+                return;
+            }
+
+            if (SetProperty(ref _gridColorValue, value))
+            {
+                _gridColorIndex = ColorIndexOf(value, -1);
+                RaisePropertyChanged(nameof(GridColorIndex));
+                Rebuild();
+            }
+        }
+    }
+
+    public string TextColorHex
+    {
+        get => _textColorValue;
+        set
+        {
+            value ??= string.Empty;
+            if (!Color.TryParse(value, out _))
+            {
+                SetProperty(ref _textColorValue, value);
+                return;
+            }
+
+            if (SetProperty(ref _textColorValue, value))
+            {
+                _textColorIndex = ColorIndexOf(value, -1);
+                RaisePropertyChanged(nameof(TextColorIndex));
+                Rebuild();
+            }
+        }
+    }
+
     public string Title
     {
         get => _title;
@@ -399,6 +469,24 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         }
     }
 
+    public int PageSizeIndex
+    {
+        get => _pageSizeIndex;
+        set
+        {
+            if (SetProperty(ref _pageSizeIndex, Math.Clamp(value, 0, PageSizeChoices.Length - 1))) Rebuild();
+        }
+    }
+
+    public double PageMarginMm
+    {
+        get => _pageMarginMm;
+        set
+        {
+            if (SetProperty(ref _pageMarginMm, Math.Clamp(value, 0, 40))) Rebuild();
+        }
+    }
+
     public double Zoom
     {
         get => _zoom;
@@ -439,6 +527,24 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public DelegateCommand NextPageCommand { get; }
 
+    public string? DocumentPath
+    {
+        get => _documentPath;
+        private set => SetProperty(ref _documentPath, value);
+    }
+
+    public bool IsDirty
+    {
+        get => _isDirty;
+        private set => SetProperty(ref _isDirty, value);
+    }
+
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        private set => SetProperty(ref _statusMessage, value);
+    }
+
     public void ExportPdfTo(string path)
     {
         SheetExporter.ExportPdf(path, Spec, Pages);
@@ -453,7 +559,138 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ZitieLogging.Info($"已导出 PNG：{path}");
     }
 
+    public void ExportPngsTo(string directory, double dpi = 300)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
+        Directory.CreateDirectory(directory);
+        for (var index = 0; index < Pages.Count; index++)
+        {
+            var path = Path.Combine(directory, $"zitie-{index + 1:000}.png");
+            SheetExporter.ExportPng(path, Spec, Pages[index], PageCount, dpi);
+        }
+
+        SetStatus($"已导出 {Pages.Count} 张 PNG");
+        ZitieLogging.Info($"已批量导出 PNG：{directory}");
+    }
+
+    public void SaveDocumentTo(string path)
+    {
+        SheetDocumentStore.Save(path, Spec, _module?.Id);
+        DocumentPath = path;
+        IsDirty = false;
+        SetStatus($"已保存：{Path.GetFileName(path)}");
+    }
+
+    public void LoadDocumentFrom(string path)
+    {
+        var document = SheetDocumentStore.Load(path);
+        _suppressDirty = true;
+        try
+        {
+            ApplySpec(document.Spec);
+            _module = string.IsNullOrWhiteSpace(document.ModuleId)
+                ? null
+                : _catalog.Find(document.ModuleId);
+        }
+        finally
+        {
+            _suppressDirty = false;
+        }
+
+        DocumentPath = path;
+        Rebuild();
+        IsDirty = false;
+        SetStatus($"已打开：{Path.GetFileName(path)}");
+    }
+
+    public void SaveTemplateTo(string path, string? name = null)
+    {
+        SheetDocumentStore.SaveTemplate(path, Spec, name ?? Title);
+        SetStatus($"已保存模板：{Path.GetFileName(path)}");
+    }
+
+    public void SetStatus(string message)
+    {
+        StatusMessage = message;
+    }
+
     public bool CanExport => PageCount > 0;
+
+    private void ApplySpec(CharacterSheetSpec spec)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+
+        _inputText = spec.Text ?? string.Empty;
+        _title = spec.Title ?? string.Empty;
+        _gridKindIndex = Math.Clamp((int)spec.Grid, 0, 6);
+        _practiceModeIndex = Math.Clamp((int)spec.Mode, 0, 1);
+        _repeatsIndex = Array.IndexOf(RepeatsChoices, spec.RepeatsPerChar);
+        if (_repeatsIndex < 0) _repeatsIndex = 0;
+        _charactersPerLineIndex = Array.IndexOf(CharactersPerLineValues, spec.CharactersPerLine);
+        if (_charactersPerLineIndex < 0) _charactersPerLineIndex = 0;
+        _blankLineCount = Math.Clamp(spec.BlankLineCount, 0, 10);
+        _traceIntensityIndex = Math.Clamp((int)spec.TraceIntensity, 0, TraceIntensityChoices.Length - 1);
+        _gridColorValue = string.IsNullOrWhiteSpace(spec.GridColor) ? ColorChoiceValues[0] : spec.GridColor!;
+        _textColorValue = string.IsNullOrWhiteSpace(spec.TextColor) ? ColorChoiceValues[1] : spec.TextColor!;
+        _gridColorIndex = ColorIndexOf(_gridColorValue, -1);
+        _textColorIndex = ColorIndexOf(_textColorValue, -1);
+        _headerPresetIndex = Math.Clamp((int)spec.HeaderPreset, 0, HeaderPresetChoices.Length - 1);
+        _traceSlotCount = Math.Clamp(spec.TraceSlotCount, 0, 8);
+        _gridSizeMm = Math.Clamp(spec.GridSizeMm, 8, 60);
+        _hollowGlyph = spec.HollowGlyph;
+        _groupByWord = spec.GroupByWord;
+        _showPinyin = spec.ShowPinyin;
+        _pinyinOnly = spec.PinyinOnly;
+        _isVertical = spec.Orientation == SheetOrientation.Vertical;
+        _showPoemHeader = spec.ShowPoemHeader;
+        _frameBorder = spec.FrameBorder;
+        _backgroundIndex = Math.Clamp((int)spec.Background, 0, 3);
+        _backgroundColor = spec.BackgroundColor;
+        _backgroundLineColor = spec.BackgroundLineColor;
+        _backgroundLineSpacingMm = spec.BackgroundLineSpacingMm;
+        _author = spec.Author ?? string.Empty;
+        _dynasty = spec.Dynasty ?? string.Empty;
+        _selectedSheetFont = string.IsNullOrWhiteSpace(spec.FontFamilyName)
+            ? _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ?? _fontCatalog.Fonts.FirstOrDefault()
+            : _fontCatalog.Find(spec.FontFamilyName) ?? new FontOption(spec.FontFamilyName, false);
+        _headerTextTemplate = spec.HeaderTextTemplate ?? "姓名_班级---年_月_日";
+        _traceColor = spec.TraceColor ?? string.Empty;
+        _pageSizeIndex = PageSizeIndexOf(spec.Page);
+        _pageMarginMm = Math.Clamp(spec.Page.MarginTopMm, 0, 40);
+
+        RaisePropertyChanged(nameof(InputText));
+        RaisePropertyChanged(nameof(Title));
+        RaisePropertyChanged(nameof(GridKindIndex));
+        RaisePropertyChanged(nameof(PracticeModeIndex));
+        RaisePropertyChanged(nameof(IsTraceMode));
+        RaisePropertyChanged(nameof(RepeatsIndex));
+        RaisePropertyChanged(nameof(CharactersPerLineIndex));
+        RaisePropertyChanged(nameof(BlankLineCount));
+        RaisePropertyChanged(nameof(TraceIntensityIndex));
+        RaisePropertyChanged(nameof(GridColorIndex));
+        RaisePropertyChanged(nameof(GridColorHex));
+        RaisePropertyChanged(nameof(TextColorIndex));
+        RaisePropertyChanged(nameof(TextColorHex));
+        RaisePropertyChanged(nameof(HeaderPresetIndex));
+        RaisePropertyChanged(nameof(IsCustomHeader));
+        RaisePropertyChanged(nameof(IsPoemHeader));
+        RaisePropertyChanged(nameof(GridSizeMm));
+        RaisePropertyChanged(nameof(HollowGlyph));
+        RaisePropertyChanged(nameof(GroupByWord));
+        RaisePropertyChanged(nameof(ShowPinyin));
+        RaisePropertyChanged(nameof(PinyinOnly));
+        RaisePropertyChanged(nameof(IsVertical));
+        RaisePropertyChanged(nameof(ShowPoemHeader));
+        RaisePropertyChanged(nameof(FrameBorder));
+        RaisePropertyChanged(nameof(BackgroundIndex));
+        RaisePropertyChanged(nameof(Author));
+        RaisePropertyChanged(nameof(Dynasty));
+        RaisePropertyChanged(nameof(SelectedSheetFont));
+        RaisePropertyChanged(nameof(HeaderTextTemplate));
+        RaisePropertyChanged(nameof(TraceColor));
+        RaisePropertyChanged(nameof(PageSizeIndex));
+        RaisePropertyChanged(nameof(PageMarginMm));
+    }
 
     private void Rebuild()
     {
@@ -476,8 +713,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                                  !string.IsNullOrWhiteSpace(HeaderTextTemplate)
                 ? HeaderTextTemplate.Trim()
                 : null,
-            CharactersPerLine = CharactersPerLineChoices[
-                Math.Clamp(CharactersPerLineIndex, 0, CharactersPerLineChoices.Length - 1)],
+            CharactersPerLine = CharactersPerLineValues[
+                Math.Clamp(CharactersPerLineIndex, 0, CharactersPerLineValues.Length - 1)],
             BlankLineCount = BlankLineCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
@@ -501,10 +738,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
             TraceColor = string.IsNullOrWhiteSpace(_traceColor) ? null : _traceColor,
             TraceIntensity = traceIntensity,
-            GridColor = ColorChoiceValues[Math.Clamp(GridColorIndex, 0, ColorChoiceValues.Length - 1)],
-            TextColor = ColorChoiceValues[Math.Clamp(TextColorIndex, 0, ColorChoiceValues.Length - 1)],
+            GridColor = _gridColorValue,
+            TextColor = _textColorValue,
             FontFamilyName = SelectedSheetFont?.Name,
-            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 3)
+            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 3),
+            Page = ResolvePageSettings()
         };
 
         Spec = spec;
@@ -515,6 +753,28 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         RaisePropertyChanged(nameof(PageCount));
         RaisePropertyChanged(nameof(PageIndicator));
         RaisePropertyChanged(nameof(CanExport));
+        if (!_suppressDirty) IsDirty = true;
+    }
+
+    private PageSettings ResolvePageSettings()
+    {
+        var (width, height) = PageSizeIndex switch
+        {
+            1 => (297d, 210d),
+            2 => (297d, 420d),
+            3 => (216d, 279d),
+            _ => (210d, 297d)
+        };
+
+        return new PageSettings
+        {
+            WidthMm = width,
+            HeightMm = height,
+            MarginTopMm = PageMarginMm,
+            MarginBottomMm = PageMarginMm,
+            MarginLeftMm = PageMarginMm,
+            MarginRightMm = PageMarginMm
+        };
     }
 
     private void ApplyModuleDefaults(ModuleDefinition module)
@@ -631,7 +891,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "charactersperline" when property.Value.TryGetInt32(out var charactersPerLine):
                 {
-                    var index = Array.IndexOf(CharactersPerLineChoices, charactersPerLine);
+                    var index = Array.IndexOf(CharactersPerLineValues, charactersPerLine);
                     if (index >= 0) CharactersPerLineIndex = index;
                     break;
                 }
@@ -640,11 +900,31 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "gridcolor" when property.Value.GetString() is { } gridColor
                                       && Color.TryParse(gridColor, out _):
-                    GridColorIndex = ColorIndexOf(gridColor, GridColorIndex);
+                    _gridColorValue = gridColor;
+                    _gridColorIndex = ColorIndexOf(gridColor, -1);
+                    RaisePropertyChanged(nameof(GridColorIndex));
+                    RaisePropertyChanged(nameof(GridColorHex));
+                    Rebuild();
                     break;
                 case "textcolor" when property.Value.GetString() is { } textColor
                                       && Color.TryParse(textColor, out _):
-                    TextColorIndex = ColorIndexOf(textColor, TextColorIndex);
+                    _textColorValue = textColor;
+                    _textColorIndex = ColorIndexOf(textColor, -1);
+                    RaisePropertyChanged(nameof(TextColorIndex));
+                    RaisePropertyChanged(nameof(TextColorHex));
+                    Rebuild();
+                    break;
+                case "pagesize" when property.Value.GetString() is { } pageSize:
+                    PageSizeIndex = pageSize.ToLowerInvariant() switch
+                    {
+                        "a4landscape" => 1,
+                        "a3portrait" => 2,
+                        "letter" => 3,
+                        _ => 0
+                    };
+                    break;
+                case "pagemargin" when property.Value.TryGetDouble(out var pageMargin):
+                    PageMarginMm = pageMargin;
                     break;
                 case "fontfamily" when property.Value.GetString() is { } fontFamily:
                     SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
@@ -681,13 +961,32 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         return index >= 0 ? index : fallback;
     }
 
+    private static int PageSizeIndexOf(PageSettings page)
+    {
+        if (Math.Abs(page.WidthMm - 297) < 0.1 && Math.Abs(page.HeightMm - 210) < 0.1) return 1;
+        if (Math.Abs(page.WidthMm - 297) < 0.1 && Math.Abs(page.HeightMm - 420) < 0.1) return 2;
+        if (Math.Abs(page.WidthMm - 216) < 0.1 && Math.Abs(page.HeightMm - 279) < 0.1) return 3;
+        return 0;
+    }
+
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        ResetEditorState();
-        var module = _catalog.Find(navigationContext.Parameters.GetValue<string?>("moduleId"));
-        if (module is not null) ApplyModuleDefaults(module);
+        _suppressDirty = true;
+        try
+        {
+            ResetEditorState();
+            var module = _catalog.Find(navigationContext.Parameters.GetValue<string?>("moduleId"));
+            if (module is not null) ApplyModuleDefaults(module);
 
-        Rebuild();
+            Rebuild();
+        }
+        finally
+        {
+            _suppressDirty = false;
+        }
+
+        IsDirty = false;
+        SetStatus("已就绪");
     }
 
     private void ResetEditorState()
@@ -725,6 +1024,13 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _zoom = 1.0;
         _pageIndex = 0;
         _traceColor = string.Empty;
+        _gridColorValue = ColorChoiceValues[0];
+        _textColorValue = ColorChoiceValues[1];
+        _pageSizeIndex = 0;
+        _pageMarginMm = 15;
+        _documentPath = null;
+        _statusMessage = "已就绪";
+        _isDirty = false;
         _module = null;
 
         RaisePropertyChanged(nameof(InputText));
@@ -737,7 +1043,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         RaisePropertyChanged(nameof(BlankLineCount));
         RaisePropertyChanged(nameof(TraceIntensityIndex));
         RaisePropertyChanged(nameof(GridColorIndex));
+        RaisePropertyChanged(nameof(GridColorHex));
         RaisePropertyChanged(nameof(TextColorIndex));
+        RaisePropertyChanged(nameof(TextColorHex));
         RaisePropertyChanged(nameof(HeaderPresetIndex));
         RaisePropertyChanged(nameof(IsCustomHeader));
         RaisePropertyChanged(nameof(IsPoemHeader));
@@ -758,6 +1066,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         RaisePropertyChanged(nameof(Zoom));
         RaisePropertyChanged(nameof(PageIndex));
         RaisePropertyChanged(nameof(TraceColor));
+        RaisePropertyChanged(nameof(PageSizeIndex));
+        RaisePropertyChanged(nameof(PageMarginMm));
+        RaisePropertyChanged(nameof(DocumentPath));
+        RaisePropertyChanged(nameof(StatusMessage));
+        RaisePropertyChanged(nameof(IsDirty));
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext)
