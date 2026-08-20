@@ -3,7 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace Zitie.Desktop.Services;
 
-[JsonSourceGenerationOptions(JsonSerializerDefaults.Web, WriteIndented = true, UseStringEnumConverter = true)]
+[JsonSourceGenerationOptions(JsonSerializerDefaults.Web,
+    WriteIndented = true,
+    UseStringEnumConverter = true,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(ModuleDefinition))]
 [JsonSerializable(typeof(List<TextEntry>))]
 [JsonSerializable(typeof(List<PinyinCategory>))]
