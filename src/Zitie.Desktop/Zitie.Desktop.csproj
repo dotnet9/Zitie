@@ -22,6 +22,7 @@
     <PackageReference Include="Semi.Avalonia" />
     <PackageReference Include="Irihi.Ursa" />
     <PackageReference Include="Irihi.Ursa.Themes.Semi" />
+    <PackageReference Include="Markdig" />
     <PackageReference Include="Prism.DryIoc.Avalonia" />
     <PackageReference Include="CodeWF.Log.Avalonia" />
     <PackageReference Include="VC-LTL" Condition="'$(OS)' == 'Windows_NT'" />

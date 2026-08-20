@@ -1,48 +1,35 @@
-using System.IO;
-using System.Text.Json;
+using Zitie.Desktop.Models;
 
 namespace Zitie.Desktop.Services;
 
-/// <summary>
-///     文本库条目：诗词/蒙学/名言/英文通用形态，lines 或 words 二选一。
-/// </summary>
-public sealed record TextEntry
-{
-    public string Title { get; init; } = string.Empty;
-
-    public string Dynasty { get; init; } = string.Empty;
-
-    public string Author { get; init; } = string.Empty;
-
-    public string Category { get; init; } = string.Empty;
-
-    public string Lines { get; init; } = string.Empty;
-
-    public string Words { get; init; } = string.Empty;
-
-    /// <summary>作为字帖正文使用：英文库取 Words，其余取 Lines。</summary>
-    public string Body => string.IsNullOrWhiteSpace(Words) ? Lines : Words;
-}
-
-/// <summary>
-///     扫描输出目录 texts/*.json 构建文本库，供编辑页下拉选择；无效文件跳过并记录日志。
-/// </summary>
+/// <summary>扫描输出目录 texts/**/*.md，构建可筛选的字帖内容库。</summary>
 public sealed class TextCatalog
 {
-    public TextCatalog()
+    public TextCatalog() : this(Path.Combine(AppContext.BaseDirectory, "texts"))
     {
-        var directory = Path.Combine(AppContext.BaseDirectory, "texts");
+    }
+
+    public TextCatalog(string directory)
+    {
+        var parser = new TextContentMarkdownParser();
         var entries = new List<TextEntry>();
+        var identities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         if (Directory.Exists(directory))
-            foreach (var file in Directory.EnumerateFiles(directory, "*.json"))
+            foreach (var file in Directory.EnumerateFiles(directory, "*.md", SearchOption.AllDirectories)
+                         .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase))
                 try
                 {
-                    var items = JsonSerializer.Deserialize(
-                        File.ReadAllText(file), ZitieJsonContext.Default.ListTextEntry);
-                    if (items is null) continue;
-                    foreach (var item in items.Where(static item => !string.IsNullOrWhiteSpace(item.Title)))
-                        entries.Add(item);
+                    var result = parser.Parse(File.ReadAllText(file), file);
+                    LogDiagnostics(result.Diagnostics);
+                    foreach (var entry in result.Entries)
+                    {
+                        if (identities.Add(entry.Identity))
+                            entries.Add(entry);
+                        else
+                            ZitieLogging.Warn(
+                                $"文本库存在重复条目，已跳过：{entry.Subject}/{entry.Grade}/{entry.Semester}/{entry.Unit}/{entry.Title}");
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -54,4 +41,16 @@ public sealed class TextCatalog
     }
 
     public IReadOnlyList<TextEntry> Entries { get; }
+
+    private static void LogDiagnostics(IEnumerable<TextContentDiagnostic> diagnostics)
+    {
+        foreach (var diagnostic in diagnostics)
+        {
+            var message = $"{diagnostic.Source}:{diagnostic.Line} {diagnostic.Message}";
+            if (diagnostic.Severity == TextContentDiagnosticSeverity.Error)
+                ZitieLogging.Warn(message);
+            else
+                ZitieLogging.Info(message);
+        }
+    }
 }
