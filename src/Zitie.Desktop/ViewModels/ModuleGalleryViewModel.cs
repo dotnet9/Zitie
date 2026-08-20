@@ -36,7 +36,8 @@ public class ModuleGalleryViewModel : BindableBase
 
     public DelegateCommand RefreshCommand { get; }
 
-    public IReadOnlyList<string> CategoryChoices { get; private set; } = ["全部"];
+    public IReadOnlyList<CategoryChoiceViewModel> CategoryChoices { get; private set; } =
+        [new CategoryChoiceViewModel("全部", true)];
 
     public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
@@ -85,10 +86,16 @@ public class ModuleGalleryViewModel : BindableBase
         Modules = _catalog.Modules
             .Select(module => new ModuleCardViewModel(module, _openCommand))
             .ToList();
-        CategoryChoices = ["全部", .. Modules
-            .Select(module => module.CategoryText)
-            .Distinct(StringComparer.CurrentCultureIgnoreCase)
-            .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase)];
+        var categoryNames = new[] { "全部" }
+            .Concat(Modules
+                .Select(module => module.CategoryText)
+                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+                .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase))
+            .ToArray();
+        CategoryChoices = categoryNames
+            .Select(category => new CategoryChoiceViewModel(category,
+                string.Equals(category, SelectedCategory, StringComparison.CurrentCultureIgnoreCase)))
+            .ToList();
 
         RaisePropertyChanged(nameof(Modules));
         RaisePropertyChanged(nameof(CategoryChoices));
@@ -129,6 +136,10 @@ public class ModuleGalleryViewModel : BindableBase
                              module.Module.Description.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
                              module.CategoryText.Contains(keyword, StringComparison.CurrentCultureIgnoreCase))
             .ToList();
+
+        foreach (var choice in CategoryChoices)
+            choice.IsSelected = string.Equals(choice.Name, SelectedCategory,
+                StringComparison.CurrentCultureIgnoreCase);
 
         RaisePropertyChanged(nameof(FilteredModules));
         RaisePropertyChanged(nameof(FilteredModuleCount));

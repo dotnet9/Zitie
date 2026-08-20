@@ -52,6 +52,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private string _headerTextTemplate = "姓名_班级---年_月_日";
     private int _textEntryIndex = -1;
     private double _zoom = 1.0;
+    private int _settingsTabIndex;
     private int _pageIndex;
     private string _traceColor = string.Empty;
     private string _gridColorValue = "#B04A3F";
@@ -98,6 +99,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             () => PageIndex < PageCount - 1)
             .ObservesProperty(() => PageIndex)
             .ObservesProperty(() => PageCount);
+        ZoomOutCommand = new DelegateCommand(() => Zoom = Math.Max(0.5, Zoom - 0.1));
+        ZoomInCommand = new DelegateCommand(() => Zoom = Math.Min(2, Zoom + 0.1));
     }
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
@@ -494,6 +497,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetProperty(ref _zoom, value);
     }
 
+    public int SettingsTabIndex
+    {
+        get => _settingsTabIndex;
+        set => SetProperty(ref _settingsTabIndex, Math.Clamp(value, 0, 4));
+    }
+
     public int PageIndex
     {
         get => _pageIndex;
@@ -527,6 +536,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public DelegateCommand PreviousPageCommand { get; }
 
     public DelegateCommand NextPageCommand { get; }
+
+    public DelegateCommand ZoomOutCommand { get; }
+
+    public DelegateCommand ZoomInCommand { get; }
 
     public string? DocumentPath
     {
