@@ -231,7 +231,12 @@
                                     <StackPanel>
                                         <TextBlock Text="格子大小" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                            <Slider Minimum="8" Maximum="60" Value="{Binding GridSizeMm}" VerticalAlignment="Center" />
+                                            <Slider Classes="editor-slider"
+                                                    Minimum="8"
+                                                    Maximum="60"
+                                                    TickFrequency="1"
+                                                    IsSnapToTickEnabled="True"
+                                                    Value="{Binding GridSizeMm}" />
                                             <TextBlock Grid.Column="1" Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}" Classes="muted-text" VerticalAlignment="Center" />
                                         </Grid>
                                     </StackPanel>
@@ -361,6 +366,7 @@
                                                     Minimum="0.3"
                                                     Maximum="2"
                                                     TickFrequency="0.1"
+                                                    IsSnapToTickEnabled="True"
                                                     Value="{Binding Zoom}" />
                                             <TextBlock Grid.Column="1" Text="{Binding Zoom, StringFormat={}{0:P0}}" Classes="muted-text" VerticalAlignment="Center" />
                                         </Grid>
@@ -402,14 +408,24 @@
                                                IncreaseCommand="{Binding NextPageCommand}"
                                                DecreaseToolTip="上一页"
                                                IncreaseToolTip="下一页" />
-                        <controls:ZitieStepper Grid.Column="2"
-                                               ValueText="{Binding Zoom, StringFormat={}{0:P0}}"
-                                               DecreaseIconData="M5 12h14"
-                                               IncreaseIconData="M12 5v14M5 12h14"
-                                               DecreaseCommand="{Binding ZoomOutCommand}"
-                                               IncreaseCommand="{Binding ZoomInCommand}"
-                                               DecreaseToolTip="缩小预览"
-                                               IncreaseToolTip="放大预览" />
+                        <Grid Grid.Column="2"
+                              ColumnDefinitions="Auto,Auto"
+                              ColumnSpacing="8"
+                              VerticalAlignment="Center">
+                            <Slider Width="{StaticResource ZitieStageZoomSliderWidth}"
+                                    Classes="editor-slider"
+                                    Minimum="0.3"
+                                    Maximum="2"
+                                    TickFrequency="0.1"
+                                    IsSnapToTickEnabled="True"
+                                    Value="{Binding Zoom}" />
+                            <TextBlock Grid.Column="1"
+                                       MinWidth="{StaticResource ZitieStageZoomValueWidth}"
+                                       Text="{Binding Zoom, StringFormat={}{0:P0}}"
+                                       TextAlignment="Center"
+                                       Classes="muted-text"
+                                       VerticalAlignment="Center" />
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

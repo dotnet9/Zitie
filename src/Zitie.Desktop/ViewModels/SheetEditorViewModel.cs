@@ -18,6 +18,10 @@ namespace Zitie.Desktop.ViewModels;
 /// </summary>
 public class SheetEditorViewModel : BindableBase, INavigationAware
 {
+    public const double MinimumZoom = 0.3;
+    public const double MaximumZoom = 2;
+    public const double DefaultZoom = 0.5;
+
     private readonly ModuleCatalog _catalog;
     private readonly TextCatalog _textCatalog;
     private readonly PinyinCatalog _pinyinCatalog;
@@ -29,7 +33,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private FontOption? _selectedSheetFont;
     private int _textEntryIndex = -1;
     private string _inputTextSummary = string.Empty;
-    private double _zoom = 0.5;
+    private double _zoom = DefaultZoom;
     private int _settingsTabIndex;
     private int _pageIndex;
     private string? _documentPath;
@@ -75,9 +79,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             () => PageIndex < PageCount - 1)
             .ObservesProperty(() => PageIndex)
             .ObservesProperty(() => PageCount);
-        ZoomOutCommand = new DelegateCommand(() => Zoom = Math.Max(0.3, Zoom - 0.1));
-        ZoomInCommand = new DelegateCommand(() => Zoom = Math.Min(2, Zoom + 0.1));
-
         OpenDocumentCommand = new AsyncDelegateCommand(OpenDocumentAsync);
         SaveDocumentCommand = new AsyncDelegateCommand(SaveDocumentAsync);
         SaveAsDocumentCommand = new AsyncDelegateCommand(SaveDocumentAsAsync);
@@ -538,7 +539,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public double Zoom
     {
         get => _zoom;
-        set => SetProperty(ref _zoom, value);
+        set => SetProperty(ref _zoom, Math.Clamp(value, MinimumZoom, MaximumZoom));
     }
 
     public int SettingsTabIndex
@@ -580,10 +581,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public DelegateCommand PreviousPageCommand { get; }
 
     public DelegateCommand NextPageCommand { get; }
-
-    public DelegateCommand ZoomOutCommand { get; }
-
-    public DelegateCommand ZoomInCommand { get; }
 
     public AsyncDelegateCommand OpenDocumentCommand { get; }
 
@@ -1020,7 +1017,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                              _fontCatalog.Fonts.FirstOrDefault();
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
         _textEntryIndex = -1;
-        _zoom = 0.5;
+        _zoom = DefaultZoom;
         _pageIndex = 0;
         _documentPath = null;
         _statusMessage = "已就绪";
