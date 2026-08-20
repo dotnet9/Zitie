@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -10,14 +9,19 @@ public class ModuleGalleryViewModel : BindableBase
 {
     private readonly IRegionManager _regionManager;
     private readonly ModuleCatalog _catalog;
+    private readonly ISystemDialogs _dialogs;
     private readonly DelegateCommand<ModuleDefinition> _openCommand;
     private string _searchText = string.Empty;
     private string _selectedCategory = "全部";
 
-    public ModuleGalleryViewModel(IRegionManager regionManager, ModuleCatalog catalog)
+    public ModuleGalleryViewModel(
+        IRegionManager regionManager,
+        ModuleCatalog catalog,
+        ISystemDialogs dialogs)
     {
         _regionManager = regionManager;
         _catalog = catalog;
+        _dialogs = dialogs;
         TemplateDirectory = catalog.UserDirectory;
         OpenTemplateDirectoryCommand = new DelegateCommand(OpenTemplateDirectory);
 
@@ -37,7 +41,7 @@ public class ModuleGalleryViewModel : BindableBase
     public DelegateCommand RefreshCommand { get; }
 
     public IReadOnlyList<CategoryChoiceViewModel> CategoryChoices { get; private set; } =
-        [new CategoryChoiceViewModel("全部", true)];
+        Array.Empty<CategoryChoiceViewModel>();
 
     public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
@@ -94,7 +98,8 @@ public class ModuleGalleryViewModel : BindableBase
             .ToArray();
         CategoryChoices = categoryNames
             .Select(category => new CategoryChoiceViewModel(category,
-                string.Equals(category, SelectedCategory, StringComparison.CurrentCultureIgnoreCase)))
+                string.Equals(category, SelectedCategory, StringComparison.CurrentCultureIgnoreCase),
+                SelectCategory))
             .ToList();
 
         RaisePropertyChanged(nameof(Modules));
@@ -104,23 +109,21 @@ public class ModuleGalleryViewModel : BindableBase
 
     private void OpenTemplateDirectory()
     {
-        var directory = TemplateDirectory;
         try
         {
-            Directory.CreateDirectory(directory);
-            var startInfo = OperatingSystem.IsWindows()
-                ? new ProcessStartInfo(directory) { UseShellExecute = true }
-                : OperatingSystem.IsMacOS()
-                    ? new ProcessStartInfo("open", $"\"{directory}\"")
-                    : new ProcessStartInfo("xdg-open", $"\"{directory}\"");
-
-            Process.Start(startInfo);
-            ZitieLogging.Info($"已打开用户模板目录：{directory}");
+            Directory.CreateDirectory(TemplateDirectory);
+            _dialogs.OpenFolder(TemplateDirectory);
+            ZitieLogging.Info($"已打开用户模板目录：{TemplateDirectory}");
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn($"打开用户模板目录失败：{directory}", exception);
+            ZitieLogging.Warn($"打开用户模板目录失败：{TemplateDirectory}", exception);
         }
+    }
+
+    private void SelectCategory(string category)
+    {
+        if (!string.IsNullOrWhiteSpace(category)) SelectedCategory = category;
     }
 
     private void ApplyFilter()

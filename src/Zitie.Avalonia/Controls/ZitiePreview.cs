@@ -1,6 +1,4 @@
-using System;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -8,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using SkiaSharp;
 using Zitie.Avalonia.Rendering;
+using Zitie.Avalonia.Themes;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 
@@ -20,7 +19,6 @@ namespace Zitie.Avalonia.Controls;
 public class ZitiePreview : TemplatedControl
 {
     private const double BaseDpi = 96.0;
-    private const double RenderQualityScale = 2.0;
 
     private WriteableBitmap? _bitmap;
     private IImage? _pageImage;
@@ -37,6 +35,9 @@ public class ZitiePreview : TemplatedControl
 
     public static readonly StyledProperty<double> ZoomProperty =
         AvaloniaProperty.Register<ZitiePreview, double>(nameof(Zoom), 1.0);
+
+    public static readonly StyledProperty<SheetRenderTheme?> RenderThemeProperty =
+        AvaloniaProperty.Register<ZitiePreview, SheetRenderTheme?>(nameof(RenderTheme));
 
     public static readonly StyledProperty<HorizontalAlignment> HorizontalContentAlignmentProperty =
         AvaloniaProperty.Register<ZitiePreview, HorizontalAlignment>(nameof(HorizontalContentAlignment),
@@ -55,6 +56,7 @@ public class ZitiePreview : TemplatedControl
         PagesProperty.Changed.AddClassHandler<ZitiePreview>((preview, _) => preview.InvalidatePreview());
         PageIndexProperty.Changed.AddClassHandler<ZitiePreview>((preview, _) => preview.InvalidatePreview());
         ZoomProperty.Changed.AddClassHandler<ZitiePreview>((preview, _) => preview.InvalidatePreview());
+        RenderThemeProperty.Changed.AddClassHandler<ZitiePreview>((preview, _) => preview.InvalidatePreview());
     }
 
     public CharacterSheetSpec? Spec
@@ -79,6 +81,13 @@ public class ZitiePreview : TemplatedControl
     {
         get => GetValue(ZoomProperty);
         set => SetValue(ZoomProperty, value);
+    }
+
+    /// <summary>当前预览使用的渲染主题，通常由控件主题通过 DynamicResource 提供。</summary>
+    public SheetRenderTheme? RenderTheme
+    {
+        get => GetValue(RenderThemeProperty);
+        set => SetValue(RenderThemeProperty, value);
     }
 
     public HorizontalAlignment HorizontalContentAlignment
@@ -130,8 +139,8 @@ public class ZitiePreview : TemplatedControl
             return;
         }
 
-        var theme = ResolveTheme();
-        var pxPerMm = BaseDpi / 25.4 * Math.Max(0.1, Zoom) * RenderQualityScale;
+        var theme = RenderTheme ?? SheetRenderThemes.Print;
+        var pxPerMm = BaseDpi / 25.4 * Math.Max(0.1, Zoom);
         var width = Math.Max(1, (int)Math.Ceiling(spec.Page.WidthMm * pxPerMm));
         var height = Math.Max(1, (int)Math.Ceiling(spec.Page.HeightMm * pxPerMm));
 
@@ -165,45 +174,4 @@ public class ZitiePreview : TemplatedControl
         _bitmap = bitmap;
     }
 
-    /// <summary>从主题资源解析渲染外观，缺失的键回退到打印默认值。</summary>
-    private SheetRenderTheme ResolveTheme()
-    {
-        var theme = SheetRenderTheme.Print;
-
-        if (TryGetColor("ZitieGridSolidColor", out var color)) theme = theme with { GridSolidColor = color };
-        if (TryGetColor("ZitieGridDashColor", out color)) theme = theme with { GridDashColor = color };
-        if (TryGetColor("ZitieModelGlyphColor", out color)) theme = theme with { ModelGlyphColor = color };
-        if (TryGetColor("ZitieTraceGlyphColor", out color)) theme = theme with { TraceGlyphColor = color };
-        if (TryGetColor("ZitieTitleColor", out color)) theme = theme with { TitleColor = color };
-        if (TryGetColor("ZitieFieldColor", out color)) theme = theme with { FieldColor = color };
-        if (TryGetColor("ZitieFooterColor", out color)) theme = theme with { FooterColor = color };
-        if (TryGetDouble("ZitieGridSolidStrokePt", out var stroke)) theme = theme with { GridSolidStrokePt = (float)stroke };
-        if (TryGetDouble("ZitieGridDashStrokePt", out stroke)) theme = theme with { GridDashStrokePt = (float)stroke };
-
-        return theme;
-    }
-
-    private bool TryGetColor(string key, out Color color)
-    {
-        if (TryGetResource(key, ActualThemeVariant, out var value) && value is Color result)
-        {
-            color = result;
-            return true;
-        }
-
-        color = default;
-        return false;
-    }
-
-    private bool TryGetDouble(string key, out double value)
-    {
-        if (TryGetResource(key, ActualThemeVariant, out var resource) && resource is double result)
-        {
-            value = result;
-            return true;
-        }
-
-        value = default;
-        return false;
-    }
 }

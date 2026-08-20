@@ -1,7 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:Class="Zitie.Avalonia.Themes.Tokens.ZitiePrintTokens"
                     xmlns:rendering="using:Zitie.Avalonia.Rendering">
-    <!-- 屏幕预览令牌：完整的字帖渲染外观定义，缺失键由打印令牌兜底。 -->
+    <!-- 打印令牌：面向黑白打印机的完整渲染外观（PDF/PNG 导出使用）。
+         不合入应用主题（Index.axaml），仅供 SheetRenderThemes.Print 按需加载。 -->
 
     <!-- 格线 -->
     <Color x:Key="ZitieGridSolidColor">#B04A3F</Color>
@@ -10,9 +12,9 @@
     <x:Double x:Key="ZitieGridDashStrokePt">0.7</x:Double>
 
     <!-- 文字 -->
-    <Color x:Key="ZitieModelGlyphColor">#1A1A1A</Color>
+    <Color x:Key="ZitieModelGlyphColor">#000000</Color>
     <Color x:Key="ZitieTraceGlyphColor">#DF9C93</Color>
-    <Color x:Key="ZitieTitleColor">#1A1A1A</Color>
+    <Color x:Key="ZitieTitleColor">#000000</Color>
     <Color x:Key="ZitieFieldColor">#404040</Color>
     <Color x:Key="ZitieFooterColor">#909090</Color>
     <Color x:Key="ZitiePinyinColor">#505050</Color>
@@ -21,11 +23,7 @@
     <Color x:Key="ZitieFrameColor">#8A8A8A</Color>
     <Color x:Key="ZitieFrameInnerColor">#C8C8C8</Color>
 
-    <!-- 预览控件 -->
-    <Color x:Key="ZitiePreviewBackgroundColor">#F7F7F5</Color>
-    <SolidColorBrush x:Key="ZitiePreviewBackgroundBrush" Color="{StaticResource ZitiePreviewBackgroundColor}" />
-
-    <rendering:SheetRenderTheme x:Key="ZitieScreenRenderTheme"
+    <rendering:SheetRenderTheme x:Key="ZitiePrintRenderTheme"
                                 GridSolidColor="{StaticResource ZitieGridSolidColor}"
                                 GridDashColor="{StaticResource ZitieGridDashColor}"
                                 GridSolidStrokePt="{StaticResource ZitieGridSolidStrokePt}"

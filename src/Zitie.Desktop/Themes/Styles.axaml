@@ -1,75 +1,28 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- 新中式界面令牌：宣纸底、墨色文字、朱砂强调。 -->
     <Style Selector="Window">
-        <Setter Property="Foreground" Value="#2B2722" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
     </Style>
 
-    <!-- CodeWFWindow 风格的自绘标题栏：窗口行为在 ZitieWindow 中，视觉保持页面同一套令牌。 -->
-    <Style Selector="Border.window-title-bar">
-        <Setter Property="Height" Value="42" />
-        <Setter Property="Background" Value="#FBF8F1" />
-        <Setter Property="BorderBrush" Value="#E8E0D0" />
-        <Setter Property="BorderThickness" Value="0,0,0,1" />
-    </Style>
     <Style Selector="Border.window-seal">
         <Setter Property="Width" Value="25" />
         <Setter Property="Height" Value="25" />
         <Setter Property="CornerRadius" Value="7" />
-        <Setter Property="Background" Value="#B04A3F" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
     <Style Selector="TextBlock.window-title">
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="#2B2722" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
     </Style>
     <Style Selector="TextBlock.window-title-en">
         <Setter Property="FontSize" Value="8" />
-        <Setter Property="Foreground" Value="#A29886" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
         <Setter Property="LetterSpacing" Value="1.5" />
     </Style>
     <Style Selector="TextBlock.window-center-title">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="#8F8574" />
-    </Style>
-    <Style Selector="StackPanel.window-caption-buttons">
-        <Setter Property="Margin" Value="0,0,8,0" />
-    </Style>
-    <Style Selector="Button.window-caption-button">
-        <Setter Property="Width" Value="40" />
-        <Setter Property="Height" Value="34" />
-        <Setter Property="MinWidth" Value="40" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="0,4,0,0" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Foreground" Value="#6E675D" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Button.window-caption-button:pointerover">
-        <Setter Property="Background" Value="#F7EBE7" />
-        <Setter Property="Foreground" Value="#B04A3F" />
-    </Style>
-    <Style Selector="Button.window-caption-button:pressed">
-        <Setter Property="Background" Value="#EFD8D2" />
-    </Style>
-    <Style Selector="Button.window-caption-button.close:pointerover">
-        <Setter Property="Background" Value="#B04A3F" />
-        <Setter Property="Foreground" Value="#FBF6EF" />
-    </Style>
-    <Style Selector="Button.window-caption-button.maximized Path.maximize-glyph">
-        <Setter Property="IsVisible" Value="False" />
-    </Style>
-    <Style Selector="Button.window-caption-button.maximized Path.restore-glyph">
-        <Setter Property="IsVisible" Value="True" />
-    </Style>
-    <Style Selector="Border.window-resize-grip">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="ZIndex" Value="20" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
 
     <Style Selector="TextBlock.page-title">
@@ -160,12 +113,15 @@
     <Style Selector="TextBox.gallery-search">
         <Setter Property="MinWidth" Value="300" />
         <Setter Property="Height" Value="36" />
-        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Padding" Value="4,0,12,0" />
         <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Background" Value="#FFFFFF" />
         <Setter Property="BorderBrush" Value="#D9CFBA" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="TextBox.gallery-search:focus">
+        <Setter Property="BorderBrush" Value="#B04A3F" />
     </Style>
     <Style Selector="TextBlock.gallery-count">
         <Setter Property="FontSize" Value="12" />
@@ -222,7 +178,7 @@
 
     <Style Selector="Button.module-card">
         <Setter Property="Width" Value="260" />
-        <Setter Property="Height" Value="374" />
+        <Setter Property="Height" Value="320" />
         <Setter Property="Margin" Value="0,0,16,16" />
         <Setter Property="Padding" Value="10" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -238,6 +194,15 @@
     <Style Selector="Button.module-card:pointerover">
         <Setter Property="BorderBrush" Value="#D9A7A0" />
         <Setter Property="Background" Value="#FFFFFF" />
+    </Style>
+    <!-- 卡片阴影由独立图层承担（Button 本身无 BoxShadow 属性），悬停加深模拟上浮 -->
+    <Style Selector="Border.card-shadow-layer">
+        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BoxShadow" Value="0 1 2 #0D2B2722, 0 6 18 #122B2722" />
+    </Style>
+    <Style Selector="Button.module-card:pointerover Border.card-shadow-layer">
+        <Setter Property="BoxShadow" Value="0 2 4 #0F2B2722, 0 14 32 #212B2722" />
     </Style>
     <Style Selector="Border.module-thumb">
         <Setter Property="Height" Value="190" />
@@ -275,7 +240,13 @@
     <Style Selector="TextBlock.module-card-status">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="Foreground" Value="#A29886" />
-        <Setter Property="Margin" Value="0,8,0,0" />
+    </Style>
+    <Style Selector="Border.module-card-dot">
+        <Setter Property="Width" Value="6" />
+        <Setter Property="Height" Value="6" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Background" Value="#7BA05B" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border.card-overlay">
         <Setter Property="Opacity" Value="0" />
@@ -298,10 +269,26 @@
 
     <Style Selector="Border.editor-toolbar">
         <Setter Property="Height" Value="50" />
-        <Setter Property="Padding" Value="0,0,14,0" />
+        <Setter Property="Padding" Value="14,0" />
         <Setter Property="Background" Value="#FFFFFF" />
         <Setter Property="BorderBrush" Value="#E8E0D0" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <!-- 工具栏按钮图标：默认墨灰，悬停朱砂，主按钮反白 -->
+    <Style Selector="Path.tool-glyph">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Stroke" Value="#6E675D" />
+        <Setter Property="StrokeThickness" Value="1.6" />
+        <Setter Property="StrokeLineCap" Value="Round" />
+        <Setter Property="StrokeJoin" Value="Round" />
+    </Style>
+    <Style Selector="Button.editor-tool-button:pointerover Path.tool-glyph">
+        <Setter Property="Stroke" Value="#B04A3F" />
+    </Style>
+    <Style Selector="Button.editor-tool-button.primary Path.tool-glyph">
+        <Setter Property="Stroke" Value="#FBF6EF" />
     </Style>
     <Style Selector="Button.editor-icon-button">
         <Setter Property="Width" Value="34" />
@@ -312,6 +299,13 @@
         <Setter Property="BorderBrush" Value="#D9CFBA" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="#6E675D" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.editor-icon-button Path.back-glyph">
+        <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Button.editor-icon-button:pointerover">
         <Setter Property="Background" Value="#F7EBE7" />
@@ -327,6 +321,14 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="#6E675D" />
         <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.editor-tool-button StackPanel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.editor-tool-button TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Button.editor-tool-button:pointerover">
         <Setter Property="Background" Value="#F7EBE7" />
@@ -336,6 +338,16 @@
         <Setter Property="Background" Value="#FFFFFF" />
         <Setter Property="BorderBrush" Value="#D9CFBA" />
     </Style>
+    <Style Selector="Button.editor-tool-button.outline:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
+    <Style Selector="Button.editor-tool-button:pressed">
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
+    </Style>
+    <Style Selector="Button.editor-tool-button:disabled">
+        <Setter Property="Opacity" Value="0.48" />
+    </Style>
     <Style Selector="Button.editor-tool-button.primary">
         <Setter Property="Background" Value="#B04A3F" />
         <Setter Property="Foreground" Value="#FBF6EF" />
@@ -343,6 +355,9 @@
     </Style>
     <Style Selector="Button.editor-tool-button.primary:pointerover">
         <Setter Property="Background" Value="#C05A4E" />
+    </Style>
+    <Style Selector="Button.editor-tool-button.primary:pressed">
+        <Setter Property="Background" Value="#963E35" />
     </Style>
     <Style Selector="TextBlock.dirty-indicator">
         <Setter Property="FontSize" Value="12" />
@@ -360,17 +375,29 @@
         <Setter Property="BorderBrush" Value="#E8E0D0" />
     </Style>
     <Style Selector="TabControl.editor-tabs TabItem">
+        <Setter Property="Width" Value="63" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="#A29886" />
-        <Setter Property="Padding" Value="8,7,8,9" />
+        <Setter Property="Padding" Value="0,7,0,9" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
     </Style>
     <Style Selector="TabControl.editor-tabs TabItem:selected">
         <Setter Property="Foreground" Value="#B04A3F" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
-    <Style Selector="Border.editor-tab-body">
-        <Setter Property="Padding" Value="16,14,16,12" />
-        <Setter Property="Background" Value="#FFFFFF" />
+    <Style Selector="Path.editor-tab-glyph">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Stroke" Value="{DynamicResource ZitieInkMutedBrush}" />
+        <Setter Property="StrokeThickness" Value="1.6" />
+        <Setter Property="StrokeLineCap" Value="Round" />
+        <Setter Property="StrokeJoin" Value="Round" />
+    </Style>
+    <Style Selector="TabControl.editor-tabs TabItem:selected Path.editor-tab-glyph">
+        <Setter Property="Stroke" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
+    <Style Selector="StackPanel.editor-tab-body">
+        <Setter Property="Margin" Value="16,14,16,12" />
     </Style>
     <Style Selector="TextBlock.editor-label">
         <Setter Property="FontSize" Value="12" />
@@ -407,10 +434,46 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="FontSize" Value="13" />
     </Style>
+    <Style Selector="ComboBox.editor-input:focus">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#B04A3F" />
+    </Style>
+    <Style Selector="NumericUpDown.editor-input">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Background" Value="#FDFCF9" />
+        <Setter Property="BorderBrush" Value="#D9CFBA" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="NumericUpDown.editor-input:focus">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#B04A3F" />
+    </Style>
+    <Style Selector="Border.field-badge">
+        <Setter Property="Background" Value="#F5F0E6" />
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="8,1" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <Style Selector="Border.field-badge TextBlock">
+        <Setter Property="FontSize" Value="10.5" />
+        <Setter Property="Foreground" Value="#A29886" />
+    </Style>
     <Style Selector="CheckBox.editor-check">
         <Setter Property="Foreground" Value="#6E675D" />
         <Setter Property="FontSize" Value="12.5" />
-        <Setter Property="Margin" Value="0,0,0,12" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="CheckBox.editor-check:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
+    <Style Selector="Slider.editor-slider">
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style Selector="Border.preview-stage">

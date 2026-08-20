@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Runtime.CompilerServices;
 using Avalonia.Media;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -6,6 +7,7 @@ using Prism.Regions;
 using Zitie.Avalonia.Export;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
+using Zitie.Desktop.Commands;
 using Zitie.Desktop.Services;
 using Zitie.Desktop.Models;
 
@@ -21,44 +23,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private readonly PinyinCatalog _pinyinCatalog;
     private readonly FontCatalog _fontCatalog;
     private readonly IRegionNavigationJournal _journal;
+    private readonly ISystemDialogs _dialogs;
 
-    private string _inputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
-    private string _title = string.Empty;
-    private int _gridKindIndex;
-    private int _practiceModeIndex;
-    private int _repeatsIndex = 4;
-    private int _charactersPerLineIndex;
-    private int _blankLineCount;
-    private int _traceIntensityIndex = 3;
-    private int _gridColorIndex;
-    private int _textColorIndex = 1;
-    private int _headerPresetIndex = 2;
-    private int _traceSlotCount = 2;
-    private double _gridSizeMm = 14;
-    private bool _hollowGlyph;
-    private bool _groupByWord;
-    private bool _showPinyin;
-    private bool _pinyinOnly;
-    private bool _isVertical;
-    private bool _showPoemHeader;
-    private bool _frameBorder;
-    private int _backgroundIndex;
-    private string? _backgroundColor;
-    private string? _backgroundLineColor;
-    private double? _backgroundLineSpacingMm;
-    private string _author = string.Empty;
-    private string _dynasty = string.Empty;
+    private SheetEditorState _editorState = SheetEditorState.CreateDefault();
     private FontOption? _selectedSheetFont;
-    private string _headerTextTemplate = "姓名_班级---年_月_日";
     private int _textEntryIndex = -1;
-    private double _zoom = 1.0;
+    private string _inputTextSummary = string.Empty;
+    private double _zoom = 0.5;
     private int _settingsTabIndex;
     private int _pageIndex;
-    private string _traceColor = string.Empty;
-    private string _gridColorValue = "#B04A3F";
-    private string _textColorValue = "#1A1A1A";
-    private int _pageSizeIndex;
-    private double _pageMarginMm = 15;
     private string? _documentPath;
     private string _statusMessage = "已就绪";
     private bool _isDirty;
@@ -79,15 +52,18 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         TextCatalog textCatalog,
         PinyinCatalog pinyinCatalog,
         FontCatalog fontCatalog,
-        IRegionNavigationJournal journal)
+        IRegionNavigationJournal journal,
+        ISystemDialogs systemDialogs)
     {
         _catalog = catalog;
         _textCatalog = textCatalog;
         _pinyinCatalog = pinyinCatalog;
         _fontCatalog = fontCatalog;
         _journal = journal;
+        _dialogs = systemDialogs;
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
+        _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
         PreviousPageCommand = new DelegateCommand(
@@ -99,8 +75,133 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             () => PageIndex < PageCount - 1)
             .ObservesProperty(() => PageIndex)
             .ObservesProperty(() => PageCount);
-        ZoomOutCommand = new DelegateCommand(() => Zoom = Math.Max(0.5, Zoom - 0.1));
+        ZoomOutCommand = new DelegateCommand(() => Zoom = Math.Max(0.3, Zoom - 0.1));
         ZoomInCommand = new DelegateCommand(() => Zoom = Math.Min(2, Zoom + 0.1));
+
+        OpenDocumentCommand = new AsyncDelegateCommand(OpenDocumentAsync);
+        SaveDocumentCommand = new AsyncDelegateCommand(SaveDocumentAsync);
+        SaveAsDocumentCommand = new AsyncDelegateCommand(SaveDocumentAsAsync);
+        SaveTemplateCommand = new AsyncDelegateCommand(SaveTemplateAsync);
+        ExportPdfCommand = new AsyncDelegateCommand(ExportPdfAsync);
+        ExportPngCommand = new AsyncDelegateCommand(ExportPngAsync);
+        ExportPngsCommand = new AsyncDelegateCommand(ExportPngsAsync);
+    }
+
+    private async Task OpenDocumentAsync()
+    {
+        try
+        {
+            var path = await _dialogs.PickOpenFileAsync(
+                "字帖文档", ["*.zitie.json", "*.json"], "打开字帖文档");
+            if (path is null) return;
+            LoadDocumentFrom(path);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("打开文档失败", exception);
+        }
+    }
+
+    private async Task SaveDocumentAsync()
+    {
+        if (string.IsNullOrWhiteSpace(DocumentPath))
+        {
+            await SaveDocumentAsAsync();
+            return;
+        }
+
+        try
+        {
+            SaveDocumentTo(DocumentPath);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("保存文档失败", exception);
+        }
+    }
+
+    private async Task SaveDocumentAsAsync()
+    {
+        try
+        {
+            var path = await _dialogs.PickSaveFileAsync("字帖文档", "zitie.json", "未命名字帖.zitie.json");
+            if (path is null) return;
+            SaveDocumentTo(path);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("保存文档失败", exception);
+        }
+    }
+
+    private async Task SaveTemplateAsync()
+    {
+        try
+        {
+            var path = await _dialogs.PickSaveFileAsync("字帖模板", "json", "我的字帖模板.json");
+            if (path is null) return;
+            SaveTemplateTo(path);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("保存模板失败", exception);
+        }
+    }
+
+    private async Task ExportPdfAsync()
+    {
+        if (!CanExport) return;
+        try
+        {
+            var path = await _dialogs.PickSaveFileAsync(
+                "PDF 文档", "pdf", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
+            if (path is null) return;
+            ExportPdfTo(path);
+            _dialogs.RevealFile(path);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("导出 PDF 失败", exception);
+        }
+    }
+
+    private async Task ExportPngAsync()
+    {
+        if (!CanExport) return;
+        try
+        {
+            var path = await _dialogs.PickSaveFileAsync(
+                "PNG 图片", "png", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.png");
+            if (path is null) return;
+            ExportPngTo(path);
+            _dialogs.RevealFile(path);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("导出 PNG 失败", exception);
+        }
+    }
+
+    private async Task ExportPngsAsync()
+    {
+        if (!CanExport) return;
+        try
+        {
+            var directory = await _dialogs.PickFolderAsync("选择 PNG 输出目录");
+            if (directory is null) return;
+            ExportPngsTo(directory);
+            _dialogs.OpenFolder(directory);
+        }
+        catch (Exception exception)
+        {
+            SetFailure("批量导出 PNG 失败", exception);
+        }
+    }
+
+    private void SetFailure(string message, Exception exception)
+    {
+        SetStatus($"{message}：{exception.Message}");
+        ZitieLogging.Error(message, exception);
     }
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
@@ -149,76 +250,70 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public int CharactersPerLineIndex
     {
-        get => _charactersPerLineIndex;
+        get
+        {
+            var index = Array.IndexOf(CharactersPerLineValues, _editorState.CharactersPerLine);
+            return index < 0 ? 0 : index;
+        }
         set
         {
-            if (SetProperty(ref _charactersPerLineIndex,
-                    Math.Clamp(value, 0, CharactersPerLineChoices.Length - 1))) Rebuild();
+            var index = Math.Clamp(value, 0, CharactersPerLineValues.Length - 1);
+            SetEditorState(_editorState with { CharactersPerLine = CharactersPerLineValues[index] });
         }
     }
 
     public int BlankLineCount
     {
-        get => _blankLineCount;
-        set
-        {
-            if (SetProperty(ref _blankLineCount, Math.Clamp(value, 0, 10))) Rebuild();
-        }
+        get => _editorState.BlankLineCount;
+        set => SetEditorState(_editorState with { BlankLineCount = Math.Clamp(value, 0, 10) });
     }
 
     public int TraceIntensityIndex
     {
-        get => _traceIntensityIndex;
+        get => (int)_editorState.TraceIntensity;
         set
         {
-            if (!SetProperty(ref _traceIntensityIndex, Math.Clamp(value, 0, TraceIntensityChoices.Length - 1)))
+            var intensity = (TraceIntensity)Math.Clamp(value, 0, TraceIntensityChoices.Length - 1);
+            if (!SetEditorState(_editorState with { TraceIntensity = intensity, TraceColor = null }))
                 return;
 
-            _traceColor = string.Empty;
             RaisePropertyChanged(nameof(TraceColor));
-            Rebuild();
         }
     }
 
     public int GridColorIndex
     {
-        get => _gridColorIndex;
+        get => ColorIndexOf(_editorState.GridColor, -1);
         set
         {
-            if (SetProperty(ref _gridColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1)))
-            {
-                _gridColorValue = ColorChoiceValues[_gridColorIndex];
+            var index = Math.Clamp(value, 0, ColorChoiceValues.Length - 1);
+            if (SetEditorState(_editorState with { GridColor = ColorChoiceValues[index] }))
                 RaisePropertyChanged(nameof(GridColorHex));
-                Rebuild();
-            }
         }
     }
 
     public int TextColorIndex
     {
-        get => _textColorIndex;
+        get => ColorIndexOf(_editorState.TextColor, -1);
         set
         {
-            if (SetProperty(ref _textColorIndex, Math.Clamp(value, 0, ColorChoiceValues.Length - 1)))
-            {
-                _textColorValue = ColorChoiceValues[_textColorIndex];
+            var index = Math.Clamp(value, 0, ColorChoiceValues.Length - 1);
+            if (SetEditorState(_editorState with { TextColor = ColorChoiceValues[index] }))
                 RaisePropertyChanged(nameof(TextColorHex));
-                Rebuild();
-            }
         }
     }
 
     public int HeaderPresetIndex
     {
-        get => _headerPresetIndex;
+        get => (int)_editorState.HeaderPreset;
         set
         {
-            if (!SetProperty(ref _headerPresetIndex, Math.Clamp(value, 0, HeaderPresetChoices.Length - 1)))
+            var preset = (SheetHeaderPreset)Math.Clamp(value, 0, HeaderPresetChoices.Length - 1);
+            if (!SetEditorState(_editorState with { HeaderPreset = preset }))
                 return;
 
             RaisePropertyChanged(nameof(IsCustomHeader));
             RaisePropertyChanged(nameof(IsPoemHeader));
-            Rebuild();
         }
     }
 
@@ -234,17 +329,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         get => _selectedSheetFont;
         set
         {
-            if (SetProperty(ref _selectedSheetFont, value)) Rebuild();
+            if (!SetProperty(ref _selectedSheetFont, value)) return;
+            _editorState = _editorState with { FontFamilyName = value?.Name };
+            Rebuild();
         }
     }
 
     public string HeaderTextTemplate
     {
-        get => _headerTextTemplate;
-        set
-        {
-            if (SetProperty(ref _headerTextTemplate, value)) Rebuild();
-        }
+        get => _editorState.HeaderTextTemplate;
+        set => SetEditorState(_editorState with { HeaderTextTemplate = value ?? string.Empty });
     }
 
     public int TextEntryIndex
@@ -269,226 +363,176 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public bool IsVertical
     {
-        get => _isVertical;
-        set
+        get => _editorState.Orientation == SheetOrientation.Vertical;
+        set => SetEditorState(_editorState with
         {
-            if (SetProperty(ref _isVertical, value)) Rebuild();
-        }
+            Orientation = value ? SheetOrientation.Vertical : SheetOrientation.Horizontal
+        });
     }
 
     public bool ShowPoemHeader
     {
-        get => _showPoemHeader;
+        get => _editorState.ShowPoemHeader;
         set
         {
-            if (!SetProperty(ref _showPoemHeader, value))
-                return;
+            if (!SetEditorState(_editorState with { ShowPoemHeader = value })) return;
 
             RaisePropertyChanged(nameof(IsPoemHeader));
-            Rebuild();
         }
     }
 
     public bool FrameBorder
     {
-        get => _frameBorder;
-        set
-        {
-            if (SetProperty(ref _frameBorder, value)) Rebuild();
-        }
+        get => _editorState.FrameBorder;
+        set => SetEditorState(_editorState with { FrameBorder = value });
     }
 
     public string Author
     {
-        get => _author;
-        set
-        {
-            if (SetProperty(ref _author, value)) Rebuild();
-        }
+        get => _editorState.Author ?? string.Empty;
+        set => SetEditorState(_editorState with { Author = value });
     }
 
     public string Dynasty
     {
-        get => _dynasty;
-        set
-        {
-            if (SetProperty(ref _dynasty, value)) Rebuild();
-        }
+        get => _editorState.Dynasty ?? string.Empty;
+        set => SetEditorState(_editorState with { Dynasty = value });
     }
 
     public bool GroupByWord
     {
-        get => _groupByWord;
-        set
-        {
-            if (SetProperty(ref _groupByWord, value)) Rebuild();
-        }
+        get => _editorState.GroupByWord;
+        set => SetEditorState(_editorState with { GroupByWord = value });
     }
 
     public bool ShowPinyin
     {
-        get => _showPinyin;
-        set
-        {
-            if (SetProperty(ref _showPinyin, value)) Rebuild();
-        }
+        get => _editorState.ShowPinyin;
+        set => SetEditorState(_editorState with { ShowPinyin = value });
     }
 
     public bool PinyinOnly
     {
-        get => _pinyinOnly;
-        set
-        {
-            if (SetProperty(ref _pinyinOnly, value)) Rebuild();
-        }
+        get => _editorState.PinyinOnly;
+        set => SetEditorState(_editorState with { PinyinOnly = value });
     }
 
     public string InputText
     {
-        get => _inputText;
-        set
-        {
-            if (SetProperty(ref _inputText, value)) Rebuild();
-        }
+        get => _editorState.InputText;
+        set => SetEditorState(_editorState with { InputText = value ?? string.Empty });
+    }
+
+    /// <summary>练习文本字数摘要（如“20 字”），空文本时为空字符串。</summary>
+    public string InputTextSummary
+    {
+        get => _inputTextSummary;
+        private set => SetProperty(ref _inputTextSummary, value);
     }
 
     /// <summary>描红字颜色（#RRGGBB），浅色适合打印后手描。</summary>
     public string TraceColor
     {
-        get => _traceColor;
-        set
-        {
-            if (SetProperty(ref _traceColor, value)) Rebuild();
-        }
+        get => _editorState.TraceColor ?? string.Empty;
+        set => SetEditorState(_editorState with { TraceColor = value });
     }
 
     public string GridColorHex
     {
-        get => _gridColorValue;
+        get => _editorState.GridColor;
         set
         {
             value ??= string.Empty;
-            if (!Color.TryParse(value, out _))
-            {
-                SetProperty(ref _gridColorValue, value);
-                return;
-            }
-
-            if (SetProperty(ref _gridColorValue, value))
-            {
-                _gridColorIndex = ColorIndexOf(value, -1);
+            if (SetEditorState(_editorState with { GridColor = value }))
                 RaisePropertyChanged(nameof(GridColorIndex));
-                Rebuild();
-            }
         }
     }
 
     public string TextColorHex
     {
-        get => _textColorValue;
+        get => _editorState.TextColor;
         set
         {
             value ??= string.Empty;
-            if (!Color.TryParse(value, out _))
-            {
-                SetProperty(ref _textColorValue, value);
-                return;
-            }
-
-            if (SetProperty(ref _textColorValue, value))
-            {
-                _textColorIndex = ColorIndexOf(value, -1);
+            if (SetEditorState(_editorState with { TextColor = value }))
                 RaisePropertyChanged(nameof(TextColorIndex));
-                Rebuild();
-            }
         }
     }
 
     public string Title
     {
-        get => _title;
-        set
-        {
-            if (SetProperty(ref _title, value)) Rebuild();
-        }
+        get => _editorState.Title;
+        set => SetEditorState(_editorState with { Title = value ?? string.Empty });
     }
 
     public int GridKindIndex
     {
-        get => _gridKindIndex;
-        set
-        {
-            if (SetProperty(ref _gridKindIndex, value)) Rebuild();
-        }
+        get => (int)_editorState.Grid;
+        set => SetEditorState(_editorState with { Grid = (GridKind)Math.Clamp(value, 0, 6) });
     }
 
     public int PracticeModeIndex
     {
-        get => _practiceModeIndex;
+        get => (int)_editorState.Mode;
         set
         {
-            if (!SetProperty(ref _practiceModeIndex, value))
-                return;
+            if (!SetEditorState(_editorState with { Mode = (PracticeMode)Math.Clamp(value, 0, 1) })) return;
 
             RaisePropertyChanged(nameof(IsTraceMode));
-            Rebuild();
         }
     }
 
     public int RepeatsIndex
     {
-        get => _repeatsIndex;
+        get
+        {
+            var index = Array.IndexOf(RepeatsChoices, _editorState.RepeatsPerChar);
+            return index < 0 ? 0 : index;
+        }
         set
         {
-            if (SetProperty(ref _repeatsIndex, value)) Rebuild();
+            var index = Math.Clamp(value, 0, RepeatsChoices.Length - 1);
+            SetEditorState(_editorState with { RepeatsPerChar = RepeatsChoices[index] });
         }
     }
 
     /// <summary>格子边长（毫米），大字帖调大。</summary>
     public double GridSizeMm
     {
-        get => _gridSizeMm;
-        set
-        {
-            if (SetProperty(ref _gridSizeMm, Math.Clamp(value, 8, 60))) Rebuild();
-        }
+        get => _editorState.GridSizeMm;
+        set => SetEditorState(_editorState with { GridSizeMm = Math.Clamp(value, 8, 60) });
     }
 
     public bool HollowGlyph
     {
-        get => _hollowGlyph;
-        set
-        {
-            if (SetProperty(ref _hollowGlyph, value)) Rebuild();
-        }
+        get => _editorState.HollowGlyph;
+        set => SetEditorState(_editorState with { HollowGlyph = value });
     }
 
     /// <summary>纸张模板索引：0 白底、1 红格纸、2 信纸。</summary>
     public int BackgroundIndex
     {
-        get => _backgroundIndex;
-        set
-        {
-            if (SetProperty(ref _backgroundIndex, value)) Rebuild();
-        }
+        get => (int)_editorState.Background;
+        set => SetEditorState(_editorState with { Background = (SheetBackground)Math.Clamp(value, 0, 3) });
     }
 
     public int PageSizeIndex
     {
-        get => _pageSizeIndex;
+        get => PageSizeIndexOf(_editorState.Page);
         set
         {
-            if (SetProperty(ref _pageSizeIndex, Math.Clamp(value, 0, PageSizeChoices.Length - 1))) Rebuild();
+            var index = Math.Clamp(value, 0, PageSizeChoices.Length - 1);
+            SetEditorState(_editorState with { Page = ResolvePageSettings(index, PageMarginMm) });
         }
     }
 
     public double PageMarginMm
     {
-        get => _pageMarginMm;
-        set
+        get => _editorState.Page.MarginTopMm;
+        set => SetEditorState(_editorState with
         {
-            if (SetProperty(ref _pageMarginMm, Math.Clamp(value, 0, 40))) Rebuild();
-        }
+            Page = ResolvePageSettings(PageSizeIndex, Math.Clamp(value, 0, 40))
+        });
     }
 
     public double Zoom
@@ -540,6 +584,20 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public DelegateCommand ZoomOutCommand { get; }
 
     public DelegateCommand ZoomInCommand { get; }
+
+    public AsyncDelegateCommand OpenDocumentCommand { get; }
+
+    public AsyncDelegateCommand SaveDocumentCommand { get; }
+
+    public AsyncDelegateCommand SaveAsDocumentCommand { get; }
+
+    public AsyncDelegateCommand SaveTemplateCommand { get; }
+
+    public AsyncDelegateCommand ExportPdfCommand { get; }
+
+    public AsyncDelegateCommand ExportPngCommand { get; }
+
+    public AsyncDelegateCommand ExportPngsCommand { get; }
 
     public string? DocumentPath
     {
@@ -634,82 +692,32 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void ApplySpec(CharacterSheetSpec spec)
     {
-        var state = SheetEditorState.FromSpec(spec);
-
-        _inputText = state.InputText;
-        _title = state.Title;
-        _gridKindIndex = Math.Clamp((int)state.Grid, 0, 6);
-        _practiceModeIndex = Math.Clamp((int)state.Mode, 0, 1);
-        _repeatsIndex = Array.IndexOf(RepeatsChoices, state.RepeatsPerChar);
-        if (_repeatsIndex < 0) _repeatsIndex = 0;
-        _charactersPerLineIndex = Array.IndexOf(CharactersPerLineValues, state.CharactersPerLine);
-        if (_charactersPerLineIndex < 0) _charactersPerLineIndex = 0;
-        _blankLineCount = Math.Clamp(state.BlankLineCount, 0, 10);
-        _traceIntensityIndex = Math.Clamp((int)state.TraceIntensity, 0, TraceIntensityChoices.Length - 1);
-        _gridColorValue = state.GridColor;
-        _textColorValue = state.TextColor;
-        _gridColorIndex = ColorIndexOf(_gridColorValue, -1);
-        _textColorIndex = ColorIndexOf(_textColorValue, -1);
-        _headerPresetIndex = Math.Clamp((int)state.HeaderPreset, 0, HeaderPresetChoices.Length - 1);
-        _traceSlotCount = Math.Clamp(state.TraceSlotCount, 0, 8);
-        _gridSizeMm = Math.Clamp(state.GridSizeMm, 8, 60);
-        _hollowGlyph = state.HollowGlyph;
-        _groupByWord = state.GroupByWord;
-        _showPinyin = state.ShowPinyin;
-        _pinyinOnly = state.PinyinOnly;
-        _isVertical = state.Orientation == SheetOrientation.Vertical;
-        _showPoemHeader = state.ShowPoemHeader;
-        _frameBorder = state.FrameBorder;
-        _backgroundIndex = Math.Clamp((int)state.Background, 0, 3);
-        _backgroundColor = state.BackgroundColor;
-        _backgroundLineColor = state.BackgroundLineColor;
-        _backgroundLineSpacingMm = state.BackgroundLineSpacingMm;
-        _author = state.Author ?? string.Empty;
-        _dynasty = state.Dynasty ?? string.Empty;
-        _selectedSheetFont = string.IsNullOrWhiteSpace(state.FontFamilyName)
+        _editorState = SheetEditorState.FromSpec(spec);
+        _selectedSheetFont = string.IsNullOrWhiteSpace(_editorState.FontFamilyName)
             ? _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ?? _fontCatalog.Fonts.FirstOrDefault()
-            : _fontCatalog.Find(state.FontFamilyName) ?? new FontOption(state.FontFamilyName, false);
-        _headerTextTemplate = state.HeaderTextTemplate;
-        _traceColor = state.TraceColor ?? string.Empty;
-        _pageSizeIndex = PageSizeIndexOf(state.Page);
-        _pageMarginMm = Math.Clamp(state.Page.MarginTopMm, 0, 40);
+            : _fontCatalog.Find(_editorState.FontFamilyName) ??
+              new FontOption(_editorState.FontFamilyName, false);
 
-        RaisePropertyChanged(nameof(InputText));
-        RaisePropertyChanged(nameof(Title));
-        RaisePropertyChanged(nameof(GridKindIndex));
-        RaisePropertyChanged(nameof(PracticeModeIndex));
-        RaisePropertyChanged(nameof(IsTraceMode));
-        RaisePropertyChanged(nameof(RepeatsIndex));
-        RaisePropertyChanged(nameof(CharactersPerLineIndex));
-        RaisePropertyChanged(nameof(BlankLineCount));
-        RaisePropertyChanged(nameof(TraceIntensityIndex));
-        RaisePropertyChanged(nameof(GridColorIndex));
-        RaisePropertyChanged(nameof(GridColorHex));
-        RaisePropertyChanged(nameof(TextColorIndex));
-        RaisePropertyChanged(nameof(TextColorHex));
-        RaisePropertyChanged(nameof(HeaderPresetIndex));
-        RaisePropertyChanged(nameof(IsCustomHeader));
-        RaisePropertyChanged(nameof(IsPoemHeader));
-        RaisePropertyChanged(nameof(GridSizeMm));
-        RaisePropertyChanged(nameof(HollowGlyph));
-        RaisePropertyChanged(nameof(GroupByWord));
-        RaisePropertyChanged(nameof(ShowPinyin));
-        RaisePropertyChanged(nameof(PinyinOnly));
-        RaisePropertyChanged(nameof(IsVertical));
-        RaisePropertyChanged(nameof(ShowPoemHeader));
-        RaisePropertyChanged(nameof(FrameBorder));
-        RaisePropertyChanged(nameof(BackgroundIndex));
-        RaisePropertyChanged(nameof(Author));
-        RaisePropertyChanged(nameof(Dynasty));
-        RaisePropertyChanged(nameof(SelectedSheetFont));
-        RaisePropertyChanged(nameof(HeaderTextTemplate));
-        RaisePropertyChanged(nameof(TraceColor));
-        RaisePropertyChanged(nameof(PageSizeIndex));
-        RaisePropertyChanged(nameof(PageMarginMm));
+        RaisePropertyChanged(string.Empty);
+    }
+
+    private bool SetEditorState(
+        SheetEditorState state,
+        [CallerMemberName] string? propertyName = null)
+    {
+        if (_editorState == state) return false;
+
+        _editorState = state;
+        RaisePropertyChanged(propertyName);
+        Rebuild();
+        return true;
     }
 
     private void Rebuild()
     {
+        var charCount = InputText.Count(char.IsLetterOrDigit);
+        InputTextSummary = charCount > 0 ? $"{charCount} 字" : string.Empty;
+
         var headerPreset = (SheetHeaderPreset)Math.Clamp(HeaderPresetIndex, 0, HeaderPresetChoices.Length - 1);
         var traceIntensity = (TraceIntensity)Math.Clamp(TraceIntensityIndex, 0, TraceIntensityChoices.Length - 1);
         var title = string.IsNullOrWhiteSpace(Title) ? null : Title.Trim();
@@ -735,30 +743,30 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
-            TraceSlotCount = _traceSlotCount,
+            TraceSlotCount = _editorState.TraceSlotCount,
             GridSizeMm = GridSizeMm,
-            HollowGlyph = _hollowGlyph,
-            GroupByWord = _groupByWord,
-            ShowPinyin = _showPinyin,
-            PinyinOnly = _pinyinOnly,
-            PinyinByGlyph = _showPinyin ? _pinyinCatalog.PinyinByGlyph : null,
-            Orientation = _isVertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
+            HollowGlyph = HollowGlyph,
+            GroupByWord = GroupByWord,
+            ShowPinyin = ShowPinyin,
+            PinyinOnly = PinyinOnly,
+            PinyinByGlyph = ShowPinyin ? _pinyinCatalog.PinyinByGlyph : null,
+            Orientation = _editorState.Orientation,
             ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
-                             (headerPreset != SheetHeaderPreset.None && _showPoemHeader),
+                             (headerPreset != SheetHeaderPreset.None && ShowPoemHeader),
             ShowHeaderFields = showHeaderFields,
-            FrameBorder = _frameBorder,
-            BackgroundColor = _backgroundColor,
-            BackgroundLineColor = _backgroundLineColor,
-            BackgroundLineSpacingMm = _backgroundLineSpacingMm,
-            Author = string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
-            Dynasty = string.IsNullOrWhiteSpace(_dynasty) ? null : _dynasty.Trim(),
-            TraceColor = string.IsNullOrWhiteSpace(_traceColor) ? null : _traceColor,
+            FrameBorder = FrameBorder,
+            BackgroundColor = _editorState.BackgroundColor,
+            BackgroundLineColor = _editorState.BackgroundLineColor,
+            BackgroundLineSpacingMm = _editorState.BackgroundLineSpacingMm,
+            Author = string.IsNullOrWhiteSpace(Author) ? null : Author.Trim(),
+            Dynasty = string.IsNullOrWhiteSpace(Dynasty) ? null : Dynasty.Trim(),
+            TraceColor = string.IsNullOrWhiteSpace(TraceColor) ? null : TraceColor,
             TraceIntensity = traceIntensity,
-            GridColor = _gridColorValue,
-            TextColor = _textColorValue,
+            GridColor = GridColorHex,
+            TextColor = TextColorHex,
             FontFamilyName = SelectedSheetFont?.Name,
-            Background = (SheetBackground)Math.Clamp(_backgroundIndex, 0, 3),
-            Page = ResolvePageSettings()
+            Background = _editorState.Background,
+            Page = _editorState.Page
         };
 
         Spec = spec;
@@ -772,9 +780,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         if (!_suppressDirty) IsDirty = true;
     }
 
-    private PageSettings ResolvePageSettings()
+    private static PageSettings ResolvePageSettings(int pageSizeIndex, double marginMm)
     {
-        var (width, height) = PageSizeIndex switch
+        var (width, height) = pageSizeIndex switch
         {
             1 => (297d, 210d),
             2 => (297d, 420d),
@@ -786,10 +794,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         {
             WidthMm = width,
             HeightMm = height,
-            MarginTopMm = PageMarginMm,
-            MarginBottomMm = PageMarginMm,
-            MarginLeftMm = PageMarginMm,
-            MarginRightMm = PageMarginMm
+            MarginTopMm = marginMm,
+            MarginBottomMm = marginMm,
+            MarginLeftMm = marginMm,
+            MarginRightMm = marginMm
         };
     }
 
@@ -860,14 +868,17 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "backgroundcolor" when property.Value.GetString() is { } backgroundColor
                                             && Color.TryParse(backgroundColor, out _):
-                    _backgroundColor = backgroundColor;
+                    _editorState = _editorState with { BackgroundColor = backgroundColor };
                     break;
                 case "backgroundlinecolor" when property.Value.GetString() is { } backgroundLineColor
                                                 && Color.TryParse(backgroundLineColor, out _):
-                    _backgroundLineColor = backgroundLineColor;
+                    _editorState = _editorState with { BackgroundLineColor = backgroundLineColor };
                     break;
                 case "backgroundlinespacing" when property.Value.TryGetDouble(out var backgroundLineSpacing):
-                    _backgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60);
+                    _editorState = _editorState with
+                    {
+                        BackgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60)
+                    };
                     break;
                 case "author" when property.Value.GetString() is { } author:
                     Author = author;
@@ -882,7 +893,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 }
                 case "tracecount" when property.Value.TryGetInt32(out var traceCount):
-                    _traceSlotCount = Math.Clamp(traceCount, 0, 8);
+                    _editorState = _editorState with { TraceSlotCount = Math.Clamp(traceCount, 0, 8) };
                     break;
                 case "title" when property.Value.GetString() is { } title:
                     Title = title;
@@ -916,16 +927,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "gridcolor" when property.Value.GetString() is { } gridColor
                                       && Color.TryParse(gridColor, out _):
-                    _gridColorValue = gridColor;
-                    _gridColorIndex = ColorIndexOf(gridColor, -1);
+                    _editorState = _editorState with { GridColor = gridColor };
                     RaisePropertyChanged(nameof(GridColorIndex));
                     RaisePropertyChanged(nameof(GridColorHex));
                     Rebuild();
                     break;
                 case "textcolor" when property.Value.GetString() is { } textColor
                                       && Color.TryParse(textColor, out _):
-                    _textColorValue = textColor;
-                    _textColorIndex = ColorIndexOf(textColor, -1);
+                    _editorState = _editorState with { TextColor = textColor };
                     RaisePropertyChanged(nameof(TextColorIndex));
                     RaisePropertyChanged(nameof(TextColorHex));
                     Rebuild();
@@ -966,7 +975,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             }
 
         // 旧模板用 showPoemHeader 表示诗词题头，升级后统一映射到“诗词题头”预设。
-        if (!hasHeaderPreset && _showPoemHeader)
+        if (!hasHeaderPreset && ShowPoemHeader)
             HeaderPresetIndex = (int)SheetHeaderPreset.Poem;
     }
 
@@ -1007,86 +1016,18 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void ResetEditorState()
     {
-        _inputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
-        _title = string.Empty;
-        _gridKindIndex = 0;
-        _practiceModeIndex = 0;
-        _repeatsIndex = 4;
-        _charactersPerLineIndex = 0;
-        _blankLineCount = 0;
-        _traceIntensityIndex = 3;
-        _gridColorIndex = 0;
-        _textColorIndex = 1;
-        _headerPresetIndex = 2;
-        _traceSlotCount = 2;
-        _gridSizeMm = 14;
-        _hollowGlyph = false;
-        _groupByWord = false;
-        _showPinyin = false;
-        _pinyinOnly = false;
-        _isVertical = false;
-        _showPoemHeader = false;
-        _frameBorder = false;
-        _backgroundIndex = 0;
-        _backgroundColor = null;
-        _backgroundLineColor = null;
-        _backgroundLineSpacingMm = null;
-        _author = string.Empty;
-        _dynasty = string.Empty;
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
-        _headerTextTemplate = "姓名_班级---年_月_日";
+        _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
         _textEntryIndex = -1;
-        _zoom = 1.0;
+        _zoom = 0.5;
         _pageIndex = 0;
-        _traceColor = string.Empty;
-        _gridColorValue = ColorChoiceValues[0];
-        _textColorValue = ColorChoiceValues[1];
-        _pageSizeIndex = 0;
-        _pageMarginMm = 15;
         _documentPath = null;
         _statusMessage = "已就绪";
         _isDirty = false;
         _module = null;
 
-        RaisePropertyChanged(nameof(InputText));
-        RaisePropertyChanged(nameof(Title));
-        RaisePropertyChanged(nameof(GridKindIndex));
-        RaisePropertyChanged(nameof(PracticeModeIndex));
-        RaisePropertyChanged(nameof(IsTraceMode));
-        RaisePropertyChanged(nameof(RepeatsIndex));
-        RaisePropertyChanged(nameof(CharactersPerLineIndex));
-        RaisePropertyChanged(nameof(BlankLineCount));
-        RaisePropertyChanged(nameof(TraceIntensityIndex));
-        RaisePropertyChanged(nameof(GridColorIndex));
-        RaisePropertyChanged(nameof(GridColorHex));
-        RaisePropertyChanged(nameof(TextColorIndex));
-        RaisePropertyChanged(nameof(TextColorHex));
-        RaisePropertyChanged(nameof(HeaderPresetIndex));
-        RaisePropertyChanged(nameof(IsCustomHeader));
-        RaisePropertyChanged(nameof(IsPoemHeader));
-        RaisePropertyChanged(nameof(GridSizeMm));
-        RaisePropertyChanged(nameof(HollowGlyph));
-        RaisePropertyChanged(nameof(GroupByWord));
-        RaisePropertyChanged(nameof(ShowPinyin));
-        RaisePropertyChanged(nameof(PinyinOnly));
-        RaisePropertyChanged(nameof(IsVertical));
-        RaisePropertyChanged(nameof(ShowPoemHeader));
-        RaisePropertyChanged(nameof(FrameBorder));
-        RaisePropertyChanged(nameof(BackgroundIndex));
-        RaisePropertyChanged(nameof(Author));
-        RaisePropertyChanged(nameof(Dynasty));
-        RaisePropertyChanged(nameof(SelectedSheetFont));
-        RaisePropertyChanged(nameof(HeaderTextTemplate));
-        RaisePropertyChanged(nameof(TextEntryIndex));
-        RaisePropertyChanged(nameof(Zoom));
-        RaisePropertyChanged(nameof(PageIndex));
-        RaisePropertyChanged(nameof(TraceColor));
-        RaisePropertyChanged(nameof(PageSizeIndex));
-        RaisePropertyChanged(nameof(PageMarginMm));
-        RaisePropertyChanged(nameof(DocumentPath));
-        RaisePropertyChanged(nameof(StatusMessage));
-        RaisePropertyChanged(nameof(IsDirty));
+        RaisePropertyChanged(string.Empty);
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext)

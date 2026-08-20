@@ -3,43 +3,32 @@ using Avalonia.Media;
 namespace Zitie.Avalonia.Rendering;
 
 /// <summary>
-///     字帖渲染外观。默认值面向打印（黑白打印机友好），屏幕预览从主题资源覆盖。
+///     字帖渲染外观模型。具体取值由 Themes/Tokens 中的 XAML 资源创建，
+///     本类型只提供渲染器需要的强类型契约。
 /// </summary>
-public sealed record SheetRenderTheme
+public sealed class SheetRenderTheme
 {
-    /// <summary>格子外框颜色。</summary>
-    public Color GridSolidColor { get; init; } = Color.FromRgb(0xB0, 0x4A, 0x3F);
+    public Color GridSolidColor { get; set; }
 
-    /// <summary>格子辅助线（十字/对角线）颜色。</summary>
-    public Color GridDashColor { get; init; } = Color.FromRgb(0xD2, 0x8C, 0x83);
+    public Color GridDashColor { get; set; }
 
-    public float GridSolidStrokePt { get; init; } = 1.1f;
+    public double GridSolidStrokePt { get; set; }
 
-    public float GridDashStrokePt { get; init; } = 0.7f;
+    public double GridDashStrokePt { get; set; }
 
-    /// <summary>范字颜色。</summary>
-    public Color ModelGlyphColor { get; init; } = Colors.Black;
+    public Color ModelGlyphColor { get; set; }
 
-    /// <summary>描红字颜色（浅色轮廓）。</summary>
-    public Color TraceGlyphColor { get; init; } = Color.FromRgb(0xDF, 0x9C, 0x93);
+    public Color TraceGlyphColor { get; set; }
 
-    /// <summary>页眉标题颜色。</summary>
-    public Color TitleColor { get; init; } = Colors.Black;
+    public Color TitleColor { get; set; }
 
-    /// <summary>页眉填写栏颜色。</summary>
-    public Color FieldColor { get; init; } = Color.FromRgb(0x40, 0x40, 0x40);
+    public Color FieldColor { get; set; }
 
-    /// <summary>页脚页码颜色。</summary>
-    public Color FooterColor { get; init; } = Color.FromRgb(0x90, 0x90, 0x90);
+    public Color FooterColor { get; set; }
 
-    /// <summary>拼音标注颜色（打印建议深灰）。</summary>
-    public Color PinyinColor { get; init; } = Color.FromRgb(0x50, 0x50, 0x50);
+    public Color PinyinColor { get; set; }
 
-    /// <summary>页面装饰边框外圈颜色。</summary>
-    public Color FrameColor { get; init; } = Color.FromRgb(0x8A, 0x8A, 0x8A);
+    public Color FrameColor { get; set; }
 
-    /// <summary>页面装饰边框内圈颜色。</summary>
-    public Color FrameInnerColor { get; init; } = Color.FromRgb(0xC8, 0xC8, 0xC8);
-
-    public static SheetRenderTheme Print { get; } = new();
+    public Color FrameInnerColor { get; set; }
 }

@@ -1,5 +1,6 @@
 using SkiaSharp;
 using Zitie.Avalonia.Rendering;
+using Zitie.Avalonia.Themes;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 
@@ -19,7 +20,7 @@ public static class SheetExporter
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(spec);
         ArgumentNullException.ThrowIfNull(pages);
-        theme ??= SheetRenderTheme.Print;
+        theme ??= SheetRenderThemes.Print;
 
         using var stream = File.Create(path);
         using var document = SKDocument.CreatePdf(stream);
@@ -50,7 +51,7 @@ public static class SheetExporter
         if (double.IsNaN(dpi) || double.IsInfinity(dpi) || dpi <= 0)
             throw new ArgumentOutOfRangeException(nameof(dpi), dpi, "DPI 必须是正数。");
 
-        theme ??= SheetRenderTheme.Print;
+        theme ??= SheetRenderThemes.Print;
 
         var pxPerMm = dpi / 25.4;
         var width = Math.Max(1, (int)Math.Ceiling(spec.Page.WidthMm * pxPerMm));

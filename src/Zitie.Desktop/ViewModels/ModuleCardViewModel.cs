@@ -25,7 +25,8 @@ public sealed class ModuleCardViewModel
 
     public IReadOnlyList<SheetPage> PreviewPages => Preview.Pages;
 
-    public double PreviewZoom => 0.13;
+    // 预览控件以 2 倍像素密度渲染，0.26 保持卡片内约 25% 的逻辑显示比例。
+    public double PreviewZoom => 0.26;
 
     public string CategoryText => Preview.Category;
 

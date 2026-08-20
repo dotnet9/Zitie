@@ -7,6 +7,8 @@ namespace Zitie.Desktop.Models;
 /// </summary>
 public sealed record SheetEditorState
 {
+    public const string DefaultInputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
+
     public string InputText { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
     public GridKind Grid { get; init; }
@@ -37,6 +39,15 @@ public sealed record SheetEditorState
     public string? FontFamilyName { get; init; }
     public string? TraceColor { get; init; }
     public PageSettings Page { get; init; } = PageSettings.A4;
+
+    public static SheetEditorState CreateDefault(string? fontFamilyName = null)
+    {
+        return new SheetEditorState
+        {
+            InputText = DefaultInputText,
+            FontFamilyName = fontFamilyName
+        };
+    }
 
     public static SheetEditorState FromSpec(CharacterSheetSpec spec)
     {

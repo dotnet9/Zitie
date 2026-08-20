@@ -1,0 +1,166 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:primitives="using:Avalonia.Controls.Primitives"
+                    xmlns:zitie="using:Zitie.Desktop.Controls">
+    <ControlTheme x:Key="ZitieWindowCaptionButtonTheme" TargetType="Button">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="MinWidth" Value="40" />
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,4,0,0" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+                <Border Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type zitie:ZitieWindow}" TargetType="zitie:ZitieWindow">
+        <Setter Property="Background" Value="{DynamicResource ZitiePaperBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="TitleBarHeight" Value="{StaticResource ZitieWindowTitleBarHeight}" />
+        <Setter Property="TitleBarBackground" Value="{DynamicResource ZitieRailBrush}" />
+        <Setter Property="TitleBarForeground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="TitleBarBorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
+        <Setter Property="TitleBarBorderThickness" Value="0,0,0,1" />
+        <Setter Property="WindowCornerRadius" Value="{StaticResource ZitieWindowCornerRadius}" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="zitie:ZitieWindow">
+                <Panel>
+                    <primitives:VisualLayerManager Name="PART_VisualLayerManager"
+                                                   EnableAdornerLayer="True"
+                                                   EnableOverlayLayer="True"
+                                                   EnableTextSelectorLayer="True">
+                        <Border Classes="window-frame"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding WindowCornerRadius}"
+                                ClipToBounds="True">
+                            <Grid RowDefinitions="Auto,*">
+                                <Border Name="PART_TitleBar"
+                                        Height="{TemplateBinding TitleBarHeight}"
+                                        Background="{TemplateBinding TitleBarBackground}"
+                                        BorderBrush="{TemplateBinding TitleBarBorderBrush}"
+                                        BorderThickness="{TemplateBinding TitleBarBorderThickness}"
+                                        IsVisible="{TemplateBinding IsTitleBarVisible}"
+                                        WindowDecorationProperties.ElementRole="TitleBar">
+                                    <Grid>
+                                        <ContentPresenter HorizontalAlignment="Left"
+                                                          VerticalAlignment="Stretch"
+                                                          Content="{TemplateBinding LeftContent}"
+                                                          WindowDecorationProperties.ElementRole="User" />
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Stretch"
+                                                          Content="{TemplateBinding TitleBarContent}"
+                                                          WindowDecorationProperties.ElementRole="User" />
+                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                            <ContentPresenter VerticalAlignment="Stretch"
+                                                              Content="{TemplateBinding RightContent}"
+                                                              WindowDecorationProperties.ElementRole="User" />
+                                            <Button Name="PART_MinimizeButton"
+                                                    Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
+                                                    Foreground="{TemplateBinding TitleBarForeground}"
+                                                    IsVisible="{TemplateBinding IsMinimizeButtonVisible}"
+                                                    ToolTip.Tip="最小化"
+                                                    WindowDecorationProperties.ElementRole="MinimizeButton">
+                                                <Border Width="11"
+                                                        Height="1.5"
+                                                        Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                        CornerRadius="1" />
+                                            </Button>
+                                            <Button Name="PART_MaximizeButton"
+                                                    Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
+                                                    Foreground="{TemplateBinding TitleBarForeground}"
+                                                    IsVisible="{TemplateBinding IsMaximizeButtonVisible}"
+                                                    ToolTip.Tip="最大化 / 还原"
+                                                    WindowDecorationProperties.ElementRole="MaximizeButton">
+                                                <Grid Width="12" Height="12">
+                                                    <Path Classes="maximize-glyph"
+                                                          Data="M1,1 H11 V11 H1 Z"
+                                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                          StrokeThickness="1.4" />
+                                                    <Path Classes="restore-glyph"
+                                                          Data="M4,1 H11 V8 M1,4 H8 V11 H1 Z"
+                                                          IsVisible="False"
+                                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                          StrokeThickness="1.4" />
+                                                </Grid>
+                                            </Button>
+                                            <Button Name="PART_CloseButton"
+                                                    Classes="close"
+                                                    Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
+                                                    Foreground="{TemplateBinding TitleBarForeground}"
+                                                    IsVisible="{TemplateBinding IsCloseButtonVisible}"
+                                                    ToolTip.Tip="关闭"
+                                                    WindowDecorationProperties.ElementRole="CloseButton">
+                                                <Path Width="12"
+                                                      Height="12"
+                                                      Data="M1,1 L11,11 M11,1 L1,11"
+                                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                      StrokeLineCap="Round"
+                                                      StrokeThickness="1.6" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <ContentPresenter Name="PART_ContentPresenter"
+                                                  Grid.Row="1"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            </Grid>
+                        </Border>
+                    </primitives:VisualLayerManager>
+
+                    <Border Name="PART_ResizeTop" Height="{StaticResource ZitieWindowResizeGripThickness}" VerticalAlignment="Top" Background="Transparent" Cursor="TopSide" />
+                    <Border Name="PART_ResizeBottom" Height="{StaticResource ZitieWindowResizeGripThickness}" VerticalAlignment="Bottom" Background="Transparent" Cursor="BottomSide" />
+                    <Border Name="PART_ResizeLeft" Width="{StaticResource ZitieWindowResizeGripThickness}" HorizontalAlignment="Left" VerticalAlignment="Stretch" Background="Transparent" Cursor="LeftSide" />
+                    <Border Name="PART_ResizeRight" Width="{StaticResource ZitieWindowResizeGripThickness}" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="Transparent" Cursor="RightSide" />
+                    <Border Name="PART_ResizeTopLeft" Width="{StaticResource ZitieWindowResizeCornerSize}" Height="{StaticResource ZitieWindowResizeCornerSize}" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" Cursor="TopLeftCorner" />
+                    <Border Name="PART_ResizeTopRight" Width="{StaticResource ZitieWindowResizeCornerSize}" Height="{StaticResource ZitieWindowResizeCornerSize}" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" Cursor="TopRightCorner" />
+                    <Border Name="PART_ResizeBottomLeft" Width="{StaticResource ZitieWindowResizeCornerSize}" Height="{StaticResource ZitieWindowResizeCornerSize}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent" Cursor="BottomLeftCorner" />
+                    <Border Name="PART_ResizeBottomRight" Width="{StaticResource ZitieWindowResizeCornerSize}" Height="{StaticResource ZitieWindowResizeCornerSize}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" Cursor="BottomRightCorner" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:maximized /template/ Border.window-frame,^:fullscreen /template/ Border.window-frame">
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="^:native-window-corners /template/ Border.window-frame">
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="^:maximized /template/ Path.maximize-glyph">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="^:maximized /template/ Path.restore-glyph">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+        <Style Selector="^ /template/ Button.close:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

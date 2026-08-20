@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 新中式浅色主题：宣纸底、墨色文字、朱砂强调。 -->
+    <Color x:Key="ZitiePaperColor">#F5F0E6</Color>
+    <Color x:Key="ZitiePanelColor">#FFFFFF</Color>
+    <Color x:Key="ZitieRailColor">#FBF8F1</Color>
+    <Color x:Key="ZitieBorderColor">#E8E0D0</Color>
+    <Color x:Key="ZitieBorderStrongColor">#D9CFBA</Color>
+    <Color x:Key="ZitieInkColor">#2B2722</Color>
+    <Color x:Key="ZitieInkSecondaryColor">#6E675D</Color>
+    <Color x:Key="ZitieInkMutedColor">#A29886</Color>
+    <Color x:Key="ZitieAccentColor">#B04A3F</Color>
+    <Color x:Key="ZitieAccentHoverColor">#C05A4E</Color>
+    <Color x:Key="ZitieAccentTintColor">#F7EBE7</Color>
+    <Color x:Key="ZitieAccentPressedColor">#EFD8D2</Color>
+    <Color x:Key="ZitieLightTextColor">#FBF6EF</Color>
+
+    <SolidColorBrush x:Key="ZitiePaperBrush" Color="{StaticResource ZitiePaperColor}" />
+    <SolidColorBrush x:Key="ZitiePanelBrush" Color="{StaticResource ZitiePanelColor}" />
+    <SolidColorBrush x:Key="ZitieRailBrush" Color="{StaticResource ZitieRailColor}" />
+    <SolidColorBrush x:Key="ZitieBorderBrush" Color="{StaticResource ZitieBorderColor}" />
+    <SolidColorBrush x:Key="ZitieBorderStrongBrush" Color="{StaticResource ZitieBorderStrongColor}" />
+    <SolidColorBrush x:Key="ZitieInkBrush" Color="{StaticResource ZitieInkColor}" />
+    <SolidColorBrush x:Key="ZitieInkSecondaryBrush" Color="{StaticResource ZitieInkSecondaryColor}" />
+    <SolidColorBrush x:Key="ZitieInkMutedBrush" Color="{StaticResource ZitieInkMutedColor}" />
+    <SolidColorBrush x:Key="ZitieAccentBrush" Color="{StaticResource ZitieAccentColor}" />
+    <SolidColorBrush x:Key="ZitieAccentHoverBrush" Color="{StaticResource ZitieAccentHoverColor}" />
+    <SolidColorBrush x:Key="ZitieAccentTintBrush" Color="{StaticResource ZitieAccentTintColor}" />
+    <SolidColorBrush x:Key="ZitieAccentPressedBrush" Color="{StaticResource ZitieAccentPressedColor}" />
+    <SolidColorBrush x:Key="ZitieLightTextBrush" Color="{StaticResource ZitieLightTextColor}" />
+
+    <x:Double x:Key="ZitieWindowTitleBarHeight">42</x:Double>
+    <x:Double x:Key="ZitieWindowResizeGripThickness">5</x:Double>
+    <x:Double x:Key="ZitieWindowResizeCornerSize">10</x:Double>
+    <CornerRadius x:Key="ZitieWindowCornerRadius">8</CornerRadius>
+</ResourceDictionary>

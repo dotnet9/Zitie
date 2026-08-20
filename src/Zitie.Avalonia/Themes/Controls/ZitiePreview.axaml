@@ -4,6 +4,7 @@
     <ControlTheme x:Key="{x:Type zitie:ZitiePreview}"
                   TargetType="zitie:ZitiePreview">
         <Setter Property="Background" Value="{DynamicResource ZitiePreviewBackgroundBrush}" />
+        <Setter Property="RenderTheme" Value="{DynamicResource ZitieScreenRenderTheme}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Top" />
         <Setter Property="Template">
@@ -14,8 +15,10 @@
                         Padding="12">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Auto"
-                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}">
                         <Image Source="{TemplateBinding PageImage}" Stretch="None" />
                     </ScrollViewer>
                 </Border>

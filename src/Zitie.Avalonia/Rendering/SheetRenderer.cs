@@ -173,14 +173,14 @@ public static class SheetRenderer
         using var solidPaint = new SKPaint
         {
             Color = ResolveColor(spec.GridColor, theme.GridSolidColor).ToSKColor(),
-            StrokeWidth = theme.GridSolidStrokePt,
+            StrokeWidth = (float)theme.GridSolidStrokePt,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke
         };
         using var dashPaint = new SKPaint
         {
             Color = GridDashColor(spec, theme).ToSKColor(),
-            StrokeWidth = theme.GridDashStrokePt,
+            StrokeWidth = (float)theme.GridDashStrokePt,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             PathEffect = SKPathEffect.CreateDash(DashPattern, 0)

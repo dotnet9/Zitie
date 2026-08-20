@@ -2,7 +2,10 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:prism="http://prismlibrary.com/"
                    xmlns:zitie="using:Zitie.Desktop.Controls"
+                   xmlns:vm="using:Zitie.Desktop.ViewModels"
                    x:Class="Zitie.Desktop.Views.MainWindow"
+                   x:DataType="vm:MainWindowViewModel"
+                   prism:ViewModelLocator.AutoWireViewModel="True"
                    Title="字帖 Zitie"
                    Width="1240"
                    Height="840"
@@ -11,146 +14,106 @@
                    CanResize="True"
                    CanMaximize="True"
                    Icon="avares://Zitie.Desktop/Assets/logo.ico"
-                   Background="#F5F0E6"
+                   Background="{DynamicResource ZitiePaperBrush}"
                    FontFamily="{DynamicResource ZitieUiFontFamily}"
                    WindowStartupLocation="CenterScreen">
-    <Grid RowDefinitions="42,*" Background="#F5F0E6">
-        <Border x:Name="TitleBar"
-                Grid.Row="0"
-                Classes="window-title-bar">
-            <Grid ColumnDefinitions="Auto,*,Auto">
-                <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center" Margin="16,0,0,0">
-                    <Border Classes="window-seal">
-                        <TextBlock Text="字"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="#FBF6EF"
-                                   FontSize="14"
-                                   FontWeight="Bold" />
-                    </Border>
-                    <StackPanel VerticalAlignment="Center" Spacing="1">
-                        <TextBlock Text="字帖" Classes="window-title" />
-                        <TextBlock Text="ZITIE WORKSHOP" Classes="window-title-en" />
-                    </StackPanel>
-                </StackPanel>
-                <TextBlock Grid.Column="1"
-                           Text="字帖工作台"
-                           Classes="window-center-title"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Top"
-                            Classes="window-caption-buttons">
-                    <Button x:Name="MinimizeButton"
-                            Classes="window-caption-button"
-                            ToolTip.Tip="最小化">
-                        <Border Width="11" Height="1.5" Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" CornerRadius="1" />
-                    </Button>
-                    <Button x:Name="MaximizeButton"
-                            Classes="window-caption-button"
-                            ToolTip.Tip="最大化 / 还原">
-                        <Grid Width="12" Height="12">
-                            <Path Classes="maximize-glyph"
-                                  Data="M1,1 H11 V11 H1 Z"
-                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.4" />
-                            <Path Classes="restore-glyph"
-                                  Data="M4,1 H11 V8 M1,4 H8 V11 H1 Z"
-                                  IsVisible="False"
-                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.4" />
-                        </Grid>
-                    </Button>
-                    <Button x:Name="CloseButton"
-                            Classes="window-caption-button close"
-                            ToolTip.Tip="关闭">
-                        <Path Data="M1,1 L11,11 M11,1 L1,11"
-                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              StrokeLineCap="Round"
-                              StrokeThickness="1.6"
-                              Width="12"
-                              Height="12" />
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Border>
+    <zitie:ZitieWindow.LeftContent>
+        <StackPanel Margin="16,0,0,0"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="9">
+            <Border Classes="window-seal">
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource ZitieLightTextBrush}"
+                           Text="字" />
+            </Border>
+            <StackPanel VerticalAlignment="Center" Spacing="1">
+                <TextBlock Classes="window-title" Text="字帖" />
+                <TextBlock Classes="window-title-en" Text="ZITIE WORKSHOP" />
+            </StackPanel>
+        </StackPanel>
+    </zitie:ZitieWindow.LeftContent>
 
-        <Grid Grid.Row="1" ColumnDefinitions="64,*" Background="#F5F0E6">
-            <Border Grid.Column="0" Classes="app-rail">
+    <zitie:ZitieWindow.TitleBarContent>
+        <TextBlock Classes="window-center-title"
+                   VerticalAlignment="Center"
+                   Text="字帖工作台" />
+    </zitie:ZitieWindow.TitleBarContent>
+
+    <Grid ColumnDefinitions="64,*" Background="{DynamicResource ZitiePaperBrush}">
+        <Border Grid.Column="0" Classes="app-rail">
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Center">
                     <Border Classes="app-seal">
-                        <TextBlock Text="字"
-                                   HorizontalAlignment="Center"
+                        <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Foreground="#FBF6EF"
                                    FontSize="22"
-                                   FontWeight="Bold" />
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource ZitieLightTextBrush}"
+                                   Text="字" />
                     </Border>
-                    <Button x:Name="GalleryNavButton"
-                            Classes="rail-button active"
-                            Click="NavigateGalleryButton_OnClick"
+                    <Button Classes="rail-button"
+                            Classes.active="{Binding IsGalleryMode}"
+                            Command="{Binding NavigateGalleryCommand}"
                             ToolTip.Tip="模板库">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
-                            <Path Data="M3,3 H10.5 V10.5 H3 Z M13.5,3 H21 V10.5 H13.5 Z M3,13.5 H10.5 V21 H3 Z M13.5,13.5 H21 V21 H13.5 Z"
-                                  StrokeThickness="1.8" Width="21" Height="21" />
+                            <Path Width="21"
+                                  Height="21"
+                                  Data="M3,3 H10.5 V10.5 H3 Z M13.5,3 H21 V10.5 H13.5 Z M3,13.5 H10.5 V21 H3 Z M13.5,13.5 H21 V21 H13.5 Z"
+                                  StrokeThickness="1.8" />
                         </Grid>
                     </Button>
-                    <Button x:Name="EditorNavButton"
-                            Classes="rail-button"
-                            Click="NavigateEditorButton_OnClick"
+                    <Button Classes="rail-button"
+                            Classes.active="{Binding !IsGalleryMode}"
+                            Command="{Binding NavigateEditorCommand}"
                             ToolTip.Tip="新建字帖">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
-                            <Path Data="M12,5 V19 M5,12 H19"
-                                  StrokeThickness="1.8" StrokeLineCap="Round" Width="21" Height="21" />
+                            <Path Width="21"
+                                  Height="21"
+                                  Data="M12,5 V19 M5,12 H19"
+                                  StrokeLineCap="Round"
+                                  StrokeThickness="1.8" />
                         </Grid>
                     </Button>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
-                    <Button x:Name="LogNavButton"
-                            Classes="rail-button"
-                            Click="ToggleLogMenuItem_OnClick"
+                    <Button Classes="rail-button"
+                            Command="{Binding ToggleLogCommand}"
                             ToolTip.Tip="日志">
-                        <Path Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
-                              StrokeThickness="1.8" StrokeLineCap="Round" Width="21" Height="21" />
+                        <Path Width="21"
+                              Height="21"
+                              Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
+                              StrokeLineCap="Round"
+                              StrokeThickness="1.8" />
                     </Button>
                 </StackPanel>
             </DockPanel>
         </Border>
 
-            <Grid Grid.Column="1" RowDefinitions="*,Auto">
-                <ContentControl Grid.Row="0" prism:RegionManager.RegionName="MainRegion" />
+        <Grid Grid.Column="1" RowDefinitions="*,Auto">
+            <ContentControl Grid.Row="0" prism:RegionManager.RegionName="MainRegion" />
 
-                <Border Grid.Row="1"
-                        x:Name="LogPanel"
-                        IsVisible="False"
-                        Classes="log-panel">
-                    <DockPanel>
-                        <Border DockPanel.Dock="Top" Padding="12,6">
-                            <DockPanel>
-                                <TextBlock Text="日志" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                <Button DockPanel.Dock="Right"
-                                        Content="关闭"
-                                        Classes="gallery-action"
-                                        Click="CloseLogButton_OnClick" />
-                            </DockPanel>
-                        </Border>
-                        <ContentControl x:Name="LogHost" Margin="8,0,8,8" />
-                    </DockPanel>
-                </Border>
-            </Grid>
+            <Border Grid.Row="1"
+                    Classes="log-panel"
+                    IsVisible="{Binding IsLogVisible}">
+                <DockPanel>
+                    <Border Padding="12,6" DockPanel.Dock="Top">
+                        <DockPanel>
+                            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="日志" />
+                            <Button Classes="gallery-action"
+                                    Command="{Binding ToggleLogCommand}"
+                                    Content="关闭"
+                                    DockPanel.Dock="Right" />
+                        </DockPanel>
+                    </Border>
+                    <ContentControl Margin="8,0,8,8" Content="{Binding LogView}" />
+                </DockPanel>
+            </Border>
         </Grid>
-
-        <Border x:Name="ResizeTop" Grid.RowSpan="2" Height="5" VerticalAlignment="Top" Classes="window-resize-grip" Cursor="TopSide" />
-        <Border x:Name="ResizeBottom" Grid.RowSpan="2" Height="5" VerticalAlignment="Bottom" Classes="window-resize-grip" Cursor="BottomSide" />
-        <Border x:Name="ResizeLeft" Grid.RowSpan="2" Width="5" HorizontalAlignment="Left" Classes="window-resize-grip" Cursor="LeftSide" />
-        <Border x:Name="ResizeRight" Grid.RowSpan="2" Width="5" HorizontalAlignment="Right" Classes="window-resize-grip" Cursor="RightSide" />
-        <Border x:Name="ResizeTopLeft" Grid.RowSpan="2" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Classes="window-resize-grip" Cursor="TopLeftCorner" />
-        <Border x:Name="ResizeTopRight" Grid.RowSpan="2" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Classes="window-resize-grip" Cursor="TopRightCorner" />
-        <Border x:Name="ResizeBottomLeft" Grid.RowSpan="2" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Classes="window-resize-grip" Cursor="BottomLeftCorner" />
-        <Border x:Name="ResizeBottomRight" Grid.RowSpan="2" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Classes="window-resize-grip" Cursor="BottomRightCorner" />
     </Grid>
 </zitie:ZitieWindow>
