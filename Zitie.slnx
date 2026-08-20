@@ -1,7 +1,11 @@
 <Solution>
-  <Project Path="src/Zitie.Core/Zitie.Core.csproj" />
-  <Project Path="src/Zitie.Avalonia/Zitie.Avalonia.csproj" />
-  <Project Path="src/Zitie.Desktop/Zitie.Desktop.csproj" />
-  <Project Path="tests/Zitie.Core.Tests/Zitie.Core.Tests.csproj" />
-  <Project Path="tests/Zitie.Desktop.Tests/Zitie.Desktop.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Zitie.Avalonia/Zitie.Avalonia.csproj" />
+    <Project Path="src/Zitie.Core/Zitie.Core.csproj" />
+    <Project Path="src/Zitie.Desktop/Zitie.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Zitie.Core.Tests/Zitie.Core.Tests.csproj" />
+    <Project Path="tests/Zitie.Desktop.Tests/Zitie.Desktop.Tests.csproj" />
+  </Folder>
 </Solution>
