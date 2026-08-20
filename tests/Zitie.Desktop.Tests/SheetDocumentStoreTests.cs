@@ -106,4 +106,19 @@ public sealed class SheetDocumentStoreTests
         Assert.Equal(SheetOrientation.Vertical, state.Orientation);
         Assert.Equal(19, state.Page.MarginTopMm);
     }
+
+    [Fact]
+    public void Load_RejectsDocumentWithoutSpec()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-invalid-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(path, "{\"version\":1}");
+            Assert.Throws<InvalidDataException>(() => SheetDocumentStore.Load(path));
+        }
+        finally
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+    }
 }

@@ -51,8 +51,15 @@ public static class SheetDocumentStore
     public static SheetDocument Load(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        var document = JsonSerializer.Deserialize(File.ReadAllText(path), ZitieJsonContext.Default.SheetDocument);
-        if (document is null || document.Spec is null)
+        var json = File.ReadAllText(path);
+        using var root = JsonDocument.Parse(json);
+        if (root.RootElement.ValueKind != JsonValueKind.Object ||
+            !root.RootElement.TryGetProperty("spec", out var spec) ||
+            spec.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException("字帖文档为空或格式无效。");
+
+        var document = JsonSerializer.Deserialize(json, ZitieJsonContext.Default.SheetDocument);
+        if (document is null)
             throw new InvalidDataException("字帖文档为空或格式无效。");
 
         return document;
