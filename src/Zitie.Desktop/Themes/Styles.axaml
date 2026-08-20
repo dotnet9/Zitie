@@ -423,33 +423,6 @@
         <Setter Property="BorderBrush" Value="#E8E0D0" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
     </Style>
-    <Style Selector="Border.pill-control">
-        <Setter Property="Background" Value="#FFFFFF" />
-        <Setter Property="BorderBrush" Value="#D9CFBA" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="999" />
-        <Setter Property="Padding" Value="4,3" />
-    </Style>
-    <Style Selector="Button.pill-button">
-        <Setter Property="Width" Value="26" />
-        <Setter Property="Height" Value="26" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="CornerRadius" Value="999" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="#6E675D" />
-    </Style>
-    <Style Selector="Button.pill-button:pointerover">
-        <Setter Property="Background" Value="#F7EBE7" />
-        <Setter Property="Foreground" Value="#B04A3F" />
-    </Style>
-    <Style Selector="TextBlock.pill-text">
-        <Setter Property="FontSize" Value="12.5" />
-        <Setter Property="Foreground" Value="#6E675D" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-
     <Style Selector="Border.editor-status-bar">
         <Setter Property="Height" Value="28" />
         <Setter Property="Padding" Value="0,0,14,0" />

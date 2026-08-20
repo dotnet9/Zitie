@@ -1,0 +1,98 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:Zitie.Desktop.Controls">
+    <ControlTheme x:Key="ZitieStepperButtonTheme" TargetType="Button">
+        <Setter Property="Width" Value="{StaticResource ZitieStepperButtonSize}" />
+        <Setter Property="Height" Value="{StaticResource ZitieStepperButtonSize}" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource ZitieStepperButtonCornerRadius}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="Button">
+                <Border Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{DynamicResource ZitieBorderStrongBrush}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type controls:ZitieStepper}"
+                  TargetType="controls:ZitieStepper">
+        <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="controls:ZitieStepper">
+                <Border Padding="4,3"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{StaticResource ZitieStepperCornerRadius}">
+                    <Grid ColumnDefinitions="Auto,Auto,Auto"
+                          ColumnSpacing="{StaticResource ZitieStepperSpacing}">
+                        <Button Grid.Column="0"
+                                Theme="{StaticResource ZitieStepperButtonTheme}"
+                                Command="{TemplateBinding DecreaseCommand}"
+                                ToolTip.Tip="{TemplateBinding DecreaseToolTip}">
+                            <Viewbox Width="{StaticResource ZitieStepperIconSize}"
+                                     Height="{StaticResource ZitieStepperIconSize}">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="{TemplateBinding DecreaseIconData}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="2"
+                                          StrokeLineCap="Round"
+                                          StrokeJoin="Round" />
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                        <TextBlock Grid.Column="1"
+                                   Width="{TemplateBinding ValueWidth}"
+                                   Text="{TemplateBinding ValueText}"
+                                   TextAlignment="Center"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Center" />
+                        <Button Grid.Column="2"
+                                Theme="{StaticResource ZitieStepperButtonTheme}"
+                                Command="{TemplateBinding IncreaseCommand}"
+                                ToolTip.Tip="{TemplateBinding IncreaseToolTip}">
+                            <Viewbox Width="{StaticResource ZitieStepperIconSize}"
+                                     Height="{StaticResource ZitieStepperIconSize}">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="{TemplateBinding IncreaseIconData}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="2"
+                                          StrokeLineCap="Round"
+                                          StrokeJoin="Round" />
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

@@ -369,28 +369,22 @@
                 </Border>
                 <Border Grid.Row="1" Classes="stage-bar">
                     <Grid ColumnDefinitions="Auto,*,Auto">
-                        <Border Classes="pill-control">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <Button Classes="pill-button" Command="{Binding PreviousPageCommand}">
-                                    <Path Data="M15,18 L9,12 L15,6" Stroke="{DynamicResource ZitieInkSecondaryBrush}" StrokeThickness="2" StrokeLineCap="Round" Width="14" Height="14" />
-                                </Button>
-                                <TextBlock Text="{Binding PageIndicator}" Classes="pill-text" MinWidth="60" />
-                                <Button Classes="pill-button" Command="{Binding NextPageCommand}">
-                                    <Path Data="M9,6 L15,12 L9,18" Stroke="{DynamicResource ZitieInkSecondaryBrush}" StrokeThickness="2" StrokeLineCap="Round" Width="14" Height="14" />
-                                </Button>
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="2" Classes="pill-control">
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                <Button Classes="pill-button" Command="{Binding ZoomOutCommand}">
-                                    <Path Data="M5,12 H19" Stroke="{DynamicResource ZitieInkSecondaryBrush}" StrokeThickness="2" StrokeLineCap="Round" Width="14" Height="14" />
-                                </Button>
-                                <TextBlock Text="{Binding Zoom, StringFormat={}{0:P0}}" Classes="pill-text" MinWidth="44" />
-                                <Button Classes="pill-button" Command="{Binding ZoomInCommand}">
-                                    <Path Data="M12,5 V19 M5,12 H19" Stroke="{DynamicResource ZitieInkSecondaryBrush}" StrokeThickness="2" StrokeLineCap="Round" Width="14" Height="14" />
-                                </Button>
-                            </StackPanel>
-                        </Border>
+                        <controls:ZitieStepper ValueText="{Binding PageIndicator}"
+                                               ValueWidth="60"
+                                               DecreaseIconData="M15 18l-6-6 6-6"
+                                               IncreaseIconData="M9 6l6 6-6 6"
+                                               DecreaseCommand="{Binding PreviousPageCommand}"
+                                               IncreaseCommand="{Binding NextPageCommand}"
+                                               DecreaseToolTip="上一页"
+                                               IncreaseToolTip="下一页" />
+                        <controls:ZitieStepper Grid.Column="2"
+                                               ValueText="{Binding Zoom, StringFormat={}{0:P0}}"
+                                               DecreaseIconData="M5 12h14"
+                                               IncreaseIconData="M12 5v14M5 12h14"
+                                               DecreaseCommand="{Binding ZoomOutCommand}"
+                                               IncreaseCommand="{Binding ZoomInCommand}"
+                                               DecreaseToolTip="缩小预览"
+                                               IncreaseToolTip="放大预览" />
                     </Grid>
                 </Border>
             </Grid>
