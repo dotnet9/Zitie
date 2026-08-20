@@ -4,6 +4,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="/Themes/Tokens/ZitiePalette.axaml" />
+                <ResourceInclude Source="/Themes/Tokens/ZitieMetrics.axaml" />
+                <ResourceInclude Source="/Themes/Tokens/ZitieEffects.axaml" />
                 <ResourceInclude Source="/Themes/Tokens/SemiThemeOverrides.axaml" />
                 <ResourceInclude Source="/Themes/Controls/ZitieIcon.axaml" />
                 <ResourceInclude Source="/Themes/Controls/ZitieWindow.axaml" />
@@ -14,5 +16,7 @@
         </ResourceDictionary>
     </Styles.Resources>
 
-    <StyleInclude Source="/Themes/Styles.axaml" />
+    <StyleInclude Source="/Themes/Styles/ShellStyles.axaml" />
+    <StyleInclude Source="/Themes/Styles/GalleryStyles.axaml" />
+    <StyleInclude Source="/Themes/Styles/EditorStyles.axaml" />
 </Styles>

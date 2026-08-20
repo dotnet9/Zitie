@@ -17,6 +17,13 @@
     <Color x:Key="ZitieAccentDisabledColor">#D9A7A0</Color>
     <Color x:Key="ZitieInputColor">#FDFCF9</Color>
     <Color x:Key="ZitieLightTextColor">#FBF6EF</Color>
+    <Color x:Key="ZitieThumbnailColor">#FDFBF6</Color>
+    <Color x:Key="ZitieTagColor">#FDF8F1</Color>
+    <Color x:Key="ZitieThumbnailBorderColor">#EFE8D8</Color>
+    <Color x:Key="ZitieSuccessColor">#7BA05B</Color>
+    <Color x:Key="ZitiePreviewStageColor">#EDE6D6</Color>
+    <Color x:Key="ZitieStageBarColor">#B3FBF8F1</Color>
+    <Color x:Key="ZitieOverlayColor">#702B2722</Color>
 
     <SolidColorBrush x:Key="ZitiePaperBrush" Color="{StaticResource ZitiePaperColor}" />
     <SolidColorBrush x:Key="ZitiePanelBrush" Color="{StaticResource ZitiePanelColor}" />
@@ -35,24 +42,11 @@
     <SolidColorBrush x:Key="ZitieInputBrush" Color="{StaticResource ZitieInputColor}" />
     <SolidColorBrush x:Key="ZitieTextSelectionBrush" Color="{StaticResource ZitieAccentColor}" Opacity="0.28" />
     <SolidColorBrush x:Key="ZitieLightTextBrush" Color="{StaticResource ZitieLightTextColor}" />
-
-    <x:Double x:Key="ZitieWindowTitleBarHeight">42</x:Double>
-    <x:Double x:Key="ZitieWindowResizeGripThickness">5</x:Double>
-    <x:Double x:Key="ZitieWindowResizeCornerSize">10</x:Double>
-    <CornerRadius x:Key="ZitieWindowCornerRadius">8</CornerRadius>
-    <x:Double x:Key="ZitieToolbarButtonHeight">34</x:Double>
-    <x:Double x:Key="ZitieToolbarIconSize">18</x:Double>
-    <x:Double x:Key="ZitieToolbarBackIconSize">17</x:Double>
-    <CornerRadius x:Key="ZitieToolbarButtonCornerRadius">10</CornerRadius>
-    <x:Double x:Key="ZitieStepperButtonSize">26</x:Double>
-    <x:Double x:Key="ZitieStepperIconSize">14</x:Double>
-    <x:Double x:Key="ZitieStepperSpacing">6</x:Double>
-    <CornerRadius x:Key="ZitieStepperButtonCornerRadius">13</CornerRadius>
-    <CornerRadius x:Key="ZitieStepperCornerRadius">18</CornerRadius>
-    <x:Double x:Key="ZitieStageZoomSliderWidth">112</x:Double>
-    <x:Double x:Key="ZitieStageZoomValueWidth">38</x:Double>
-    <Thickness x:Key="ZitieEditorTabBodyPadding">16,14,16,12</Thickness>
-    <Thickness x:Key="ZitieEditorLabelSpacing">0,0,0,6</Thickness>
-    <Thickness x:Key="ZitieEditorFieldSpacing">0,0,0,16</Thickness>
-    <Thickness x:Key="ZitieEditorSubcontrolSpacing">0,6,0,0</Thickness>
+    <SolidColorBrush x:Key="ZitieThumbnailBrush" Color="{StaticResource ZitieThumbnailColor}" />
+    <SolidColorBrush x:Key="ZitieTagBrush" Color="{StaticResource ZitieTagColor}" />
+    <SolidColorBrush x:Key="ZitieThumbnailBorderBrush" Color="{StaticResource ZitieThumbnailBorderColor}" />
+    <SolidColorBrush x:Key="ZitieSuccessBrush" Color="{StaticResource ZitieSuccessColor}" />
+    <SolidColorBrush x:Key="ZitiePreviewStageBrush" Color="{StaticResource ZitiePreviewStageColor}" />
+    <SolidColorBrush x:Key="ZitieStageBarBrush" Color="{StaticResource ZitieStageBarColor}" />
+    <SolidColorBrush x:Key="ZitieOverlayBrush" Color="{StaticResource ZitieOverlayColor}" />
 </ResourceDictionary>
