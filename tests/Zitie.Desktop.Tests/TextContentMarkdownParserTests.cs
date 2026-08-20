@@ -6,6 +6,32 @@ namespace Zitie.Desktop.Tests;
 public sealed class TextContentMarkdownParserTests
 {
     [Fact]
+    public void BundledCatalog_CoversRequestedSubjectsAndGrades()
+    {
+        var catalog = new TextCatalog();
+
+        Assert.True(catalog.Entries.Count >= 190);
+        Assert.Contains(catalog.Entries, entry => entry.Subject == "语文" && entry.Grade == "三年级");
+        Assert.Contains(catalog.Entries, entry => entry.Subject == "语文" && entry.Grade == "五年级");
+        Assert.Contains(catalog.Entries, entry => entry.Subject == "英语" && entry.Grade == "三年级");
+        Assert.Contains(catalog.Entries, entry => entry.Subject == "英语" && entry.Grade == "五年级");
+        Assert.Contains(catalog.Entries, entry => entry.Subject == "名言警句");
+    }
+
+    [Fact]
+    public void BundledMarkdownFiles_HaveNoParserDiagnostics()
+    {
+        var directory = Path.Combine(AppContext.BaseDirectory, "texts");
+        var parser = new TextContentMarkdownParser();
+
+        foreach (var file in Directory.EnumerateFiles(directory, "*.md", SearchOption.AllDirectories))
+        {
+            var result = parser.Parse(File.ReadAllText(file), file);
+            Assert.Empty(result.Diagnostics);
+        }
+    }
+
+    [Fact]
     public void Parse_MapsHeadingHierarchyMetadataAndBody()
     {
         const string markdown = """
