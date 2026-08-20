@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>字帖 · 编辑页效果图</title>
+<style>
+@font-face {
+  font-family: "LXGW WenKai";
+  src: url("/src/Zitie.Avalonia/Fonts/LXGWWenKai-Regular.ttf");
+}
+:root {
+  --paper: #F5F0E6;
+  --panel: #FFFFFF;
+  --rail-bg: #FBF8F1;
+  --border: #E8E0D0;
+  --border-strong: #D9CFBA;
+  --ink: #2B2722;
+  --ink-2: #6E675D;
+  --ink-3: #A29886;
+  --red: #B04A3F;
+  --red-hover: #C05A4E;
+  --red-tint: #F7EBE7;
+  --red-line: #D9A7A0;
+  --trace: #DFA79C;
+  --desk: #EDE6D6;
+  --shadow-card: 0 1px 2px rgba(43,39,34,.05), 0 6px 18px rgba(43,39,34,.07);
+  --shadow-sheet: 0 1px 3px rgba(43,39,34,.08), 0 12px 32px rgba(43,39,34,.16);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1240px; height: 840px; overflow: hidden; }
+body {
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", serif;
+  background: var(--paper); color: var(--ink);
+  display: flex;
+}
+
+/* ============ 左侧导航栏（与主页一致） ============ */
+.rail {
+  width: 64px; height: 100%;
+  background: var(--rail-bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 0 16px;
+}
+.seal {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: var(--red); color: #FBF6EF;
+  font-size: 22px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(251,246,239,.35), 0 3px 8px rgba(176,74,63,.35);
+  margin-bottom: 26px;
+}
+.rail-item {
+  width: 42px; height: 42px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3); cursor: pointer; position: relative; margin-bottom: 8px;
+}
+.rail-item svg { width: 21px; height: 21px; }
+.rail-item:hover { background: rgba(176,74,63,.08); color: var(--ink-2); }
+.rail-item.active { background: var(--red-tint); color: var(--red); }
+.rail-item.active::before {
+  content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 3px; background: var(--red);
+}
+.rail-spacer { flex: 1; }
+
+/* ============ 编辑器骨架 ============ */
+.editor { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.toolbar {
+  height: 50px; background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 14px; gap: 6px;
+}
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid var(--border-strong); background: var(--panel);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-2); cursor: pointer;
+}
+.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-tint); }
+.tb-sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 13px; border-radius: 10px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--ink-2); font-size: 13px; font-family: inherit; cursor: pointer;
+}
+.tb-btn svg { width: 16px; height: 16px; }
+.tb-btn:hover { background: rgba(176,74,63,.07); color: var(--red); }
+.tb-btn.primary {
+  background: var(--red); color: #FBF6EF;
+  box-shadow: 0 3px 10px rgba(176,74,63,.35);
+  padding: 0 16px;
+}
+.tb-btn.primary:hover { background: var(--red-hover); }
+.tb-btn.outline { border: 1px solid var(--border-strong); background: var(--panel); }
+.tb-spacer { flex: 1; }
+.dirty { font-size: 12px; color: var(--ink-3); margin-right: 6px; }
+.dirty b { color: var(--red); font-weight: 600; }
+
+/* ============ 主体 ============ */
+.body { flex: 1; display: flex; min-height: 0; }
+
+/* 左侧设置面板 */
+.panel {
+  width: 316px; background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; min-height: 0;
+}
+.tabs {
+  display: flex; padding: 10px 12px 0; gap: 2px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 7px 0 9px; border-radius: 9px 9px 0 0;
+  color: var(--ink-3); font-size: 12px; cursor: pointer; user-select: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab svg { width: 18px; height: 18px; }
+.tab:hover { color: var(--ink-2); }
+.tab.on { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
+
+.tab-body { flex: 1; overflow: hidden; padding: 16px 16px 12px; }
+.fgroup { margin-bottom: 16px; }
+.flabel { font-size: 12px; color: var(--ink-2); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.flabel .mini-badge {
+  font-size: 10.5px; color: var(--ink-3); background: var(--paper);
+  border-radius: 999px; padding: 1px 8px; margin-left: auto;
+}
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.input, .select, .textarea {
+  width: 100%; border: 1px solid var(--border-strong); border-radius: 9px;
+  background: #FDFCF9; color: var(--ink);
+  font-family: inherit; font-size: 13px; padding: 8px 11px; outline: none;
+}
+.input::placeholder, .textarea::placeholder { color: var(--ink-3); }
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--red); box-shadow: 0 0 0 3px rgba(176,74,63,.12); background: #fff;
+}
+.textarea { min-height: 108px; resize: none; line-height: 1.7; }
+.select {
+  appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A29886' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; cursor: pointer;
+}
+.select:disabled { color: var(--ink-3); background-color: var(--paper); }
+.check {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--ink-2); cursor: pointer; user-select: none;
+}
+.checkbox {
+  width: 16px; height: 16px; border-radius: 5px;
+  border: 1.5px solid var(--border-strong); background: #fff;
+  display: flex; align-items: center; justify-content: center; flex: none;
+}
+.checkbox.on { background: var(--red); border-color: var(--red); }
+.checkbox.on::after {
+  content: ""; width: 8px; height: 4.5px;
+  border-left: 2px solid #FBF6EF; border-bottom: 2px solid #FBF6EF;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.char-count { font-size: 11px; color: var(--ink-3); text-align: right; margin-top: 4px; }
+
+/* 中部预览舞台 */
+.stage { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.desk {
+  flex: 1; background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(255,255,255,.55), transparent 60%),
+    var(--desk);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.desk::before {
+  content: "字 帖 工 坊"; position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; letter-spacing: 10px; color: rgba(162,152,134,.55); user-select: none;
+}
+.sheet {
+  background: #FFFEFA; border-radius: 3px;
+  box-shadow: var(--shadow-sheet);
+  padding: 26px 30px 22px;
+}
+.sheet-title { text-align: center; font-size: 21px; font-weight: 700; letter-spacing: 6px; }
+.sheet-author { text-align: center; font-size: 11.5px; color: var(--ink-2); margin-top: 4px; letter-spacing: 2px; }
+.sheet-line {
+  display: flex; justify-content: space-between; font-size: 10.5px; color: var(--ink-3);
+  margin-top: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.sheet-grid { display: grid; grid-template-columns: repeat(8, 44px); gap: 7px; margin-top: 12px; }
+.gcell {
+  width: 44px; height: 44px; position: relative;
+  border: 1px solid rgba(176,74,63,.42);
+  background:
+    linear-gradient(to top right, transparent calc(50% - .5px), rgba(176,74,63,.13) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(176,74,63,.13) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to right, transparent calc(50% - .5px), rgba(176,74,63,.2) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), rgba(176,74,63,.2) 50%, transparent calc(50% + .5px)),
+    #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px; color: #33302B;
+}
+.gcell.trace { color: var(--trace); }
+
+/* 底部舞台栏 */
+.stagebar {
+  height: 46px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; background: rgba(251,248,241,.7); border-top: 1px solid var(--border);
+}
+.pager, .zoomer {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--border-strong);
+  border-radius: 999px; padding: 4px 6px; box-shadow: 0 1px 3px rgba(43,39,34,.06);
+}
+.pg-btn {
+  width: 26px; height: 26px; border-radius: 50%; border: none; background: transparent;
+  color: var(--ink-2); display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.pg-btn svg { width: 14px; height: 14px; }
+.pg-btn:hover { background: var(--red-tint); color: var(--red); }
+.pg-btn:disabled { color: var(--border-strong); cursor: default; }
+.pg-text { font-size: 12.5px; color: var(--ink-2); min-width: 52px; text-align: center; }
+.pg-text b { color: var(--ink); font-weight: 600; }
+.zoom-text { font-size: 12px; color: var(--ink-2); min-width: 44px; text-align: center; }
+
+/* 状态栏 */
+.status {
+  height: 28px; background: var(--rail-bg); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; font-size: 11.5px; color: var(--ink-3);
+}
+.status .left { display: flex; align-items: center; gap: 8px; }
+.status .ok { width: 7px; height: 7px; border-radius: 50%; background: #7BA05B; box-shadow: 0 0 0 3px rgba(123,160,91,.18); }
+.status .path { font-family: Consolas, monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<nav class="rail">
+  <div class="seal">字</div>
+  <div class="rail-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+  </div>
+  <div class="rail-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 20h8"/><path d="M15 4l5 5-9.5 9.5a2 2 0 01-1 .5L5 20l1-4.5a2 2 0 01.5-1L15 4z"/></svg>
+  </div>
+  <div class="rail-spacer"></div>
+  <div class="rail-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg>
+  </div>
+</nav>
+
+<div class="editor">
+
+  <header class="toolbar">
+    <button class="icon-btn" title="返回模板库">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2.2 2.5H19a2 2 0 012 2V17a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      打开
+    </button>
+    <button class="tb-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M8 3v5h7"/><rect x="8" y="13" width="8" height="5" rx="1"/></svg>
+      保存
+    </button>
+    <button class="tb-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M8 3v5h7"/><path d="M14 17l4-4 1.5 1.5L15.5 18.5 13 19z"/></svg>
+      另存
+    </button>
+    <button class="tb-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4.2L6 21z"/></svg>
+      存为模板
+    </button>
+    <div class="tb-spacer"></div>
+    <span class="dirty">未保存更改 <b>·</b></span>
+    <button class="tb-btn outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+      批量 PNG
+    </button>
+    <button class="tb-btn outline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-7 7"/></svg>
+      导出 PNG
+    </button>
+    <button class="tb-btn primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M4 17.5V19a2 2 0 002 2h12a2 2 0 002-2v-1.5"/></svg>
+      导出 PDF
+    </button>
+  </header>
+
+  <div class="body">
+
+    <aside class="panel">
+      <div class="tabs">
+        <div class="tab on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 011-1h14a1 1 0 011 1v2"/><path d="M12 4v16"/><path d="M9 20h6"/></svg>
+          内容
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+          版式
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+          练习
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7a4.95 4.95 0 00-7-7l-7 7v7z"/><path d="M18 13l-7-7"/></svg>
+          字迹
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg>
+          拼音
+        </div>
+      </div>
+
+      <div class="tab-body">
+        <div class="fgroup">
+          <div class="flabel">练习文本 <span class="mini-badge">20 字 · 4 词</span></div>
+          <textarea class="textarea" rows="4">床前明月光，疑是地上霜。
+举头望明月，低头思故乡。</textarea>
+          <div class="char-count">自动按标点分句，逐字生成练习组</div>
+        </div>
+
+        <div class="fgroup">
+          <div class="flabel">从文本库选择</div>
+          <div class="select">静夜思 · 李白（唐）— 五言绝句</div>
+        </div>
+
+        <div class="fgroup frow">
+          <div>
+            <div class="flabel">标题</div>
+            <div class="input">静夜思</div>
+          </div>
+          <div>
+            <div class="flabel">页头样式</div>
+            <div class="select">诗词题头</div>
+          </div>
+        </div>
+
+        <div class="fgroup frow">
+          <div>
+            <div class="flabel">朝代</div>
+            <div class="input">唐</div>
+          </div>
+          <div>
+            <div class="flabel">作者</div>
+            <div class="input">李白</div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label class="check">
+            <span class="checkbox on"></span>
+            题头显示作者（朝代 · 作者）
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <section class="stage">
+      <div class="desk">
+        <div class="sheet">
+          <div class="sheet-title">静夜思</div>
+          <div class="sheet-author">唐 · 李白</div>
+          <div class="sheet-line"><span>姓名：王小明</span><span>三年级二班</span><span>2026 年 8 月 18 日</span></div>
+          <div class="sheet-grid">
+            <div class="gcell">床</div><div class="gcell trace">床</div><div class="gcell"></div><div class="gcell"></div><div class="gcell">前</div><div class="gcell trace">前</div><div class="gcell"></div><div class="gcell"></div>
+            <div class="gcell">明</div><div class="gcell trace">明</div><div class="gcell"></div><div class="gcell"></div><div class="gcell">月</div><div class="gcell trace">月</div><div class="gcell"></div><div class="gcell"></div>
+            <div class="gcell">光</div><div class="gcell trace">光</div><div class="gcell"></div><div class="gcell"></div><div class="gcell">疑</div><div class="gcell trace">疑</div><div class="gcell"></div><div class="gcell"></div>
+            <div class="gcell">是</div><div class="gcell trace">是</div><div class="gcell"></div><div class="gcell"></div><div class="gcell">地</div><div class="gcell trace">地</div><div class="gcell"></div><div class="gcell"></div>
+            <div class="gcell">上</div><div class="gcell trace">上</div><div class="gcell"></div><div class="gcell"></div><div class="gcell">霜</div><div class="gcell trace">霜</div><div class="gcell"></div><div class="gcell"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stagebar">
+        <div class="pager">
+          <button class="pg-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="pg-text"><b>1</b> / 3 页</span>
+          <button class="pg-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="zoomer">
+          <button class="pg-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          </button>
+          <span class="zoom-text">100%</span>
+          <button class="pg-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="status">
+    <div class="left">
+      <span class="ok"></span>
+      <span>已就绪 · A4 · 米字格 · 每行 8 字 · 描红（浅）</span>
+    </div>
+    <span class="path">E:\Documents\字帖\静夜思-描红.zitie.json *</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

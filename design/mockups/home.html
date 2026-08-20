@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>字帖 · 主页效果图</title>
+<style>
+@font-face {
+  font-family: "LXGW WenKai";
+  src: url("/src/Zitie.Avalonia/Fonts/LXGWWenKai-Regular.ttf");
+}
+:root {
+  --paper: #F5F0E6;
+  --panel: #FFFFFF;
+  --rail-bg: #FBF8F1;
+  --border: #E8E0D0;
+  --border-strong: #D9CFBA;
+  --ink: #2B2722;
+  --ink-2: #6E675D;
+  --ink-3: #A29886;
+  --red: #B04A3F;
+  --red-hover: #C05A4E;
+  --red-tint: #F7EBE7;
+  --red-line: #D9A7A0;
+  --trace: #DFA79C;
+  --shadow-card: 0 1px 2px rgba(43,39,34,.05), 0 6px 18px rgba(43,39,34,.07);
+  --shadow-lift: 0 2px 4px rgba(43,39,34,.06), 0 14px 32px rgba(43,39,34,.13);
+  --shadow-sheet: 0 1px 3px rgba(43,39,34,.08), 0 10px 28px rgba(43,39,34,.14);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1240px; height: 840px; overflow: hidden; }
+body {
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", serif;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+}
+
+/* ============ 左侧导航栏 ============ */
+.rail {
+  width: 64px; height: 100%;
+  background: var(--rail-bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 0 16px;
+}
+.seal {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: var(--red);
+  color: #FBF6EF;
+  font-size: 22px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(251,246,239,.35), 0 3px 8px rgba(176,74,63,.35);
+  margin-bottom: 26px; user-select: none;
+}
+.rail-item {
+  width: 42px; height: 42px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-3); cursor: pointer; position: relative;
+  margin-bottom: 8px;
+}
+.rail-item svg { width: 21px; height: 21px; }
+.rail-item:hover { background: rgba(176,74,63,.08); color: var(--ink-2); }
+.rail-item.active { background: var(--red-tint); color: var(--red); }
+.rail-item.active::before {
+  content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 3px; background: var(--red);
+}
+.rail-item .tip {
+  position: absolute; left: 52px; top: 50%; transform: translateY(-50%);
+  background: var(--ink); color: #FBF6EF; font-size: 12px;
+  padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.rail-item:hover .tip { opacity: 1; }
+.rail-spacer { flex: 1; }
+
+/* ============ 主内容 ============ */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.page { padding: 22px 26px 0; }
+
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; }
+.page-title { font-size: 26px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: baseline; gap: 12px; }
+.page-title .en { font-size: 12px; color: var(--ink-3); letter-spacing: 3px; font-weight: 400; }
+.page-sub { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+.head-actions { display: flex; gap: 8px; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 14px; border-radius: 9px;
+  border: 1px solid var(--border-strong); background: var(--panel);
+  color: var(--ink-2); font-size: 13px; font-family: inherit; cursor: pointer;
+}
+.btn-ghost svg { width: 15px; height: 15px; }
+.btn-ghost:hover { border-color: var(--red); color: var(--red); }
+
+/* 过滤行 */
+.filterbar { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+.search {
+  width: 300px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--border-strong); background: var(--panel);
+  display: flex; align-items: center; gap: 9px; padding: 0 12px;
+  box-shadow: 0 1px 2px rgba(43,39,34,.04);
+}
+.search svg { width: 15px; height: 15px; color: var(--ink-3); flex: none; }
+.search input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 13px; color: var(--ink);
+}
+.search input::placeholder { color: var(--ink-3); }
+.chips { display: flex; gap: 6px; }
+.chip {
+  height: 30px; padding: 0 13px; border-radius: 999px;
+  font-size: 12.5px; color: var(--ink-2);
+  border: 1px solid transparent; cursor: pointer;
+  display: inline-flex; align-items: center; user-select: none;
+}
+.chip:hover { background: rgba(176,74,63,.07); color: var(--red); }
+.chip.on { background: var(--red-tint); color: var(--red); font-weight: 600; }
+.chip.on.red-solid { background: var(--red); color: #FBF6EF; }
+.count { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+
+/* ============ 卡片 ============ */
+.deck { flex: 1; overflow: hidden; padding: 16px 26px 0; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.card {
+  background: var(--panel); border-radius: 13px;
+  border: 1px solid var(--border);
+  padding: 10px; cursor: pointer; position: relative;
+  box-shadow: var(--shadow-card);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.card:hover, .card.demo-hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--red-line);
+}
+.card .thumb {
+  position: relative; border-radius: 8px; overflow: hidden;
+  background: #FDFBF6; border: 1px solid #EFE8D8;
+  padding: 12px 12px 10px;
+}
+.card .thumb .sheet {
+  background: #fff; border: 1px solid var(--red-line); border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(43,39,34,.05);
+}
+.mini-title {
+  text-align: center; font-size: 11px; color: var(--ink-2);
+  padding: 3px 0 5px; letter-spacing: 2px;
+}
+.mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; }
+.mini-cell {
+  aspect-ratio: 1; position: relative;
+  border: 1px solid rgba(176,74,63,.4);
+  background:
+    linear-gradient(to top right, transparent calc(50% - .5px), rgba(176,74,63,.14) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(176,74,63,.14) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to right, transparent calc(50% - .5px), rgba(176,74,63,.22) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), rgba(176,74,63,.22) 50%, transparent calc(50% + .5px)),
+    #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--ink);
+}
+.mini-cell.trace { color: var(--trace); }
+.mini-cell.hollow { color: transparent; -webkit-text-stroke: .8px var(--red-line); }
+.mini-cell.pinyin-four { background:
+    linear-gradient(to bottom, transparent calc(25% - .5px), #7FA8C9 25%, #7FA8C9 calc(25% + .5px), transparent calc(25% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), #7FA8C9 50%, #7FA8C9 calc(50% + .5px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(75% - .5px), #7FA8C9 75%, #7FA8C9 calc(75% + .5px), transparent calc(75% + 1px)),
+    #fff; border-color: #A9C4D8; }
+
+.tag {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  height: 22px; padding: 0 9px; border-radius: 999px;
+  background: rgba(251,246,239,.94); border: 1px solid var(--red-line);
+  color: var(--red); font-size: 11px; display: inline-flex; align-items: center;
+}
+.card .body { padding: 10px 4px 4px; }
+.card .name { font-size: 14.5px; font-weight: 600; }
+.card .desc {
+  font-size: 11.5px; color: var(--ink-2); line-height: 1.5;
+  margin-top: 4px; height: 34px; overflow: hidden;
+}
+.card .meta {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; font-size: 11px; color: var(--ink-3);
+  border-top: 1px dashed var(--border); padding-top: 8px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #7BA05B; }
+.card .meta .sep { color: var(--border-strong); }
+.card .open-hint {
+  position: absolute; inset: 0; border-radius: 13px; z-index: 3;
+  background: rgba(43,39,34,.44);
+  display: flex; align-items: center; justify-content: center;
+  color: #FBF6EF; font-size: 14px; letter-spacing: 2px;
+  opacity: 0; transition: opacity .16s;
+}
+.card:hover .open-hint, .card.demo-hover .open-hint { opacity: 1; }
+</style>
+</head>
+<body>
+
+<nav class="rail">
+  <div class="seal">字</div>
+  <div class="rail-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+    <span class="tip">模板库</span>
+  </div>
+  <div class="rail-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span class="tip">新建字帖</span>
+  </div>
+  <div class="rail-spacer"></div>
+  <div class="rail-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg>
+    <span class="tip">日志</span>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page">
+    <div class="page-head">
+      <div>
+        <div class="page-title">模板库 <span class="en">TEMPLATE GALLERY</span></div>
+        <div class="page-sub">选择模板开始生成字帖 · 内置模板与自定义模板均为 JSON 配方，可随意改造</div>
+      </div>
+      <div class="head-actions">
+        <button class="btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2.2 2.5H19a2 2 0 012 2V17a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          打开模板目录
+        </button>
+        <button class="btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+          刷新
+        </button>
+      </div>
+    </div>
+
+    <div class="filterbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input placeholder="搜索模板名称、说明或分类">
+      </div>
+      <div class="chips">
+        <div class="chip on red-solid">全部</div>
+        <div class="chip">基础</div>
+        <div class="chip">诗词</div>
+        <div class="chip">蒙学</div>
+        <div class="chip">拼音</div>
+        <div class="chip">英文</div>
+        <div class="chip">自定义</div>
+      </div>
+      <div class="count">17 个模板</div>
+    </div>
+  </div>
+
+  <div class="deck">
+    <div class="grid">
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">基础</div>
+          <div class="sheet">
+            <div class="mini-title">大字练习</div>
+            <div class="mini-grid">
+              <div class="mini-cell">永</div><div class="mini-cell trace">永</div><div class="mini-cell"></div><div class="mini-cell"></div>
+              <div class="mini-cell">八</div><div class="mini-cell trace">八</div><div class="mini-cell"></div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">大字独字帖 · 单字大字</div>
+          <div class="desc">超大格子，一个字一个格，毛笔 / 大字练习首选</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 40mm</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">基础</div>
+          <div class="sheet">
+            <div class="mini-title">生字临摹练习</div>
+            <div class="mini-grid">
+              <div class="mini-cell">生</div><div class="mini-cell"></div><div class="mini-cell">字</div><div class="mini-cell"></div>
+              <div class="mini-cell">临</div><div class="mini-cell"></div><div class="mini-cell">摹</div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">生字临摹 · 田字格</div>
+          <div class="desc">范字 + 空格照写，十字辅助定位，巩固笔画</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card demo-hover">
+        <div class="thumb">
+          <div class="tag">诗词</div>
+          <div class="sheet">
+            <div class="mini-title">静夜思</div>
+            <div class="mini-grid">
+              <div class="mini-cell">床</div><div class="mini-cell trace">床</div><div class="mini-cell"></div><div class="mini-cell"></div>
+              <div class="mini-cell">前</div><div class="mini-cell trace">前</div><div class="mini-cell"></div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">古诗描红 · 五言竖排</div>
+          <div class="desc">诗词题头带朝代作者，描红 + 空格逐句练习</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">蒙学</div>
+          <div class="sheet">
+            <div class="mini-title">三字经</div>
+            <div class="mini-grid">
+              <div class="mini-cell">人</div><div class="mini-cell trace">人</div><div class="mini-cell"></div><div class="mini-cell"></div>
+              <div class="mini-cell">之</div><div class="mini-cell trace">之</div><div class="mini-cell"></div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">蒙学描红 · 三字经</div>
+          <div class="desc">人之初性本善，按词分组不拆行，幼小衔接</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">拼音</div>
+          <div class="sheet">
+            <div class="mini-title">看拼音写词</div>
+            <div class="mini-grid">
+              <div class="mini-cell pinyin-four">chūn</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">fēng</div><div class="mini-cell pinyin-four"></div>
+              <div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">yǔ</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">拼音词组 · 看拼音写词</div>
+          <div class="desc">拼音四线格 + 田字格组合，看拼音写词语</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>拼音四线格</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">英文</div>
+          <div class="sheet">
+            <div class="mini-title">Handwriting</div>
+            <div class="mini-grid">
+              <div class="mini-cell pinyin-four">Aa</div><div class="mini-cell pinyin-four trace">Aa</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+              <div class="mini-cell pinyin-four">Bb</div><div class="mini-cell pinyin-four trace">Bb</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">英文四线三格</div>
+          <div class="desc">标准英文四线格，字母描红 + 空行照写</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>四线三格</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">基础</div>
+          <div class="sheet">
+            <div class="mini-title">大字双钩填墨</div>
+            <div class="mini-grid">
+              <div class="mini-cell hollow">虎</div><div class="mini-cell"></div><div class="mini-cell hollow">龙</div><div class="mini-cell"></div>
+              <div class="mini-cell hollow">福</div><div class="mini-cell"></div><div class="mini-cell hollow">寿</div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">大字双钩帖 · 红格纸</div>
+          <div class="desc">空心双钩轮廓供填墨，红格纸底纹，毛笔摹写</div>
+          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格 40mm</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+      <div class="card">
+        <div class="thumb">
+          <div class="tag">自定义</div>
+          <div class="sheet">
+            <div class="mini-title">我的练字帖</div>
+            <div class="mini-grid">
+              <div class="mini-cell">天</div><div class="mini-cell"></div><div class="mini-cell">地</div><div class="mini-cell"></div>
+              <div class="mini-cell">玄</div><div class="mini-cell"></div><div class="mini-cell">黄</div><div class="mini-cell"></div>
+            </div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="name">回宫格练习（我的）</div>
+          <div class="desc">内外双框约束字形重心，结构进阶练习</div>
+          <div class="meta"><span class="dot" style="background:#C9A24B"></span>自定义<span class="sep">·</span>回宫格</div>
+        </div>
+        <div class="open-hint">开始生成 →</div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
