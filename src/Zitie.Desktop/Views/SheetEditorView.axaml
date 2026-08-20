@@ -133,13 +133,39 @@
                                 </Border>
                                 <Border Classes="editor-field">
                                     <StackPanel>
-                                        <TextBlock Text="从文本库选择" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding TextEntries}"
-                                                  SelectedIndex="{Binding TextEntryIndex}"
+                                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                                            <TextBlock Text="内容资源" Classes="editor-label" Margin="0" />
+                                            <TextBlock Grid.Column="1" Text="{Binding ContentSelection.ResultSummary}" Classes="muted-text" />
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                            <ComboBox Grid.Row="0" Grid.Column="0"
+                                                      ItemsSource="{Binding ContentSelection.Subjects}"
+                                                      SelectedItem="{Binding ContentSelection.SelectedSubject}"
+                                                      Classes="editor-input"
+                                                      AutomationProperties.Name="内容学科" />
+                                            <ComboBox Grid.Row="0" Grid.Column="1"
+                                                      ItemsSource="{Binding ContentSelection.Grades}"
+                                                      SelectedItem="{Binding ContentSelection.SelectedGrade}"
+                                                      Classes="editor-input"
+                                                      AutomationProperties.Name="内容年级" />
+                                            <ComboBox Grid.Row="1" Grid.Column="0"
+                                                      ItemsSource="{Binding ContentSelection.Semesters}"
+                                                      SelectedItem="{Binding ContentSelection.SelectedSemester}"
+                                                      Classes="editor-input"
+                                                      AutomationProperties.Name="内容学期" />
+                                            <ComboBox Grid.Row="1" Grid.Column="1"
+                                                      ItemsSource="{Binding ContentSelection.Units}"
+                                                      SelectedItem="{Binding ContentSelection.SelectedUnit}"
+                                                      Classes="editor-input"
+                                                      AutomationProperties.Name="内容单元" />
+                                        </Grid>
+                                        <ComboBox ItemsSource="{Binding ContentSelection.FilteredEntries}"
+                                                  SelectedItem="{Binding ContentSelection.SelectedEntry}"
                                                   Classes="editor-input"
-                                                  AutomationProperties.Name="从文本库选择"
+                                                  AutomationProperties.Name="选择内容条目"
+                                                  Margin="{StaticResource ZitieEditorSubcontrolSpacing}"
                                                   MaxDropDownHeight="360"
-                                                  PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文">
+                                                  PlaceholderText="选择内容">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate x:DataType="models:TextEntry">
                                                     <StackPanel Spacing="1">

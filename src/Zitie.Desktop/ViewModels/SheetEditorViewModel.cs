@@ -24,7 +24,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public const double DefaultZoom = 0.5;
 
     private readonly ModuleCatalog _catalog;
-    private readonly TextCatalog _textCatalog;
     private readonly PinyinCatalog _pinyinCatalog;
     private readonly FontCatalog _fontCatalog;
     private readonly IRegionNavigationJournal _journal;
@@ -32,7 +31,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private SheetEditorState _editorState = SheetEditorState.CreateDefault();
     private FontOption? _selectedSheetFont;
-    private int _textEntryIndex = -1;
     private string _inputTextSummary = string.Empty;
     private double _zoom = DefaultZoom;
     private int _settingsTabIndex;
@@ -63,7 +61,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ISystemDialogs systemDialogs)
     {
         _catalog = catalog;
-        _textCatalog = textCatalog;
         _pinyinCatalog = pinyinCatalog;
         _fontCatalog = fontCatalog;
         _journal = journal;
@@ -71,6 +68,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
+        ContentSelection = new TextContentSelection(textCatalog.Entries);
+        ContentSelection.EntrySelected += OnTextEntrySelected;
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
         PreviousPageCommand = new DelegateCommand(
@@ -249,8 +248,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public IReadOnlyList<FontOption> SheetFonts => _fontCatalog.Fonts;
 
-    /// <summary>文本库条目（下拉选择后填充 InputText）。</summary>
-    public IReadOnlyList<TextEntry> TextEntries => _textCatalog.Entries;
+    public TextContentSelection ContentSelection { get; }
 
     public int CharactersPerLineIndex
     {
@@ -345,26 +343,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetEditorState(_editorState with { HeaderTextTemplate = value ?? string.Empty });
     }
 
-    public int TextEntryIndex
-    {
-        get => _textEntryIndex;
-        set
-        {
-            if (SetProperty(ref _textEntryIndex, value) && value >= 0 && value < TextEntries.Count)
-            {
-                var entry = TextEntries[value];
-                InputText = entry.Body;
-                // 文本库条目自带作者/朝代时自动带入题头
-                if (!string.IsNullOrWhiteSpace(entry.Author))
-                {
-                    Author = entry.Author;
-                    if (!string.IsNullOrWhiteSpace(entry.Dynasty)) Dynasty = entry.Dynasty;
-                    ShowPoemHeader = true;
-                }
-            }
-        }
-    }
-
     public bool IsVertical
     {
         get => _editorState.Orientation == SheetOrientation.Vertical;
@@ -439,6 +417,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         get => _editorState.TraceColor ?? string.Empty;
         set => SetEditorState(_editorState with { TraceColor = value });
+    }
+
+    private void OnTextEntrySelected(object? sender, TextEntry entry)
+    {
+        InputText = entry.Body;
+        Title = entry.Title;
+        Author = entry.Author;
+        Dynasty = entry.Dynasty;
+        ShowPoemHeader = !string.IsNullOrWhiteSpace(entry.Author);
     }
 
     public string GridColorHex
@@ -1047,7 +1034,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
-        _textEntryIndex = -1;
+        ContentSelection.Reset();
         _zoom = DefaultZoom;
         _pageIndex = 0;
         _documentPath = null;
