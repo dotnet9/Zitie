@@ -14,6 +14,8 @@
     <Color x:Key="ZitieAccentDarkColor">#963E35</Color>
     <Color x:Key="ZitieAccentTintColor">#F7EBE7</Color>
     <Color x:Key="ZitieAccentPressedColor">#EFD8D2</Color>
+    <Color x:Key="ZitieAccentDisabledColor">#D9A7A0</Color>
+    <Color x:Key="ZitieInputColor">#FDFCF9</Color>
     <Color x:Key="ZitieLightTextColor">#FBF6EF</Color>
 
     <SolidColorBrush x:Key="ZitiePaperBrush" Color="{StaticResource ZitiePaperColor}" />
@@ -29,6 +31,9 @@
     <SolidColorBrush x:Key="ZitieAccentDarkBrush" Color="{StaticResource ZitieAccentDarkColor}" />
     <SolidColorBrush x:Key="ZitieAccentTintBrush" Color="{StaticResource ZitieAccentTintColor}" />
     <SolidColorBrush x:Key="ZitieAccentPressedBrush" Color="{StaticResource ZitieAccentPressedColor}" />
+    <SolidColorBrush x:Key="ZitieAccentDisabledBrush" Color="{StaticResource ZitieAccentDisabledColor}" />
+    <SolidColorBrush x:Key="ZitieInputBrush" Color="{StaticResource ZitieInputColor}" />
+    <SolidColorBrush x:Key="ZitieTextSelectionBrush" Color="{StaticResource ZitieAccentColor}" Opacity="0.28" />
     <SolidColorBrush x:Key="ZitieLightTextBrush" Color="{StaticResource ZitieLightTextColor}" />
 
     <x:Double x:Key="ZitieWindowTitleBarHeight">42</x:Double>
@@ -43,4 +48,8 @@
     <x:Double x:Key="ZitieStepperSpacing">6</x:Double>
     <CornerRadius x:Key="ZitieStepperButtonCornerRadius">13</CornerRadius>
     <CornerRadius x:Key="ZitieStepperCornerRadius">18</CornerRadius>
+    <Thickness x:Key="ZitieEditorTabBodyPadding">16,14,16,12</Thickness>
+    <Thickness x:Key="ZitieEditorLabelSpacing">0,0,0,6</Thickness>
+    <Thickness x:Key="ZitieEditorFieldSpacing">0,0,0,16</Thickness>
+    <Thickness x:Key="ZitieEditorSubcontrolSpacing">0,6,0,0</Thickness>
 </ResourceDictionary>

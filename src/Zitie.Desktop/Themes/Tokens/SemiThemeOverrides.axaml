@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 将 Semi 的交互状态映射到字帖主题，避免局部控件回落到默认蓝色。 -->
+    <StaticResource x:Key="TabItemLinePipeSelectedBackground" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="TabItemLineHeaderSelectedForeground" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="TabItemIconSelectedForeground" ResourceKey="ZitieAccentBrush" />
+
+    <StaticResource x:Key="TextBoxFocusBorderBrush" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="TextBoxSelectionBackground" ResourceKey="ZitieTextSelectionBrush" />
+    <StaticResource x:Key="TextBoxSelectionForeground" ResourceKey="ZitieInkBrush" />
+
+    <StaticResource x:Key="ComboBoxSelectorFocusBorderBrush" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="ComboBoxSelectorPressedBorderBrush" ResourceKey="ZitieAccentDarkBrush" />
+    <StaticResource x:Key="ComboBoxSelectorBorderedPointeroverBorderBrush" ResourceKey="ZitieAccentHoverBrush" />
+    <StaticResource x:Key="ComboBoxSelectorBorderedFocusBorderBrush" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="ComboBoxSelectorBorderedPressedBorderBrush" ResourceKey="ZitieAccentDarkBrush" />
+    <StaticResource x:Key="ComboBoxItemSelectedBackground" ResourceKey="ZitieAccentTintBrush" />
+    <StaticResource x:Key="ComboBoxItemSelectedPointeroverBackground" ResourceKey="ZitieAccentPressedBrush" />
+
+    <StaticResource x:Key="CheckBoxPointeroverBorderBrush" ResourceKey="ZitieAccentHoverBrush" />
+    <StaticResource x:Key="CheckBoxPressedBorderBrush" ResourceKey="ZitieAccentDarkBrush" />
+    <StaticResource x:Key="CheckBoxCheckedDefaultBackground" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="CheckBoxCheckedDefaultBorderBrush" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="CheckBoxCheckedPointeroverBackground" ResourceKey="ZitieAccentHoverBrush" />
+    <StaticResource x:Key="CheckBoxCheckedPointeroverBorderBrush" ResourceKey="ZitieAccentHoverBrush" />
+    <StaticResource x:Key="CheckBoxCheckedPressedBackground" ResourceKey="ZitieAccentDarkBrush" />
+    <StaticResource x:Key="CheckBoxCheckedPressedBorderBrush" ResourceKey="ZitieAccentDarkBrush" />
+    <StaticResource x:Key="CheckBoxCheckedDisabledBackground" ResourceKey="ZitieAccentDisabledBrush" />
+    <StaticResource x:Key="CheckBoxCheckedDisabledBorderBrush" ResourceKey="ZitieAccentDisabledBrush" />
+
+    <StaticResource x:Key="SliderTrackForeground" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="SliderThumbBorderBrush" ResourceKey="ZitieAccentBrush" />
+    <StaticResource x:Key="SliderThumbPointeroverBorderBrush" ResourceKey="ZitieAccentHoverBrush" />
+    <StaticResource x:Key="SliderThumbPressedBorderBrush" ResourceKey="ZitieAccentDarkBrush" />
+</ResourceDictionary>

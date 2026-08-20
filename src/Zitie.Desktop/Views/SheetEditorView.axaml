@@ -88,12 +88,17 @@
         <Grid ColumnDefinitions="316,*" MinHeight="0">
             <Border Grid.Column="0" Classes="editor-settings-panel">
                 <TabControl Classes="editor-tabs"
+                            ItemContainerTheme="{StaticResource ZitieEditorTabItemTheme}"
                             SelectedIndex="{Binding SettingsTabIndex}">
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Path Classes="editor-tab-glyph"
-                                      Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15" />
+                                <Viewbox Width="18" Height="18">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Classes="editor-tab-glyph"
+                                              Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15" />
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock Text="内容" />
                             </StackPanel>
                         </TabItem.Header>
@@ -171,8 +176,12 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Path Classes="editor-tab-glyph"
-                                      Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21" />
+                                <Viewbox Width="18" Height="18">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Classes="editor-tab-glyph"
+                                              Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21" />
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock Text="版式" />
                             </StackPanel>
                         </TabItem.Header>
@@ -232,8 +241,12 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Path Classes="editor-tab-glyph"
-                                      Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8" />
+                                <Viewbox Width="18" Height="18">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Classes="editor-tab-glyph"
+                                              Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8" />
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock Text="练习" />
                             </StackPanel>
                         </TabItem.Header>
@@ -266,8 +279,12 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Path Classes="editor-tab-glyph"
-                                      Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6" />
+                                <Viewbox Width="18" Height="18">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Classes="editor-tab-glyph"
+                                              Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6" />
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock Text="字迹" />
                             </StackPanel>
                         </TabItem.Header>
@@ -277,12 +294,12 @@
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="格子颜色" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding GridColorIndex}" Classes="editor-input" />
-                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" PlaceholderText="#B04A3F" Margin="0,6,0,0" />
+                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" PlaceholderText="#B04A3F" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="文字颜色" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding TextColorIndex}" Classes="editor-input" />
-                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" PlaceholderText="#1A1A1A" Margin="0,6,0,0" />
+                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" PlaceholderText="#1A1A1A" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
@@ -316,8 +333,12 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Path Classes="editor-tab-glyph"
-                                      Data="M4,12 H7 L9,6 L13,18 L15,12 H20" />
+                                <Viewbox Width="18" Height="18">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Classes="editor-tab-glyph"
+                                              Data="M4,12 H7 L9,6 L13,18 L15,12 H20" />
+                                    </Canvas>
+                                </Viewbox>
                                 <TextBlock Text="拼音" />
                             </StackPanel>
                         </TabItem.Header>
