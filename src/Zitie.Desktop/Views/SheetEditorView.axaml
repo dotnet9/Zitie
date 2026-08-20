@@ -8,18 +8,36 @@
              x:DataType="vm:SheetEditorViewModel"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <DockPanel>
-        <!-- 工具栏 -->
         <Border DockPanel.Dock="Top" Classes="toolbar">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="← 返回" Command="{Binding GoBackCommand}" />
-                <Separator Margin="4,0" />
-                <Button Content="导出 PDF" Click="ExportPdfButton_OnClick" Classes="primary" />
-                <Button Content="导出 PNG" Click="ExportPngButton_OnClick" />
-            </StackPanel>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Content="返回" Command="{Binding GoBackCommand}" />
+                    <Separator Margin="4,0" />
+                    <Button Content="打开" Click="OpenDocumentButton_OnClick" />
+                    <Button Content="保存" Click="SaveDocumentButton_OnClick" IsEnabled="{Binding IsDirty}" />
+                    <Button Content="另存" Click="SaveAsDocumentButton_OnClick" />
+                    <Button Content="保存模板" Click="SaveTemplateButton_OnClick" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                    <Button Content="导出 PDF" Click="ExportPdfButton_OnClick" Classes="primary" />
+                    <Button Content="导出 PNG" Click="ExportPngButton_OnClick" />
+                    <Button Content="批量 PNG" Click="ExportPngsButton_OnClick" />
+                    <Button Content="打印" Click="PrintButton_OnClick" />
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <Grid ColumnDefinitions="300,*">
-            <!-- 左侧配置面板 -->
+        <Border DockPanel.Dock="Bottom" Classes="status-bar">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <TextBlock Text="{Binding StatusMessage}" Classes="status-text" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding DocumentPath, StringFormat={}文档：{0}}"
+                           Classes="status-path"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </Border>
+
+        <Grid ColumnDefinitions="320,*">
             <Border Grid.Column="0" Classes="config-panel">
                 <ScrollViewer>
                     <StackPanel Spacing="10">
@@ -30,22 +48,37 @@
                                 <TextBox Text="{Binding InputText}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         MinHeight="120"
+                                         MinHeight="116"
                                          VerticalContentAlignment="Top"
                                          PlaceholderText="输入要练习的字，逐字生成练习组" />
                                 <TextBlock Text="从文本库选择" Classes="section-title" />
                                 <ComboBox ItemsSource="{Binding TextEntries}"
                                           SelectedIndex="{Binding TextEntryIndex}"
-                                          PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文" />
-                                <TextBlock Text="标题" Classes="section-title" />
-                                <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示标题行" />
-                                <TextBlock Text="页头样式" Classes="section-title" />
-                                <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
-                                          SelectedIndex="{Binding HeaderPresetIndex}" />
-                                <TextBlock Text="自定义页头内容" Classes="section-title" />
+                                          PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="services:TextEntry">
+                                            <StackPanel Spacing="1">
+                                                <TextBlock Text="{Binding Title}" />
+                                                <TextBlock Classes="muted-text"
+                                                           Text="{Binding Category, StringFormat={}分类：{0}}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="标题" Classes="section-title" />
+                                        <TextBox Text="{Binding Title}" PlaceholderText="留空则不显示" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="页头样式" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
+                                                  SelectedIndex="{Binding HeaderPresetIndex}" />
+                                    </StackPanel>
+                                </Grid>
                                 <TextBox Text="{Binding HeaderTextTemplate}"
                                          IsEnabled="{Binding IsCustomHeader}"
-                                         PlaceholderText="姓名_班级---年_月_日" />
+                                         PlaceholderText="自定义页头：姓名_班级---年_月_日" />
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                                     <StackPanel Grid.Column="0" Spacing="6">
                                         <TextBlock Text="朝代" Classes="section-title" />
@@ -67,7 +100,19 @@
 
                         <Border Classes="settings-section">
                             <StackPanel Spacing="8">
-                                <TextBlock Text="格子与排版" Classes="settings-section-title" />
+                                <TextBlock Text="纸张与版式" Classes="settings-section-title" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="纸张规格" Classes="section-title" />
+                                        <ComboBox ItemsSource="{Binding PageSizeChoices}"
+                                                  SelectedIndex="{Binding PageSizeIndex}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="页边距（mm）" Classes="section-title" />
+                                        <NumericUpDown Minimum="0" Maximum="40" Increment="1"
+                                                       Value="{Binding PageMarginMm}" />
+                                    </StackPanel>
+                                </Grid>
                                 <TextBlock Text="格子类型" Classes="section-title" />
                                 <ComboBox SelectedIndex="{Binding GridKindIndex}">
                                     <ComboBoxItem Content="米字格" />
@@ -91,14 +136,14 @@
                                     </StackPanel>
                                 </Grid>
                                 <TextBlock Text="格子大小" Classes="section-title" />
-                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                     <Slider Minimum="8" Maximum="60"
                                             Value="{Binding GridSizeMm}"
-                                            Width="190"
                                             VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}"
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GridSizeMm, StringFormat={}{0:0} mm}"
                                                VerticalAlignment="Center" />
-                                </StackPanel>
+                                </Grid>
                                 <CheckBox Content="按词分组（词内字符连续，不拆行）"
                                           IsChecked="{Binding GroupByWord}" />
                                 <CheckBox Content="竖排版式（从右到左，传统书法帖式）"
@@ -140,11 +185,15 @@
                                         <TextBlock Text="格子颜色" Classes="section-title" />
                                         <ComboBox ItemsSource="{Binding ColorChoices}"
                                                   SelectedIndex="{Binding GridColorIndex}" />
+                                        <TextBox Text="{Binding GridColorHex}"
+                                                 PlaceholderText="#B04A3F" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Spacing="6">
                                         <TextBlock Text="文字颜色" Classes="section-title" />
                                         <ComboBox ItemsSource="{Binding ColorChoices}"
                                                   SelectedIndex="{Binding TextColorIndex}" />
+                                        <TextBox Text="{Binding TextColorHex}"
+                                                 PlaceholderText="#1A1A1A" />
                                     </StackPanel>
                                 </Grid>
                                 <TextBlock Text="字帖字体" Classes="section-title" />
@@ -158,7 +207,7 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <TextBlock Text="纸张模板" Classes="section-title" />
+                                <TextBlock Text="纸张底纹" Classes="section-title" />
                                 <ComboBox SelectedIndex="{Binding BackgroundIndex}">
                                     <ComboBoxItem Content="白底（无底纹）" />
                                     <ComboBoxItem Content="红格纸（淡红横线）" />
@@ -186,19 +235,21 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- 右侧预览 -->
             <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="12,12,12,6">
-                <zitie:ZitiePreview Grid.Row="0"
-                                   Spec="{Binding Spec}"
-                                   Pages="{Binding Pages}"
-                                   PageIndex="{Binding PageIndex}"
-                                   Zoom="{Binding Zoom}" />
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10"
-                            HorizontalAlignment="Center" Margin="0,8">
+                <Border Grid.Row="0" Classes="preview-surface">
+                    <zitie:ZitiePreview Spec="{Binding Spec}"
+                                       Pages="{Binding Pages}"
+                                       PageIndex="{Binding PageIndex}"
+                                       Zoom="{Binding Zoom}" />
+                </Border>
+                <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" Margin="0,8">
                     <Button Content="上一页" Command="{Binding PreviousPageCommand}" />
-                    <TextBlock Text="{Binding PageIndicator}" VerticalAlignment="Center" />
-                    <Button Content="下一页" Command="{Binding NextPageCommand}" />
-                </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding PageIndicator}"
+                               Classes="page-indicator"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    <Button Grid.Column="2" Content="下一页" Command="{Binding NextPageCommand}" />
+                </Grid>
             </Grid>
         </Grid>
     </DockPanel>

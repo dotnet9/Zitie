@@ -7,6 +7,7 @@ using Zitie.Avalonia.Export;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 using Zitie.Desktop.Services;
+using Zitie.Desktop.Models;
 
 namespace Zitie.Desktop.ViewModels;
 
@@ -548,6 +549,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public void ExportPdfTo(string path)
     {
         SheetExporter.ExportPdf(path, Spec, Pages);
+        SetStatus($"已导出 PDF：{Path.GetFileName(path)}");
         ZitieLogging.Info($"已导出 PDF：{path}");
     }
 
@@ -556,6 +558,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         if (PageIndex < 0 || PageIndex >= Pages.Count) return;
 
         SheetExporter.ExportPng(path, Spec, Pages[PageIndex], PageCount);
+        SetStatus($"已导出 PNG：{Path.GetFileName(path)}");
         ZitieLogging.Info($"已导出 PNG：{path}");
     }
 
@@ -618,45 +621,45 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void ApplySpec(CharacterSheetSpec spec)
     {
-        ArgumentNullException.ThrowIfNull(spec);
+        var state = SheetEditorState.FromSpec(spec);
 
-        _inputText = spec.Text ?? string.Empty;
-        _title = spec.Title ?? string.Empty;
-        _gridKindIndex = Math.Clamp((int)spec.Grid, 0, 6);
-        _practiceModeIndex = Math.Clamp((int)spec.Mode, 0, 1);
-        _repeatsIndex = Array.IndexOf(RepeatsChoices, spec.RepeatsPerChar);
+        _inputText = state.InputText;
+        _title = state.Title;
+        _gridKindIndex = Math.Clamp((int)state.Grid, 0, 6);
+        _practiceModeIndex = Math.Clamp((int)state.Mode, 0, 1);
+        _repeatsIndex = Array.IndexOf(RepeatsChoices, state.RepeatsPerChar);
         if (_repeatsIndex < 0) _repeatsIndex = 0;
-        _charactersPerLineIndex = Array.IndexOf(CharactersPerLineValues, spec.CharactersPerLine);
+        _charactersPerLineIndex = Array.IndexOf(CharactersPerLineValues, state.CharactersPerLine);
         if (_charactersPerLineIndex < 0) _charactersPerLineIndex = 0;
-        _blankLineCount = Math.Clamp(spec.BlankLineCount, 0, 10);
-        _traceIntensityIndex = Math.Clamp((int)spec.TraceIntensity, 0, TraceIntensityChoices.Length - 1);
-        _gridColorValue = string.IsNullOrWhiteSpace(spec.GridColor) ? ColorChoiceValues[0] : spec.GridColor!;
-        _textColorValue = string.IsNullOrWhiteSpace(spec.TextColor) ? ColorChoiceValues[1] : spec.TextColor!;
+        _blankLineCount = Math.Clamp(state.BlankLineCount, 0, 10);
+        _traceIntensityIndex = Math.Clamp((int)state.TraceIntensity, 0, TraceIntensityChoices.Length - 1);
+        _gridColorValue = state.GridColor;
+        _textColorValue = state.TextColor;
         _gridColorIndex = ColorIndexOf(_gridColorValue, -1);
         _textColorIndex = ColorIndexOf(_textColorValue, -1);
-        _headerPresetIndex = Math.Clamp((int)spec.HeaderPreset, 0, HeaderPresetChoices.Length - 1);
-        _traceSlotCount = Math.Clamp(spec.TraceSlotCount, 0, 8);
-        _gridSizeMm = Math.Clamp(spec.GridSizeMm, 8, 60);
-        _hollowGlyph = spec.HollowGlyph;
-        _groupByWord = spec.GroupByWord;
-        _showPinyin = spec.ShowPinyin;
-        _pinyinOnly = spec.PinyinOnly;
-        _isVertical = spec.Orientation == SheetOrientation.Vertical;
-        _showPoemHeader = spec.ShowPoemHeader;
-        _frameBorder = spec.FrameBorder;
-        _backgroundIndex = Math.Clamp((int)spec.Background, 0, 3);
-        _backgroundColor = spec.BackgroundColor;
-        _backgroundLineColor = spec.BackgroundLineColor;
-        _backgroundLineSpacingMm = spec.BackgroundLineSpacingMm;
-        _author = spec.Author ?? string.Empty;
-        _dynasty = spec.Dynasty ?? string.Empty;
-        _selectedSheetFont = string.IsNullOrWhiteSpace(spec.FontFamilyName)
+        _headerPresetIndex = Math.Clamp((int)state.HeaderPreset, 0, HeaderPresetChoices.Length - 1);
+        _traceSlotCount = Math.Clamp(state.TraceSlotCount, 0, 8);
+        _gridSizeMm = Math.Clamp(state.GridSizeMm, 8, 60);
+        _hollowGlyph = state.HollowGlyph;
+        _groupByWord = state.GroupByWord;
+        _showPinyin = state.ShowPinyin;
+        _pinyinOnly = state.PinyinOnly;
+        _isVertical = state.Orientation == SheetOrientation.Vertical;
+        _showPoemHeader = state.ShowPoemHeader;
+        _frameBorder = state.FrameBorder;
+        _backgroundIndex = Math.Clamp((int)state.Background, 0, 3);
+        _backgroundColor = state.BackgroundColor;
+        _backgroundLineColor = state.BackgroundLineColor;
+        _backgroundLineSpacingMm = state.BackgroundLineSpacingMm;
+        _author = state.Author ?? string.Empty;
+        _dynasty = state.Dynasty ?? string.Empty;
+        _selectedSheetFont = string.IsNullOrWhiteSpace(state.FontFamilyName)
             ? _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ?? _fontCatalog.Fonts.FirstOrDefault()
-            : _fontCatalog.Find(spec.FontFamilyName) ?? new FontOption(spec.FontFamilyName, false);
-        _headerTextTemplate = spec.HeaderTextTemplate ?? "姓名_班级---年_月_日";
-        _traceColor = spec.TraceColor ?? string.Empty;
-        _pageSizeIndex = PageSizeIndexOf(spec.Page);
-        _pageMarginMm = Math.Clamp(spec.Page.MarginTopMm, 0, 40);
+            : _fontCatalog.Find(state.FontFamilyName) ?? new FontOption(state.FontFamilyName, false);
+        _headerTextTemplate = state.HeaderTextTemplate;
+        _traceColor = state.TraceColor ?? string.Empty;
+        _pageSizeIndex = PageSizeIndexOf(state.Page);
+        _pageMarginMm = Math.Clamp(state.Page.MarginTopMm, 0, 40);
 
         RaisePropertyChanged(nameof(InputText));
         RaisePropertyChanged(nameof(Title));

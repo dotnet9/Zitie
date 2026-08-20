@@ -38,6 +38,17 @@ public sealed class ModuleCatalog
 
         UserDirectory = Path.Combine(localApplicationData, "Zitie", "modules");
 
+        Reload();
+    }
+
+    public string BuiltInDirectory { get; }
+
+    public string UserDirectory { get; }
+
+    public IReadOnlyList<ModuleDefinition> Modules { get; private set; } = Array.Empty<ModuleDefinition>();
+
+    public void Reload()
+    {
         var modules = new List<ModuleDefinition>();
         LoadDirectory(BuiltInDirectory, modules);
         LoadDirectory(UserDirectory, modules);
@@ -51,12 +62,6 @@ public sealed class ModuleCatalog
 
         ZitieLogging.Info($"模块目录加载完成：{Modules.Count} 个模块（内置：{BuiltInDirectory}；用户：{UserDirectory}）");
     }
-
-    public string BuiltInDirectory { get; }
-
-    public string UserDirectory { get; }
-
-    public IReadOnlyList<ModuleDefinition> Modules { get; }
 
     public ModuleDefinition? Find(string? id)
     {

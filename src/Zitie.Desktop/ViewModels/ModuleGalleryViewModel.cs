@@ -9,38 +9,36 @@ namespace Zitie.Desktop.ViewModels;
 public class ModuleGalleryViewModel : BindableBase
 {
     private readonly IRegionManager _regionManager;
+    private readonly ModuleCatalog _catalog;
+    private readonly DelegateCommand<ModuleDefinition> _openCommand;
     private string _searchText = string.Empty;
     private string _selectedCategory = "全部";
 
     public ModuleGalleryViewModel(IRegionManager regionManager, ModuleCatalog catalog)
     {
         _regionManager = regionManager;
+        _catalog = catalog;
         TemplateDirectory = catalog.UserDirectory;
         OpenTemplateDirectoryCommand = new DelegateCommand(OpenTemplateDirectory);
 
-        var openCommand = new DelegateCommand<ModuleDefinition>(
+        _openCommand = new DelegateCommand<ModuleDefinition>(
             OpenModule,
             module => module is { Enabled: true });
-
-        Modules = catalog.Modules
-            .Select(module => new ModuleCardViewModel(module, openCommand))
-            .ToList();
-        CategoryChoices = ["全部", .. Modules
-            .Select(module => module.CategoryText)
-            .Distinct(StringComparer.CurrentCultureIgnoreCase)
-            .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase)];
-        FilteredModules = Modules;
+        RefreshCommand = new DelegateCommand(Refresh);
+        RebuildModuleCards();
     }
 
-    public IReadOnlyList<ModuleCardViewModel> Modules { get; }
+    public IReadOnlyList<ModuleCardViewModel> Modules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
     public string TemplateDirectory { get; }
 
     public DelegateCommand OpenTemplateDirectoryCommand { get; }
 
-    public IReadOnlyList<string> CategoryChoices { get; }
+    public DelegateCommand RefreshCommand { get; }
 
-    public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; }
+    public IReadOnlyList<string> CategoryChoices { get; private set; } = ["全部"];
+
+    public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
     public int FilteredModuleCount => FilteredModules.Count;
 
@@ -73,6 +71,28 @@ public class ModuleGalleryViewModel : BindableBase
         ZitieLogging.Info($"打开模块：{module.Name}（{module.Id}）");
         _regionManager.RequestNavigate("MainRegion", "SheetEditor",
             new NavigationParameters { { "moduleId", module.Id } });
+    }
+
+    private void Refresh()
+    {
+        _catalog.Reload();
+        RebuildModuleCards();
+        ZitieLogging.Info("模板页已刷新");
+    }
+
+    private void RebuildModuleCards()
+    {
+        Modules = _catalog.Modules
+            .Select(module => new ModuleCardViewModel(module, _openCommand))
+            .ToList();
+        CategoryChoices = ["全部", .. Modules
+            .Select(module => module.CategoryText)
+            .Distinct(StringComparer.CurrentCultureIgnoreCase)
+            .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase)];
+
+        RaisePropertyChanged(nameof(Modules));
+        RaisePropertyChanged(nameof(CategoryChoices));
+        ApplyFilter();
     }
 
     private void OpenTemplateDirectory()
