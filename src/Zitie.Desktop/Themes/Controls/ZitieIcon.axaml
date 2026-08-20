@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:Zitie.Desktop.Controls">
+    <ControlTheme x:Key="{x:Type controls:ZitieIcon}"
+                  TargetType="controls:ZitieIcon">
+        <Setter Property="IconSize" Value="16" />
+        <Setter Property="StrokeThickness" Value="1.8" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="controls:ZitieIcon">
+                <Viewbox Width="{TemplateBinding IconSize}"
+                         Height="{TemplateBinding IconSize}"
+                         HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                         VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="{TemplateBinding Data}"
+                              Stroke="{TemplateBinding Foreground}"
+                              StrokeThickness="{TemplateBinding StrokeThickness}"
+                              StrokeLineCap="Round"
+                              StrokeJoin="Round" />
+                    </Canvas>
+                </Viewbox>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

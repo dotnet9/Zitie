@@ -77,12 +77,6 @@
         <Setter Property="Background" Value="#F7EBE7" />
         <Setter Property="Foreground" Value="#B04A3F" />
     </Style>
-    <Style Selector="Button.rail-button Path">
-        <Setter Property="Stroke" Value="#A29886" />
-    </Style>
-    <Style Selector="Button.rail-button.active Path">
-        <Setter Property="Stroke" Value="#B04A3F" />
-    </Style>
     <Style Selector="Border.rail-active-marker">
         <Setter Property="Width" Value="3" />
         <Setter Property="Height" Value="22" />
@@ -286,11 +280,6 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    <Style Selector="Button.editor-icon-button Path.back-glyph">
-        <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
     <Style Selector="Button.editor-icon-button:pointerover">
         <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
@@ -319,12 +308,6 @@
     <Style Selector="TabControl.editor-tabs">
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
-    </Style>
-    <Style Selector="Path.editor-tab-glyph">
-        <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-        <Setter Property="StrokeThickness" Value="1.6" />
-        <Setter Property="StrokeLineCap" Value="Round" />
-        <Setter Property="StrokeJoin" Value="Round" />
     </Style>
     <Style Selector="StackPanel.editor-tab-body">
         <Setter Property="Margin" Value="{StaticResource ZitieEditorTabBodyPadding}" />

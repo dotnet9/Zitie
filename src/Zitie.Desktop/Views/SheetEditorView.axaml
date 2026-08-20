@@ -16,16 +16,10 @@
                         Classes="editor-icon-button"
                         Command="{Binding GoBackCommand}"
                         ToolTip.Tip="返回模板库">
-                    <Viewbox Width="{StaticResource ZitieToolbarBackIconSize}"
-                             Height="{StaticResource ZitieToolbarBackIconSize}">
-                        <Canvas Width="24" Height="24">
-                            <Path Classes="back-glyph"
-                                  Data="M15,18 L9,12 L15,6"
-                                  StrokeThickness="2"
-                                  StrokeLineCap="Round"
-                                  StrokeJoin="Round" />
-                        </Canvas>
-                    </Viewbox>
+                    <controls:ZitieIcon Data="M15,18 L9,12 L15,6"
+                                        IconSize="{StaticResource ZitieToolbarBackIconSize}"
+                                        StrokeThickness="2"
+                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
                 <controls:ZitieToolButton Grid.Column="2"
@@ -97,12 +91,10 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Viewbox Width="18" Height="18">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Classes="editor-tab-glyph"
-                                              Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15" />
-                                    </Canvas>
-                                </Viewbox>
+                                <controls:ZitieIcon Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15"
+                                                    IconSize="18"
+                                                    StrokeThickness="1.6"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
                                 <TextBlock Text="内容" />
                             </StackPanel>
                         </TabItem.Header>
@@ -180,12 +172,10 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Viewbox Width="18" Height="18">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Classes="editor-tab-glyph"
-                                              Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21" />
-                                    </Canvas>
-                                </Viewbox>
+                                <controls:ZitieIcon Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21"
+                                                    IconSize="18"
+                                                    StrokeThickness="1.6"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
                                 <TextBlock Text="版式" />
                             </StackPanel>
                         </TabItem.Header>
@@ -250,12 +240,10 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Viewbox Width="18" Height="18">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Classes="editor-tab-glyph"
-                                              Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8" />
-                                    </Canvas>
-                                </Viewbox>
+                                <controls:ZitieIcon Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8"
+                                                    IconSize="18"
+                                                    StrokeThickness="1.6"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
                                 <TextBlock Text="练习" />
                             </StackPanel>
                         </TabItem.Header>
@@ -288,12 +276,10 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Viewbox Width="18" Height="18">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Classes="editor-tab-glyph"
-                                              Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6" />
-                                    </Canvas>
-                                </Viewbox>
+                                <controls:ZitieIcon Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6"
+                                                    IconSize="18"
+                                                    StrokeThickness="1.6"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
                                 <TextBlock Text="字迹" />
                             </StackPanel>
                         </TabItem.Header>
@@ -342,12 +328,10 @@
                     <TabItem>
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
-                                <Viewbox Width="18" Height="18">
-                                    <Canvas Width="24" Height="24">
-                                        <Path Classes="editor-tab-glyph"
-                                              Data="M4,12 H7 L9,6 L13,18 L15,12 H20" />
-                                    </Canvas>
-                                </Viewbox>
+                                <controls:ZitieIcon Data="M4,12 H7 L9,6 L13,18 L15,12 H20"
+                                                    IconSize="18"
+                                                    StrokeThickness="1.6"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
                                 <TextBlock Text="拼音" />
                             </StackPanel>
                         </TabItem.Header>

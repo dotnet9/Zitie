@@ -56,16 +56,10 @@
                                 Theme="{StaticResource ZitieStepperButtonTheme}"
                                 Command="{TemplateBinding DecreaseCommand}"
                                 ToolTip.Tip="{TemplateBinding DecreaseToolTip}">
-                            <Viewbox Width="{StaticResource ZitieStepperIconSize}"
-                                     Height="{StaticResource ZitieStepperIconSize}">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="{TemplateBinding DecreaseIconData}"
-                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                          StrokeThickness="2"
-                                          StrokeLineCap="Round"
-                                          StrokeJoin="Round" />
-                                </Canvas>
-                            </Viewbox>
+                            <controls:ZitieIcon Data="{TemplateBinding DecreaseIconData}"
+                                                IconSize="{StaticResource ZitieStepperIconSize}"
+                                                StrokeThickness="2"
+                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </Button>
                         <TextBlock Grid.Column="1"
                                    Width="{TemplateBinding ValueWidth}"
@@ -79,16 +73,10 @@
                                 Theme="{StaticResource ZitieStepperButtonTheme}"
                                 Command="{TemplateBinding IncreaseCommand}"
                                 ToolTip.Tip="{TemplateBinding IncreaseToolTip}">
-                            <Viewbox Width="{StaticResource ZitieStepperIconSize}"
-                                     Height="{StaticResource ZitieStepperIconSize}">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="{TemplateBinding IncreaseIconData}"
-                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                          StrokeThickness="2"
-                                          StrokeLineCap="Round"
-                                          StrokeJoin="Round" />
-                                </Canvas>
-                            </Viewbox>
+                            <controls:ZitieIcon Data="{TemplateBinding IncreaseIconData}"
+                                                IconSize="{StaticResource ZitieStepperIconSize}"
+                                                StrokeThickness="2"
+                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </Button>
                     </Grid>
                 </Border>

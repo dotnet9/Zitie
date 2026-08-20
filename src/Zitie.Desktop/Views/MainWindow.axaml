@@ -61,10 +61,9 @@
                             ToolTip.Tip="模板库">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
-                            <Path Width="21"
-                                  Height="21"
-                                  Data="M3,3 H10.5 V10.5 H3 Z M13.5,3 H21 V10.5 H13.5 Z M3,13.5 H10.5 V21 H3 Z M13.5,13.5 H21 V21 H13.5 Z"
-                                  StrokeThickness="1.8" />
+                            <zitie:ZitieIcon Data="M3,3 H10.5 V10.5 H3 Z M13.5,3 H21 V10.5 H13.5 Z M3,13.5 H10.5 V21 H3 Z M13.5,13.5 H21 V21 H13.5 Z"
+                                              IconSize="21"
+                                              Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </Grid>
                     </Button>
                     <Button Classes="rail-button"
@@ -73,11 +72,9 @@
                             ToolTip.Tip="新建字帖">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
-                            <Path Width="21"
-                                  Height="21"
-                                  Data="M12,5 V19 M5,12 H19"
-                                  StrokeLineCap="Round"
-                                  StrokeThickness="1.8" />
+                            <zitie:ZitieIcon Data="M12,5 V19 M5,12 H19"
+                                              IconSize="21"
+                                              Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </Grid>
                     </Button>
                 </StackPanel>
@@ -85,11 +82,9 @@
                     <Button Classes="rail-button"
                             Command="{Binding ToggleLogCommand}"
                             ToolTip.Tip="日志">
-                        <Path Width="21"
-                              Height="21"
-                              Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
-                              StrokeLineCap="Round"
-                              StrokeThickness="1.8" />
+                        <zitie:ZitieIcon Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
+                                          IconSize="21"
+                                          Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                     </Button>
                 </StackPanel>
             </DockPanel>
