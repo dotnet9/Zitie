@@ -31,6 +31,10 @@
         <Style Selector="^:pressed">
             <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
         </Style>
+        <Style Selector="^:focus-visible">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type zitie:ZitieWindow}" TargetType="zitie:ZitieWindow">
@@ -82,6 +86,7 @@
                                                     Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
                                                     Foreground="{TemplateBinding TitleBarForeground}"
                                                     IsVisible="{TemplateBinding IsMinimizeButtonVisible}"
+                                                    AutomationProperties.Name="最小化窗口"
                                                     ToolTip.Tip="最小化"
                                                     WindowDecorationProperties.ElementRole="MinimizeButton">
                                                 <Border Width="11"
@@ -93,6 +98,7 @@
                                                     Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
                                                     Foreground="{TemplateBinding TitleBarForeground}"
                                                     IsVisible="{TemplateBinding IsMaximizeButtonVisible}"
+                                                    AutomationProperties.Name="最大化或还原窗口"
                                                     ToolTip.Tip="最大化 / 还原"
                                                     WindowDecorationProperties.ElementRole="MaximizeButton">
                                                 <Grid Width="12" Height="12">
@@ -114,6 +120,7 @@
                                                     Theme="{StaticResource ZitieWindowCaptionButtonTheme}"
                                                     Foreground="{TemplateBinding TitleBarForeground}"
                                                     IsVisible="{TemplateBinding IsCloseButtonVisible}"
+                                                    AutomationProperties.Name="关闭窗口"
                                                     ToolTip.Tip="关闭"
                                                     WindowDecorationProperties.ElementRole="CloseButton">
                                                 <zitie:ZitieIcon Data="M5,5 L19,19 M19,5 L5,19"

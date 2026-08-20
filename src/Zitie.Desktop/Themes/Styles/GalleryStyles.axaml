@@ -30,6 +30,9 @@
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
+    <Style Selector="Button.gallery-action:focus-visible">
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
     <Style Selector="TextBox.gallery-search">
         <Setter Property="MinWidth" Value="300" />
         <Setter Property="Height" Value="36" />
@@ -76,6 +79,9 @@
         <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
+    <Style Selector="Button.gallery-chip:focus-visible">
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
     <Style Selector="ToggleButton.gallery-chip">
         <Setter Property="Height" Value="30" />
         <Setter Property="Padding" Value="13,0" />
@@ -94,6 +100,9 @@
         <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
         <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="ToggleButton.gallery-chip:focus-visible">
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
 
     <Style Selector="Button.module-card">
@@ -114,6 +123,9 @@
     <Style Selector="Button.module-card:pointerover">
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentDisabledBrush}" />
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
+    </Style>
+    <Style Selector="Button.module-card:focus-visible">
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
     <Style Selector="Border.card-shadow-layer">
         <Setter Property="CornerRadius" Value="13" />

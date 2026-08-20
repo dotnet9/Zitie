@@ -15,6 +15,7 @@
                 <Button Grid.Column="0"
                         Classes="editor-icon-button"
                         Command="{Binding GoBackCommand}"
+                        AutomationProperties.Name="返回模板库"
                         ToolTip.Tip="返回模板库">
                     <controls:ZitieIcon Data="M15,18 L9,12 L15,6"
                                         IconSize="{StaticResource ZitieToolbarBackIconSize}"
@@ -26,21 +27,25 @@
                                           Content="打开"
                                           IconData="M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
                                           Command="{Binding OpenDocumentCommand}"
+                                          AutomationProperties.Name="打开字帖文档"
                                           ToolTip.Tip="打开字帖文档" />
                 <controls:ZitieToolButton Grid.Column="3"
                                           Content="保存"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z"
                                           Command="{Binding SaveDocumentCommand}"
+                                          AutomationProperties.Name="保存字帖文档"
                                           ToolTip.Tip="保存字帖文档" />
                 <controls:ZitieToolButton Grid.Column="4"
                                           Content="另存"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M14 17l4-4 1.5 1.5L15.5 18.5 13 19z"
                                           Command="{Binding SaveAsDocumentCommand}"
+                                          AutomationProperties.Name="另存字帖文档"
                                           ToolTip.Tip="另存字帖文档" />
                 <controls:ZitieToolButton Grid.Column="5"
                                           Content="存为模板"
                                           IconData="M6 3h12v18l-6-4.2L6 21z"
                                           Command="{Binding SaveTemplateCommand}"
+                                          AutomationProperties.Name="保存为可复用模板"
                                           ToolTip.Tip="保存为可复用模板" />
                 <StackPanel Grid.Column="7"
                             Orientation="Horizontal"
@@ -52,16 +57,19 @@
                                               Content="批量 PNG"
                                               IconData="M8 3h8v8H8z M3 13h8v8H3z M13 13h8v8h-8z"
                                               Command="{Binding ExportPngsCommand}"
+                                              AutomationProperties.Name="按页批量导出 PNG"
                                               ToolTip.Tip="按页导出多张 PNG" />
                     <controls:ZitieToolButton Classes="outline"
                                               Content="导出 PNG"
                                               IconData="M3 5h18v14H3z M10.1 10a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0z M21 16l-5-5-7 7"
                                               Command="{Binding ExportPngCommand}"
+                                              AutomationProperties.Name="导出当前页 PNG"
                                               ToolTip.Tip="导出当前页 PNG" />
                     <controls:ZitieToolButton Classes="primary"
                                               Content="导出 PDF"
                                               IconData="M12 3v11 M7.5 10.5L12 15l4.5-4.5 M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"
                                               Command="{Binding ExportPdfCommand}"
+                                              AutomationProperties.Name="导出 PDF"
                                               ToolTip.Tip="导出 PDF（适合打印）" />
                 </StackPanel>
             </Grid>
@@ -88,7 +96,7 @@
                 <TabControl Classes="editor-tabs"
                             ItemContainerTheme="{StaticResource ZitieEditorTabItemTheme}"
                             SelectedIndex="{Binding SettingsTabIndex}">
-                    <TabItem>
+                    <TabItem AutomationProperties.Name="内容设置">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15"
@@ -110,6 +118,7 @@
                                         </Grid>
                                         <TextBox Text="{Binding InputText}"
                                                  Classes="editor-input"
+                                                 AutomationProperties.Name="练习文本"
                                                  AcceptsReturn="True"
                                                  TextWrapping="Wrap"
                                                  MinHeight="108"
@@ -127,6 +136,7 @@
                                         <ComboBox ItemsSource="{Binding TextEntries}"
                                                   SelectedIndex="{Binding TextEntryIndex}"
                                                   Classes="editor-input"
+                                                  AutomationProperties.Name="从文本库选择"
                                                   MaxDropDownHeight="360"
                                                   PlaceholderText="选择诗词 / 蒙学 / 名言 / 英文">
                                             <ComboBox.ItemTemplate>
@@ -143,23 +153,24 @@
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="标题" Classes="editor-label" />
-                                        <TextBox Text="{Binding Title}" Classes="editor-input" PlaceholderText="留空则不显示" />
+                                        <TextBox Text="{Binding Title}" Classes="editor-input" AutomationProperties.Name="标题" PlaceholderText="留空则不显示" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="页头样式" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
                                                   SelectedIndex="{Binding HeaderPresetIndex}"
+                                                  AutomationProperties.Name="页头样式"
                                                   Classes="editor-input" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="朝代" Classes="editor-label" />
-                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="唐" />
+                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="唐" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="作者" Classes="editor-label" />
-                                        <TextBox Text="{Binding Author}" Classes="editor-input" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="李白" />
+                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="李白" />
                                     </StackPanel>
                                 </Grid>
                                 <CheckBox Content="题头显示作者（朝代 · 作者）"
@@ -169,7 +180,7 @@
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem>
+                    <TabItem AutomationProperties.Name="版式设置">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21"
@@ -184,11 +195,12 @@
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="纸张规格" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding PageSizeChoices}" SelectedIndex="{Binding PageSizeIndex}" Classes="editor-input" />
+                                        <ComboBox ItemsSource="{Binding PageSizeChoices}" SelectedIndex="{Binding PageSizeIndex}" Classes="editor-input" AutomationProperties.Name="纸张规格" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="页边距（mm）" Classes="editor-label" />
                                         <NumericUpDown Classes="editor-input"
+                                                       AutomationProperties.Name="页边距"
                                                        Minimum="0" Maximum="40" Increment="1"
                                                        Value="{Binding PageMarginMm}" />
                                     </StackPanel>
@@ -196,7 +208,7 @@
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="格子类型" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding GridKindIndex}" Classes="editor-input">
+                                        <ComboBox SelectedIndex="{Binding GridKindIndex}" Classes="editor-input" AutomationProperties.Name="格子类型">
                                             <ComboBoxItem Content="米字格" />
                                             <ComboBoxItem Content="田字格" />
                                             <ComboBoxItem Content="回宫格" />
@@ -210,11 +222,11 @@
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="每行字数" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}" SelectedIndex="{Binding CharactersPerLineIndex}" Classes="editor-input" />
+                                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}" SelectedIndex="{Binding CharactersPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行字数" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="隔空行" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding BlankLineChoices}" SelectedItem="{Binding BlankLineCount}" Classes="editor-input" />
+                                        <ComboBox ItemsSource="{Binding BlankLineChoices}" SelectedItem="{Binding BlankLineCount}" Classes="editor-input" AutomationProperties.Name="隔空行" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
@@ -222,6 +234,7 @@
                                         <TextBlock Text="格子大小" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <Slider Classes="editor-slider"
+                                                    AutomationProperties.Name="格子大小"
                                                     Minimum="8"
                                                     Maximum="60"
                                                     TickFrequency="1"
@@ -237,7 +250,7 @@
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem>
+                    <TabItem AutomationProperties.Name="练习设置">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8"
@@ -252,7 +265,7 @@
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="练习模式" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding PracticeModeIndex}" Classes="editor-input">
+                                        <ComboBox SelectedIndex="{Binding PracticeModeIndex}" Classes="editor-input" AutomationProperties.Name="练习模式">
                                             <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
                                             <ComboBoxItem Content="临摹：范字 + 空格" />
                                         </ComboBox>
@@ -261,11 +274,11 @@
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="每字格数" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding RepeatsChoices}" SelectedIndex="{Binding RepeatsIndex}" Classes="editor-input" />
+                                        <ComboBox ItemsSource="{Binding RepeatsChoices}" SelectedIndex="{Binding RepeatsIndex}" Classes="editor-input" AutomationProperties.Name="每字格数" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="描红深浅" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}" SelectedIndex="{Binding TraceIntensityIndex}" IsEnabled="{Binding IsTraceMode}" Classes="editor-input" />
+                                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}" SelectedIndex="{Binding TraceIntensityIndex}" IsEnabled="{Binding IsTraceMode}" Classes="editor-input" AutomationProperties.Name="描红深浅" />
                                     </StackPanel>
                                 </Grid>
                                 <CheckBox Content="空心双钩字（范字描轮廓，供填墨）" Classes="editor-check" IsChecked="{Binding HollowGlyph}" />
@@ -273,7 +286,7 @@
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem>
+                    <TabItem AutomationProperties.Name="字迹设置">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6"
@@ -288,19 +301,19 @@
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="格子颜色" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding GridColorIndex}" Classes="editor-input" />
-                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" PlaceholderText="#B04A3F" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding GridColorIndex}" Classes="editor-input" AutomationProperties.Name="格子颜色预设" />
+                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" AutomationProperties.Name="格子颜色值" PlaceholderText="#B04A3F" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="文字颜色" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding TextColorIndex}" Classes="editor-input" />
-                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" PlaceholderText="#1A1A1A" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding TextColorIndex}" Classes="editor-input" AutomationProperties.Name="文字颜色预设" />
+                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" AutomationProperties.Name="文字颜色值" PlaceholderText="#1A1A1A" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="字帖字体" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding SheetFonts}" SelectedItem="{Binding SelectedSheetFont}" Classes="editor-input" MaxDropDownHeight="360">
+                                        <ComboBox ItemsSource="{Binding SheetFonts}" SelectedItem="{Binding SelectedSheetFont}" Classes="editor-input" AutomationProperties.Name="字帖字体" MaxDropDownHeight="360">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate x:DataType="services:FontOption">
                                                     <TextBlock Text="{Binding DisplayName}" FontFamily="{Binding Name}" />
@@ -312,7 +325,7 @@
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="纸张底纹" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding BackgroundIndex}" Classes="editor-input">
+                                        <ComboBox SelectedIndex="{Binding BackgroundIndex}" Classes="editor-input" AutomationProperties.Name="纸张底纹">
                                             <ComboBoxItem Content="白底（无底纹）" />
                                             <ComboBoxItem Content="红格纸（淡红横线）" />
                                             <ComboBoxItem Content="信纸（淡蓝横线）" />
@@ -325,7 +338,7 @@
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem>
+                    <TabItem AutomationProperties.Name="拼音设置">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M4,12 H7 L9,6 L13,18 L15,12 H20"
@@ -347,6 +360,7 @@
                                         <TextBlock Text="显示缩放" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <Slider Classes="editor-slider"
+                                                    AutomationProperties.Name="拼音显示缩放"
                                                     Minimum="0.3"
                                                     Maximum="2"
                                                     TickFrequency="0.1"
@@ -385,6 +399,7 @@
                 <Border Grid.Row="1" Classes="stage-bar">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <controls:ZitieStepper ValueText="{Binding PageIndicator}"
+                                               AutomationProperties.Name="分页控制"
                                                ValueWidth="60"
                                                DecreaseIconData="M15 18l-6-6 6-6"
                                                IncreaseIconData="M9 6l6 6-6 6"
@@ -398,6 +413,7 @@
                               VerticalAlignment="Center">
                             <Slider Width="{StaticResource ZitieStageZoomSliderWidth}"
                                     Classes="editor-slider"
+                                    AutomationProperties.Name="画布缩放"
                                     Minimum="0.3"
                                     Maximum="2"
                                     TickFrequency="0.1"

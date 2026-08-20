@@ -22,9 +22,11 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
                     <Button Content="打开模板目录"
                             Classes="gallery-action"
+                            AutomationProperties.Name="打开模板目录"
                             Command="{Binding OpenTemplateDirectoryCommand}" />
                     <Button Content="刷新"
                             Classes="gallery-action"
+                            AutomationProperties.Name="刷新模板库"
                             Command="{Binding RefreshCommand}" />
                 </StackPanel>
             </Grid>
@@ -33,6 +35,7 @@
                 <TextBox Grid.Column="0"
                          Classes="gallery-search"
                          Text="{Binding SearchText}"
+                         AutomationProperties.Name="搜索模板"
                          PlaceholderText="搜索模板名称、说明或分类">
                     <TextBox.InnerLeftContent>
                         <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
@@ -78,6 +81,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ModuleCardViewModel">
                             <Button Classes="module-card"
+                                    AutomationProperties.Name="{Binding Module.Name}"
                                     Command="{Binding OpenCommand}"
                                     CommandParameter="{Binding Module}">
                                 <Grid RowDefinitions="190,*">

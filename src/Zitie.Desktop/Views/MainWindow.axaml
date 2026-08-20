@@ -58,6 +58,7 @@
                     <Button Classes="rail-button"
                             Classes.active="{Binding IsGalleryMode}"
                             Command="{Binding NavigateGalleryCommand}"
+                            AutomationProperties.Name="模板库"
                             ToolTip.Tip="模板库">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
@@ -69,6 +70,7 @@
                     <Button Classes="rail-button"
                             Classes.active="{Binding !IsGalleryMode}"
                             Command="{Binding NavigateEditorCommand}"
+                            AutomationProperties.Name="新建字帖"
                             ToolTip.Tip="新建字帖">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
@@ -81,6 +83,7 @@
                 <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
                     <Button Classes="rail-button"
                             Command="{Binding ToggleLogCommand}"
+                            AutomationProperties.Name="显示或隐藏日志"
                             ToolTip.Tip="日志">
                         <zitie:ZitieIcon Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
                                           IconSize="21"
