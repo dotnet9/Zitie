@@ -23,6 +23,7 @@ public sealed record SheetEditorState
     public string HeaderTextTemplate { get; init; } = "姓名_班级---年_月_日";
     public int TraceSlotCount { get; init; } = 2;
     public double GridSizeMm { get; init; } = 14;
+    public double GridGapMm { get; init; } = 2;
     public double GroupGapMm { get; init; } = 2;
     public bool HollowGlyph { get; init; }
     public bool GroupByWord { get; init; }
@@ -35,6 +36,8 @@ public sealed record SheetEditorState
     public string? BackgroundColor { get; init; }
     public string? BackgroundLineColor { get; init; }
     public double? BackgroundLineSpacingMm { get; init; }
+    public string? BackgroundArtwork { get; init; }
+    public string? BackgroundArtworkSvg { get; init; }
     public string? Author { get; init; }
     public string? Dynasty { get; init; }
     public string? FontFamilyName { get; init; }
@@ -69,6 +72,7 @@ public sealed record SheetEditorState
             HeaderTextTemplate = spec.HeaderTextTemplate ?? "姓名_班级---年_月_日",
             TraceSlotCount = spec.TraceSlotCount,
             GridSizeMm = spec.GridSizeMm,
+            GridGapMm = spec.GridGapMm,
             GroupGapMm = spec.GroupGapMm,
             HollowGlyph = spec.HollowGlyph,
             GroupByWord = spec.GroupByWord,
@@ -81,6 +85,8 @@ public sealed record SheetEditorState
             BackgroundColor = spec.BackgroundColor,
             BackgroundLineColor = spec.BackgroundLineColor,
             BackgroundLineSpacingMm = spec.BackgroundLineSpacingMm,
+            BackgroundArtwork = spec.BackgroundArtwork,
+            BackgroundArtworkSvg = spec.BackgroundArtworkSvg,
             Author = spec.Author,
             Dynasty = spec.Dynasty,
             FontFamilyName = spec.FontFamilyName,

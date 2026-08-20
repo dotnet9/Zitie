@@ -1,4 +1,6 @@
 using Xunit;
+using System.IO.Compression;
+using System.Text;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Zitie.Core.Models;
@@ -54,9 +56,9 @@ public sealed class SheetDocumentStoreTests
     }
 
     [Fact]
-    public void SaveTemplate_WritesModuleCompatibleDefaults()
+    public void SaveTemplate_WritesZiPackageWithModuleAndArtwork()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"zitie-template-{Guid.NewGuid():N}.yml");
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-template-{Guid.NewGuid():N}.zi");
         try
         {
             SheetDocumentStore.SaveTemplate(path, new CharacterSheetSpec
@@ -64,18 +66,30 @@ public sealed class SheetDocumentStoreTests
                 Text = "一二三",
                 GridColor = "#123456",
                 GroupGapMm = 7,
+                BackgroundArtworkSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\" />",
                 Page = PageSettings.A4 with { MarginTopMm = 22 }
             }, "我的模板");
 
+            using var archive = ZipFile.OpenRead(path);
+            var moduleEntry = archive.GetEntry("module.yml");
+            Assert.NotNull(moduleEntry);
+            Assert.NotNull(archive.GetEntry("assets/background.svg"));
+            using var reader = new StreamReader(
+                moduleEntry!.Open(),
+                encoding: Encoding.UTF8,
+                detectEncodingFromByteOrderMarks: true);
+            var moduleText = reader.ReadToEnd();
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
-            var module = deserializer.Deserialize<ModuleDefinition>(File.ReadAllText(path));
+            var module = deserializer.Deserialize<ModuleDefinition>(moduleText);
             Assert.Equal("我的模板", module.Name);
             Assert.Equal("#123456", module.Defaults.GridColor);
             Assert.Equal(7d, module.Defaults.GroupGap);
+            Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
             Assert.Equal("a4Portrait", module.Defaults.PageSize);
             Assert.Equal(22d, module.Defaults.PageMargin);
+            Assert.Equal(22d, module.Defaults.PageMarginTop);
         }
         finally
         {

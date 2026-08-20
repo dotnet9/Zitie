@@ -8,6 +8,20 @@ internal static class YamlResourceSerializer
     public static T? DeserializeFile<T>(string path)
     {
         var root = LoadRoot(path);
+        return DeserializeRoot<T>(root);
+    }
+
+    public static T? DeserializeText<T>(string text)
+    {
+        using var reader = new StringReader(text);
+        var yaml = new YamlStream();
+        yaml.Load(reader);
+        var root = yaml.Documents.Count == 0 ? null : yaml.Documents[0].RootNode;
+        return DeserializeRoot<T>(root);
+    }
+
+    private static T? DeserializeRoot<T>(YamlNode? root)
+    {
         if (root is null) return default;
 
         if (typeof(T) == typeof(ModuleDefinition))
@@ -20,13 +34,10 @@ internal static class YamlResourceSerializer
         throw new NotSupportedException($"不支持的 YAML 资源类型：{typeof(T).FullName}");
     }
 
-    public static void SerializeFile<T>(string path, T value)
+    public static string Serialize<T>(T value)
     {
         if (value is ModuleDefinition module)
-        {
-            File.WriteAllLines(path, WriteModule(module));
-            return;
-        }
+            return string.Join(Environment.NewLine, WriteModule(module)) + Environment.NewLine;
 
         throw new NotSupportedException($"不支持的 YAML 资源类型：{typeof(T).FullName}");
     }
@@ -74,6 +85,7 @@ internal static class YamlResourceSerializer
             BackgroundColor = GetOptionalString(map, "backgroundColor"),
             BackgroundLineColor = GetOptionalString(map, "backgroundLineColor"),
             BackgroundLineSpacing = GetDouble(map, "backgroundLineSpacing"),
+            BackgroundArtwork = GetOptionalString(map, "backgroundArtwork"),
             Author = GetOptionalString(map, "author"),
             Dynasty = GetOptionalString(map, "dynasty"),
             Repeats = GetInt32(map, "repeats"),
@@ -87,6 +99,10 @@ internal static class YamlResourceSerializer
             TextColor = GetOptionalString(map, "textColor"),
             PageSize = GetOptionalString(map, "pageSize"),
             PageMargin = GetDouble(map, "pageMargin"),
+            PageMarginTop = GetDouble(map, "pageMarginTop"),
+            PageMarginBottom = GetDouble(map, "pageMarginBottom"),
+            PageMarginLeft = GetDouble(map, "pageMarginLeft"),
+            PageMarginRight = GetDouble(map, "pageMarginRight"),
             FontFamily = GetOptionalString(map, "fontFamily"),
             HeaderPreset = GetOptionalString(map, "headerPreset"),
             HeaderText = GetOptionalString(map, "headerText"),
@@ -172,6 +188,7 @@ internal static class YamlResourceSerializer
         Add(lines, 2, "backgroundColor", defaults.BackgroundColor);
         Add(lines, 2, "backgroundLineColor", defaults.BackgroundLineColor);
         Add(lines, 2, "backgroundLineSpacing", defaults.BackgroundLineSpacing);
+        Add(lines, 2, "backgroundArtwork", defaults.BackgroundArtwork);
         Add(lines, 2, "author", defaults.Author);
         Add(lines, 2, "dynasty", defaults.Dynasty);
         Add(lines, 2, "repeats", defaults.Repeats);
@@ -185,6 +202,10 @@ internal static class YamlResourceSerializer
         Add(lines, 2, "textColor", defaults.TextColor);
         Add(lines, 2, "pageSize", defaults.PageSize);
         Add(lines, 2, "pageMargin", defaults.PageMargin);
+        Add(lines, 2, "pageMarginTop", defaults.PageMarginTop);
+        Add(lines, 2, "pageMarginBottom", defaults.PageMarginBottom);
+        Add(lines, 2, "pageMarginLeft", defaults.PageMarginLeft);
+        Add(lines, 2, "pageMarginRight", defaults.PageMarginRight);
         Add(lines, 2, "fontFamily", defaults.FontFamily);
         Add(lines, 2, "headerPreset", defaults.HeaderPreset);
         Add(lines, 2, "headerText", defaults.HeaderText);

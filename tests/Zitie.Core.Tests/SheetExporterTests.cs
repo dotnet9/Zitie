@@ -50,6 +50,38 @@ public sealed class SheetExporterTests
     }
 
     [Fact]
+    public void ExportPng_WritesSvgBackgroundArtwork()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                BackgroundArtworkSvg = """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+                      <rect width="210" height="297" fill="#D6F1E6" />
+                    </svg>
+                    """
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "sheet-artwork.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 72);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            var pixel = bitmap.GetPixel(1, 1);
+            Assert.Equal(0xD6, pixel.Red);
+            Assert.Equal(0xF1, pixel.Green);
+            Assert.Equal(0xE6, pixel.Blue);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ExportPdf_WritesPdfForEveryPage()
     {
         var directory = CreateTempDirectory();

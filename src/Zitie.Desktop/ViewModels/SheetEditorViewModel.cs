@@ -146,7 +146,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         try
         {
-            var path = await _dialogs.PickSaveFileAsync("字帖模板", "yml", "我的字帖模板.yml");
+            var path = await _dialogs.PickSaveFileAsync("字帖模板包", "zi", "我的字帖模板.zi");
             if (path is null) return;
             SaveTemplateTo(path);
         }
@@ -214,9 +214,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
 
-    public string[] CellsPerLineChoices { get; } = ["自动", "12", "16"];
+    public string[] CellsPerLineChoices { get; } = ["自动", "5", "7", "8", "10", "12", "14", "16", "20", "24"];
 
-    private static readonly int[] CellsPerLineValues = [0, 12, 16];
+    private static readonly int[] CellsPerLineValues = [0, 5, 7, 8, 10, 12, 14, 16, 20, 24];
 
     public int[] BlankCellLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
 
@@ -526,6 +526,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetEditorState(_editorState with { GridSizeMm = Math.Clamp(value, 8, 60) });
     }
 
+    public double GridGapMm
+    {
+        get => _editorState.GridGapMm;
+        set => SetEditorState(_editorState with { GridGapMm = Math.Clamp(value, 0, 20) });
+    }
+
     /// <summary>每个字的练习组之间、行之间的额外间距。</summary>
     public double GroupGapMm
     {
@@ -812,14 +818,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                                  !string.IsNullOrWhiteSpace(HeaderTextTemplate)
                 ? HeaderTextTemplate.Trim()
                 : null,
-            CellsPerLine = CellsPerLineValues[
-                Math.Clamp(CellsPerLineIndex, 0, CellsPerLineValues.Length - 1)],
+            CellsPerLine = Math.Clamp(_editorState.CellsPerLine, 0, 64),
             BlankCellLineCount = BlankCellLineCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
             TraceSlotCount = _editorState.TraceSlotCount,
             GridSizeMm = GridSizeMm,
+            GridGapMm = GridGapMm,
             GroupGapMm = GroupGapMm,
             HollowGlyph = HollowGlyph,
             GroupByWord = GroupByWord,
@@ -834,6 +840,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             BackgroundColor = _editorState.BackgroundColor,
             BackgroundLineColor = _editorState.BackgroundLineColor,
             BackgroundLineSpacingMm = _editorState.BackgroundLineSpacingMm,
+            BackgroundArtwork = _editorState.BackgroundArtwork,
+            BackgroundArtworkSvg = _editorState.BackgroundArtworkSvg,
             Author = string.IsNullOrWhiteSpace(Author) ? null : Author.Trim(),
             Dynasty = string.IsNullOrWhiteSpace(Dynasty) ? null : Dynasty.Trim(),
             TraceColor = string.IsNullOrWhiteSpace(TraceColor) ? null : TraceColor,
@@ -922,6 +930,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             };
 
         if (defaults.GridSize is { } gridSize) GridSizeMm = gridSize;
+        if (defaults.GridGap is { } gridGap) GridGapMm = gridGap;
         if (defaults.HollowGlyph is { } hollowGlyph) HollowGlyph = hollowGlyph;
         if (defaults.Mode is { Length: > 0 } mode)
             PracticeModeIndex = mode.ToLowerInvariant() switch
@@ -958,6 +967,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             {
                 BackgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60)
             };
+        if (defaults.BackgroundArtwork is { Length: > 0 } backgroundArtwork)
+            _editorState = _editorState with
+            {
+                BackgroundArtwork = backgroundArtwork.Trim(),
+                BackgroundArtworkSvg = module.ReadTextAsset(backgroundArtwork)
+            };
 
         if (defaults.Author is { } author) Author = author;
         if (defaults.Dynasty is { } dynasty) Dynasty = dynasty;
@@ -989,7 +1004,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         if (defaults.CellsPerLine is { } cellsPerLine)
         {
             var index = Array.IndexOf(CellsPerLineValues, cellsPerLine);
-            if (index >= 0) CellsPerLineIndex = index;
+            if (index >= 0)
+            {
+                CellsPerLineIndex = index;
+            }
+            else
+            {
+                SetEditorState(_editorState with { CellsPerLine = Math.Clamp(cellsPerLine, 0, 64) },
+                    nameof(CellsPerLineIndex));
+            }
         }
 
         if (defaults.BlankCellLineCount is { } blankCellLineCount)
@@ -1021,6 +1044,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 _ => 0
             };
         if (defaults.PageMargin is { } pageMargin) PageMarginMm = pageMargin;
+        ApplyPageMargins(defaults);
         if (defaults.FontFamily is { Length: > 0 } fontFamily)
             SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
                                 FontOption.CreateUnclassified(fontFamily.Trim());
@@ -1082,6 +1106,32 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         Author = content.Author;
         Dynasty = content.Dynasty;
         ShowPoemHeader = content.ShowPoemHeader;
+    }
+
+    private void ApplyPageMargins(ModuleDefaults defaults)
+    {
+        if (defaults.PageMarginTop is null &&
+            defaults.PageMarginBottom is null &&
+            defaults.PageMarginLeft is null &&
+            defaults.PageMarginRight is null)
+            return;
+
+        var page = _editorState.Page;
+        SetEditorState(_editorState with
+        {
+            Page = page with
+            {
+                MarginTopMm = ClampPageMargin(defaults.PageMarginTop ?? page.MarginTopMm),
+                MarginBottomMm = ClampPageMargin(defaults.PageMarginBottom ?? page.MarginBottomMm),
+                MarginLeftMm = ClampPageMargin(defaults.PageMarginLeft ?? page.MarginLeftMm),
+                MarginRightMm = ClampPageMargin(defaults.PageMarginRight ?? page.MarginRightMm)
+            }
+        }, nameof(PageMarginMm));
+    }
+
+    private static double ClampPageMargin(double value)
+    {
+        return Math.Clamp(value, 0, 80);
     }
 
     private static int ColorIndexOf(string color, int fallback)

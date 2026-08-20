@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\resources\modules\*.yml"
+    <None Include="..\..\resources\modules\*.zi"
           Link="resources\modules\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
           CopyToPublishDirectory="PreserveNewest" />

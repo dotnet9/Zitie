@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.IO.Compression;
+using System.Text;
 using Zitie.Core.Models;
 
 namespace Zitie.Desktop.Services;
@@ -13,7 +15,7 @@ public sealed record SheetDocument
     public CharacterSheetSpec Spec { get; init; } = new();
 }
 
-/// <summary>字帖文档使用 JSON，用户模板使用 YAML。</summary>
+/// <summary>字帖文档使用 JSON，用户模板使用 .zi 压缩包（内含 module.yml 与素材）。</summary>
 public static class SheetDocumentStore
 {
     public static void Save(string path, CharacterSheetSpec spec, string? moduleId = null)
@@ -51,8 +53,28 @@ public static class SheetDocumentStore
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(spec);
 
+        if (!string.Equals(Path.GetExtension(path), ".zi", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("字帖模板只能保存为 .zi 模板包。");
+
+        var hasArtwork = !string.IsNullOrWhiteSpace(spec.BackgroundArtworkSvg);
+        var module = CreateTemplateModule(spec, name, Path.GetFileNameWithoutExtension(path), hasArtwork);
+
+        if (File.Exists(path)) File.Delete(path);
+        using var stream = File.Create(path);
+        using var archive = new ZipArchive(stream, ZipArchiveMode.Create);
+        WriteEntryText(archive, "module.yml", YamlResourceSerializer.Serialize(module));
+        if (hasArtwork)
+            WriteEntryText(archive, "assets/background.svg", spec.BackgroundArtworkSvg!);
+    }
+
+    private static ModuleDefinition CreateTemplateModule(
+        CharacterSheetSpec spec,
+        string? name,
+        string fallbackName,
+        bool hasArtwork)
+    {
         var templateName = string.IsNullOrWhiteSpace(name)
-            ? Path.GetFileNameWithoutExtension(path)
+            ? fallbackName
             : name.Trim();
         var defaults = new ModuleDefaults
         {
@@ -74,6 +96,7 @@ public static class SheetDocumentStore
             BackgroundColor = spec.BackgroundColor,
             BackgroundLineColor = spec.BackgroundLineColor,
             BackgroundLineSpacing = spec.BackgroundLineSpacingMm,
+            BackgroundArtwork = hasArtwork ? "assets/background.svg" : null,
             Author = spec.Author,
             Dynasty = spec.Dynasty,
             GroupByWord = spec.GroupByWord,
@@ -87,10 +110,14 @@ public static class SheetDocumentStore
             FontFamily = spec.FontFamilyName,
             PageSize = PageSizeName(spec.Page),
             PageMargin = spec.Page.MarginTopMm,
+            PageMarginTop = spec.Page.MarginTopMm,
+            PageMarginBottom = spec.Page.MarginBottomMm,
+            PageMarginLeft = spec.Page.MarginLeftMm,
+            PageMarginRight = spec.Page.MarginRightMm,
             Text = spec.Text
         };
 
-        var module = new ModuleDefinition
+        return new ModuleDefinition
         {
             Id = $"user-{Guid.NewGuid():N}",
             Name = templateName,
@@ -99,7 +126,14 @@ public static class SheetDocumentStore
             Enabled = true,
             Defaults = defaults
         };
-        YamlResourceSerializer.SerializeFile(path, module);
+    }
+
+    private static void WriteEntryText(ZipArchive archive, string path, string text)
+    {
+        var entry = archive.CreateEntry(path, CompressionLevel.Optimal);
+        using var stream = entry.Open();
+        using var writer = new StreamWriter(stream, Encoding.UTF8);
+        writer.Write(text);
     }
 
     private static string PageSizeName(PageSettings page)

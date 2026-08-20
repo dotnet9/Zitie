@@ -6,8 +6,6 @@ namespace Zitie.Desktop.Services;
 /// <summary>根据模块 YAML 默认值生成模板画廊所需的首屏预览。</summary>
 public static class ModulePreviewFactory
 {
-    private static readonly PageSettings PreviewPage = PageSettings.A4;
-
     public static ModulePreview Create(ModuleDefinition module)
     {
         var defaults = module.Defaults;
@@ -29,6 +27,7 @@ public static class ModulePreviewFactory
         var text = Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
         var repeats = Math.Clamp(defaults.Repeats ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
         var traceCount = Math.Clamp(defaults.TraceCount ?? 2, 0, repeats - 1);
+        var page = ResolvePageSettings(defaults);
 
         var spec = new CharacterSheetSpec
         {
@@ -59,6 +58,8 @@ public static class ModulePreviewFactory
             BackgroundColor = Normalize(defaults.BackgroundColor),
             BackgroundLineColor = Normalize(defaults.BackgroundLineColor),
             BackgroundLineSpacingMm = defaults.BackgroundLineSpacing,
+            BackgroundArtwork = Normalize(defaults.BackgroundArtwork),
+            BackgroundArtworkSvg = module.ReadTextAsset(defaults.BackgroundArtwork),
             Author = Normalize(defaults.Author),
             Dynasty = Normalize(defaults.Dynasty),
             GroupByWord = defaults.GroupByWord == true,
@@ -70,7 +71,7 @@ public static class ModulePreviewFactory
             GridColor = Normalize(defaults.GridColor),
             TextColor = Normalize(defaults.TextColor),
             FontFamilyName = Normalize(defaults.FontFamily),
-            Page = PreviewPage
+            Page = page
         };
 
         return new ModulePreview(
@@ -86,6 +87,13 @@ public static class ModulePreviewFactory
         bool vertical)
     {
         if (grid is GridKind.English or GridKind.Pinyin) return "拼音 / 英文";
+        if (!string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork))
+        {
+            if (module.Id.Contains("couplet", StringComparison.OrdinalIgnoreCase)) return "节庆模板";
+            if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "古诗背景";
+            return "主题背景";
+        }
+
         if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "诗词排版";
         var hollowGlyph = module.Defaults.HollowGlyph == true;
         if (hollowGlyph || module.Id.Contains("hollow", StringComparison.OrdinalIgnoreCase))
@@ -123,6 +131,42 @@ public static class ModulePreviewFactory
             "ricepaper" => SheetBackground.RicePaper,
             _ => SheetBackground.Plain
         };
+    }
+
+    private static PageSettings ResolvePageSettings(ModuleDefaults defaults)
+    {
+        var page = defaults.PageSize?.ToLowerInvariant() switch
+        {
+            "a4landscape" => new PageSettings { WidthMm = 297, HeightMm = 210 },
+            "a3portrait" => new PageSettings { WidthMm = 297, HeightMm = 420 },
+            "letter" => new PageSettings { WidthMm = 216, HeightMm = 279 },
+            _ => PageSettings.A4
+        };
+
+        if (defaults.PageMargin is { } margin)
+        {
+            var value = ClampMargin(margin);
+            page = page with
+            {
+                MarginTopMm = value,
+                MarginBottomMm = value,
+                MarginLeftMm = value,
+                MarginRightMm = value
+            };
+        }
+
+        return page with
+        {
+            MarginTopMm = ClampMargin(defaults.PageMarginTop ?? page.MarginTopMm),
+            MarginBottomMm = ClampMargin(defaults.PageMarginBottom ?? page.MarginBottomMm),
+            MarginLeftMm = ClampMargin(defaults.PageMarginLeft ?? page.MarginLeftMm),
+            MarginRightMm = ClampMargin(defaults.PageMarginRight ?? page.MarginRightMm)
+        };
+    }
+
+    private static double ClampMargin(double value)
+    {
+        return Math.Clamp(value, 0, 80);
     }
 
     private static TraceIntensity ParseTraceIntensity(string? value)

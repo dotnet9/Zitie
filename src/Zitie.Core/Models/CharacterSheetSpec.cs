@@ -68,6 +68,12 @@ public sealed record CharacterSheetSpec
     /// <summary>页面底纹行距（毫米）；为空时由背景模板决定。</summary>
     public double? BackgroundLineSpacingMm { get; init; }
 
+    /// <summary>页面背景插画在模板包内的逻辑路径，用于保存模板包。</summary>
+    public string? BackgroundArtwork { get; init; }
+
+    /// <summary>页面背景插画 SVG 内容；渲染层直接从内存读取，不依赖展开文件。</summary>
+    public string? BackgroundArtworkSvg { get; init; }
+
     /// <summary>作者名（题头用）。</summary>
     public string? Author { get; init; }
 

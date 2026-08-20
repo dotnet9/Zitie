@@ -1,5 +1,7 @@
 using Avalonia.Media;
 using SkiaSharp;
+using Svg.Skia;
+using System.Xml;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 
@@ -21,6 +23,7 @@ public static class SheetRenderer
         SheetRenderTheme theme)
     {
         DrawBackground(canvas, spec);
+        DrawBackgroundArtwork(canvas, spec);
         if (spec.FrameBorder) DrawFrame(canvas, spec, theme);
         DrawHeader(canvas, spec, page, theme);
         DrawCells(canvas, spec, page, theme);
@@ -70,6 +73,36 @@ public static class SheetRenderer
 
         for (var y = topPt; y < bottomPt; y += linePitch)
             canvas.DrawLine(0, y, widthPt, y, paint);
+    }
+
+    private static void DrawBackgroundArtwork(SKCanvas canvas, CharacterSheetSpec spec)
+    {
+        if (string.IsNullOrWhiteSpace(spec.BackgroundArtworkSvg)) return;
+
+        try
+        {
+            using var svg = new SKSvg();
+            using var reader = XmlReader.Create(new StringReader(spec.BackgroundArtworkSvg));
+            svg.Load(reader);
+            var picture = svg.Picture;
+            if (picture is null) return;
+
+            var source = picture.CullRect;
+            if (source.Width <= 0 || source.Height <= 0) return;
+
+            var pageWidthPt = (float)(spec.Page.WidthMm * LayoutEngine.MmToPt);
+            var pageHeightPt = (float)(spec.Page.HeightMm * LayoutEngine.MmToPt);
+
+            canvas.Save();
+            canvas.Scale(pageWidthPt / source.Width, pageHeightPt / source.Height);
+            canvas.Translate(-source.Left, -source.Top);
+            canvas.DrawPicture(picture);
+            canvas.Restore();
+        }
+        catch
+        {
+            // 背景资源缺失或 SVG 不可解析时跳过插画，避免影响字帖内容与导出。
+        }
     }
 
     /// <summary>解析描红字颜色：规格指定时优先，否则回退到主题默认色。</summary>
