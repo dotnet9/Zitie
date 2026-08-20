@@ -43,6 +43,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _isContentPickerOpen;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
+    private IReadOnlyList<ModuleDefinition> _templateChoices = Array.Empty<ModuleDefinition>();
     private ModuleDefinition? _module;
 
     private static readonly string[] ColorChoiceValues =
@@ -68,6 +69,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
+        RefreshTemplateChoices();
         ContentSelection = new TextContentSelection(textCatalog.Entries);
         ContentSelection.EntrySelected += OnTextEntrySelected;
 
@@ -252,6 +254,24 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public IReadOnlyList<FontOption> SheetFonts => _fontCatalog.Fonts;
 
     public TextContentSelection ContentSelection { get; }
+
+    public IReadOnlyList<ModuleDefinition> TemplateChoices
+    {
+        get => _templateChoices;
+        private set => SetProperty(ref _templateChoices, value);
+    }
+
+    public ModuleDefinition? SelectedModule
+    {
+        get => _module;
+        set
+        {
+            if (value is null || IsCurrentModule(value)) return;
+            SwitchTemplate(value);
+        }
+    }
+
+    public string CurrentTemplateName => _module?.Name ?? "未选择模板";
 
     public int CellsPerLineIndex
     {
@@ -692,9 +712,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         try
         {
             ApplySpec(document.Spec);
-            _module = string.IsNullOrWhiteSpace(document.ModuleId)
+            SetCurrentModule(string.IsNullOrWhiteSpace(document.ModuleId)
                 ? null
-                : _catalog.Find(document.ModuleId);
+                : _catalog.Find(document.ModuleId));
         }
         finally
         {
@@ -711,6 +731,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         FlushPendingRebuild();
         SheetDocumentStore.SaveTemplate(path, Spec, name ?? Title);
+        _catalog.Reload();
+        RefreshTemplateChoices();
         SetStatus($"已保存模板：{Path.GetFileName(path)}");
     }
 
@@ -855,10 +877,34 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         };
     }
 
-    private void ApplyModuleDefaults(ModuleDefinition module)
+    public void SwitchTemplate(ModuleDefinition module)
     {
-        _module = module;
+        if (!module.Enabled || IsCurrentModule(module)) return;
+
+        var content = ContentSnapshot.Capture(_editorState);
+        _suppressRebuild = true;
+        try
+        {
+            ApplyModuleDefaults(module, preserveContent: true, content);
+        }
+        finally
+        {
+            _suppressRebuild = false;
+        }
+
+        RebuildImmediately();
+        IsDirty = true;
+        SetStatus($"已切换模板：{module.Name}");
+    }
+
+    private void ApplyModuleDefaults(
+        ModuleDefinition module,
+        bool preserveContent = false,
+        ContentSnapshot? preservedContent = null)
+    {
+        SetCurrentModule(module);
         var defaults = module.Defaults;
+        preservedContent ??= preserveContent ? ContentSnapshot.Capture(_editorState) : null;
 
         var hasHeaderPreset = !string.IsNullOrWhiteSpace(defaults.HeaderPreset);
 
@@ -923,7 +969,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
         if (defaults.TraceCount is { } traceCount)
             _editorState = _editorState with { TraceSlotCount = Math.Clamp(traceCount, 0, 8) };
-        if (defaults.Title is { } title) Title = title;
+        if (!preserveContent && defaults.Title is { } title) Title = title;
         if (defaults.TraceColor is { Length: > 0 } traceColor && Color.TryParse(traceColor, out _))
             TraceColor = traceColor;
         if (defaults.TraceIntensity is { Length: > 0 } traceIntensity)
@@ -989,11 +1035,53 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 _ => HeaderPresetIndex
             };
         if (defaults.HeaderText is { } headerText) HeaderTextTemplate = headerText;
-        if (defaults.Text is { } text) InputText = text;
+        if (!preserveContent && defaults.Text is { } text) InputText = text;
 
         // 旧模板用 showPoemHeader 表示诗词题头，升级后统一映射到“诗词题头”预设。
         if (!hasHeaderPreset && ShowPoemHeader)
             HeaderPresetIndex = (int)SheetHeaderPreset.Poem;
+
+        if (preserveContent && preservedContent is { } content)
+            RestoreContent(content);
+    }
+
+    private void RefreshTemplateChoices()
+    {
+        TemplateChoices = _catalog.Modules
+            .Where(static module => module.Enabled)
+            .ToArray();
+
+        if (_module is null) return;
+        var current = TemplateChoices.FirstOrDefault(module =>
+            string.Equals(module.Id, _module.Id, StringComparison.OrdinalIgnoreCase));
+        if (current is not null)
+            SetCurrentModule(current);
+    }
+
+    private bool IsCurrentModule(ModuleDefinition module)
+    {
+        return _module is not null &&
+               string.Equals(_module.Id, module.Id, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void SetCurrentModule(ModuleDefinition? module)
+    {
+        if ((_module is null && module is null) ||
+            ReferenceEquals(_module, module))
+            return;
+
+        _module = module;
+        RaisePropertyChanged(nameof(SelectedModule));
+        RaisePropertyChanged(nameof(CurrentTemplateName));
+    }
+
+    private void RestoreContent(ContentSnapshot content)
+    {
+        InputText = content.InputText;
+        Title = content.Title;
+        Author = content.Author;
+        Dynasty = content.Dynasty;
+        ShowPoemHeader = content.ShowPoemHeader;
     }
 
     private static int ColorIndexOf(string color, int fallback)
@@ -1044,7 +1132,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _statusMessage = "已就绪";
         _isDirty = false;
         _isRebuildQueued = false;
-        _module = null;
+        SetCurrentModule(null);
 
         RaisePropertyChanged(string.Empty);
     }
@@ -1056,5 +1144,23 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+    }
+
+    private sealed record ContentSnapshot(
+        string InputText,
+        string Title,
+        string Author,
+        string Dynasty,
+        bool ShowPoemHeader)
+    {
+        public static ContentSnapshot Capture(SheetEditorState state)
+        {
+            return new ContentSnapshot(
+                state.InputText,
+                state.Title,
+                state.Author ?? string.Empty,
+                state.Dynasty ?? string.Empty,
+                state.ShowPoemHeader);
+        }
     }
 }

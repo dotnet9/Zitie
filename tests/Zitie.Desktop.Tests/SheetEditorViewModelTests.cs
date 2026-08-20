@@ -1,0 +1,99 @@
+using Prism.Regions;
+using Xunit;
+using Zitie.Core.Models;
+using Zitie.Desktop.Services;
+using Zitie.Desktop.ViewModels;
+
+namespace Zitie.Desktop.Tests;
+
+public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
+    : IClassFixture<AvaloniaHeadlessFixture>
+{
+    [Fact]
+    public void SwitchTemplate_PreservesCurrentContent()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        viewModel.InputText = "小朋友认真练字";
+        viewModel.Title = "课堂练习";
+        viewModel.Author = "小明";
+        viewModel.Dynasty = "现代";
+        viewModel.ShowPoemHeader = true;
+
+        var template = Assert.Single(catalog.Modules, module => module.Id == "english-four-line");
+
+        viewModel.SwitchTemplate(template);
+
+        Assert.Equal("小朋友认真练字", viewModel.InputText);
+        Assert.Equal("课堂练习", viewModel.Title);
+        Assert.Equal("小明", viewModel.Author);
+        Assert.Equal("现代", viewModel.Dynasty);
+        Assert.True(viewModel.ShowPoemHeader);
+        Assert.Equal(GridKind.English, viewModel.Spec.Grid);
+        Assert.Same(template, viewModel.SelectedModule);
+        Assert.True(viewModel.IsDirty);
+    }
+
+    private sealed class StubNavigationJournal : IRegionNavigationJournal
+    {
+        public bool CanGoBack => false;
+
+        public bool CanGoForward => false;
+
+        public IRegionNavigationJournalEntry? CurrentEntry => null;
+
+        public INavigateAsync? NavigationTarget { get; set; }
+
+        public void GoBack()
+        {
+        }
+
+        public void GoForward()
+        {
+        }
+
+        public void RecordNavigation(IRegionNavigationJournalEntry entry, bool persistInHistory = true)
+        {
+        }
+
+        public void Clear()
+        {
+        }
+    }
+
+    private sealed class StubDialogs : ISystemDialogs
+    {
+        public Task<string?> PickOpenFileAsync(
+            string typeName,
+            IReadOnlyList<string> patterns,
+            string title = "打开文件")
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        public Task<string?> PickSaveFileAsync(string typeName, string extension, string suggestedName)
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        public Task<string?> PickFolderAsync(string title)
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        public void RevealFile(string fileFullName)
+        {
+        }
+
+        public void OpenFolder(string folderFullName)
+        {
+        }
+    }
+}

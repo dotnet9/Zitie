@@ -3,6 +3,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              xmlns:models="using:Zitie.Desktop.Models"
+             xmlns:services="using:Zitie.Desktop.Services"
              xmlns:zitie="using:Zitie.Avalonia.Controls"
              xmlns:controls="using:Zitie.Desktop.Controls"
              x:Class="Zitie.Desktop.Views.SheetEditorView"
@@ -12,7 +13,7 @@
     <Grid Background="{DynamicResource ZitiePaperBrush}">
     <DockPanel Background="{DynamicResource ZitiePaperBrush}">
         <Border DockPanel.Dock="Top" Classes="editor-toolbar">
-            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="6">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="6">
                 <Button Grid.Column="0"
                         Classes="editor-icon-button"
                         Command="{Binding GoBackCommand}"
@@ -24,31 +25,52 @@
                                         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
-                <controls:ZitieToolButton Grid.Column="2"
+                <StackPanel Grid.Column="2"
+                            Classes="template-switcher"
+                            Orientation="Horizontal"
+                            Spacing="6"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="模板"
+                               Classes="toolbar-label"
+                               VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding TemplateChoices}"
+                              SelectedItem="{Binding SelectedModule}"
+                              Classes="template-switcher"
+                              AutomationProperties.Name="切换字帖模板"
+                              ToolTip.Tip="切换模板并保留当前内容">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="services:ModuleDefinition">
+                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <Border Grid.Column="3" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
+                <controls:ZitieToolButton Grid.Column="4"
                                           Content="打开"
                                           IconData="M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
                                           Command="{Binding OpenDocumentCommand}"
                                           AutomationProperties.Name="打开字帖文档"
                                           ToolTip.Tip="打开字帖文档" />
-                <controls:ZitieToolButton Grid.Column="3"
+                <controls:ZitieToolButton Grid.Column="5"
                                           Content="保存"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z"
                                           Command="{Binding SaveDocumentCommand}"
                                           AutomationProperties.Name="保存字帖文档"
                                           ToolTip.Tip="保存字帖文档" />
-                <controls:ZitieToolButton Grid.Column="4"
+                <controls:ZitieToolButton Grid.Column="6"
                                           Content="另存"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M14 17l4-4 1.5 1.5L15.5 18.5 13 19z"
                                           Command="{Binding SaveAsDocumentCommand}"
                                           AutomationProperties.Name="另存字帖文档"
                                           ToolTip.Tip="另存字帖文档" />
-                <controls:ZitieToolButton Grid.Column="5"
+                <controls:ZitieToolButton Grid.Column="7"
                                           Content="存为模板"
                                           IconData="M6 3h12v18l-6-4.2L6 21z"
                                           Command="{Binding SaveTemplateCommand}"
                                           AutomationProperties.Name="保存为可复用模板"
                                           ToolTip.Tip="保存为可复用模板" />
-                <StackPanel Grid.Column="7"
+                <StackPanel Grid.Column="9"
                             Orientation="Horizontal"
                             Spacing="6"
                             HorizontalAlignment="Right"
