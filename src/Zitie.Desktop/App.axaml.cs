@@ -25,8 +25,10 @@ public partial class App : PrismApplication
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
         ZitieLogging.Initialize();
+        containerRegistry.RegisterSingleton<DeviceSettingsService>();
         containerRegistry.RegisterSingleton<ModuleCatalog>();
         containerRegistry.RegisterSingleton<TextCatalog>();
+        containerRegistry.RegisterSingleton<TextbookCatalog>();
         containerRegistry.RegisterSingleton<PinyinCatalog>();
         containerRegistry.RegisterSingleton<FontCatalog>();
         containerRegistry.RegisterSingleton<ISystemDialogs, SystemDialogsService>();

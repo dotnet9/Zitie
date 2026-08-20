@@ -1,5 +1,6 @@
-using System.Text.Json;
 using Xunit;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 using Zitie.Core.Models;
 using Zitie.Desktop.Models;
 using Zitie.Desktop.Services;
@@ -55,7 +56,7 @@ public sealed class SheetDocumentStoreTests
     [Fact]
     public void SaveTemplate_WritesModuleCompatibleDefaults()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"zitie-template-{Guid.NewGuid():N}.json");
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-template-{Guid.NewGuid():N}.yml");
         try
         {
             SheetDocumentStore.SaveTemplate(path, new CharacterSheetSpec
@@ -65,11 +66,14 @@ public sealed class SheetDocumentStoreTests
                 Page = PageSettings.A4 with { MarginTopMm = 22 }
             }, "我的模板");
 
-            using var json = JsonDocument.Parse(File.ReadAllText(path));
-            var defaults = json.RootElement.GetProperty("defaults");
-            Assert.Equal("#123456", defaults.GetProperty("gridColor").GetString());
-            Assert.Equal("a4Portrait", defaults.GetProperty("pageSize").GetString());
-            Assert.Equal(22, defaults.GetProperty("pageMargin").GetDouble());
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+            var module = deserializer.Deserialize<ModuleDefinition>(File.ReadAllText(path));
+            Assert.Equal("我的模板", module.Name);
+            Assert.Equal("#123456", module.Defaults.GridColor);
+            Assert.Equal("a4Portrait", module.Defaults.PageSize);
+            Assert.Equal(22d, module.Defaults.PageMargin);
         }
         finally
         {
@@ -86,7 +90,7 @@ public sealed class SheetDocumentStoreTests
             Title = "大字帖",
             Grid = GridKind.HuiGong,
             Mode = PracticeMode.Copy,
-            CharactersPerLine = 16,
+            CellsPerLine = 16,
             GridColor = "#123456",
             TextColor = "#654321",
             HeaderPreset = SheetHeaderPreset.Custom,
@@ -100,7 +104,7 @@ public sealed class SheetDocumentStoreTests
         Assert.Equal(spec.Text, state.InputText);
         Assert.Equal(spec.Grid, state.Grid);
         Assert.Equal(spec.Mode, state.Mode);
-        Assert.Equal(16, state.CharactersPerLine);
+        Assert.Equal(16, state.CellsPerLine);
         Assert.Equal("#123456", state.GridColor);
         Assert.Equal(SheetHeaderPreset.Custom, state.HeaderPreset);
         Assert.Equal(SheetOrientation.Vertical, state.Orientation);

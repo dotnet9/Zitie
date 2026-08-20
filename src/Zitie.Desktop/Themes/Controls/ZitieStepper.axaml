@@ -46,7 +46,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Template">
             <ControlTemplate TargetType="controls:ZitieStepper">
                 <Border Padding="4,3"

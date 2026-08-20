@@ -315,24 +315,24 @@ public class LayoutEngineTests
     [Theory]
     [InlineData(12)]
     [InlineData(16)]
-    public void Paginate_CharactersPerLine_ControlsColumnsAndGridSize(int charactersPerLine)
+    public void Paginate_CellsPerLine_ControlsColumnsAndGridSize(int cellsPerLine)
     {
         var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 1)
-            with { CharactersPerLine = charactersPerLine };
+            with { CellsPerLine = cellsPerLine };
 
         var pages = LayoutEngine.Paginate(spec);
 
         Assert.NotEmpty(pages);
-        Assert.Equal(charactersPerLine, pages[0].Columns);
-        var expectedSize = (spec.Page.UsableWidthMm - spec.GridGapMm * (charactersPerLine - 1)) / charactersPerLine;
+        Assert.Equal(cellsPerLine, pages[0].Columns);
+        var expectedSize = (spec.Page.UsableWidthMm - spec.GridGapMm * (cellsPerLine - 1)) / cellsPerLine;
         Assert.All(pages.SelectMany(page => page.Cells), slot => Assert.Equal(expectedSize, slot.SizeMm, 3));
     }
 
     [Fact]
-    public void Paginate_BlankCellRowCount_GeneratesBlankCellRows()
+    public void Paginate_BlankCellLineCount_GeneratesBlankCellRows()
     {
         var spec = MakeSpec("一二三四五六", mode: PracticeMode.Copy, repeats: 1, title: null)
-            with { CharactersPerLine = 3, BlankCellRowCount = 1, ShowHeaderFields = false };
+            with { CellsPerLine = 3, BlankCellLineCount = 1, ShowHeaderFields = false };
 
         var slots = LayoutEngine.Paginate(spec).SelectMany(page => page.Cells).ToList();
 
@@ -347,6 +347,38 @@ public class LayoutEngineTests
         var pitch = slots[0].SizeMm + spec.GridGapMm;
         Assert.Equal(slots[0].YMm + pitch, slots[3].YMm, 3);
         Assert.Equal(slots[0].YMm + pitch * 2, slots[6].YMm, 3);
+    }
+
+    [Fact]
+    public void Paginate_BlankCellLineCount_VerticalGeneratesBlankCellColumns()
+    {
+        var spec = MakeSpec("一二。三四。", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                Orientation = SheetOrientation.Vertical,
+                BlankCellLineCount = 1,
+                ShowHeaderFields = false
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+        var slots = page.Cells.ToList();
+        var contentSlots = slots.Where(slot => slot.GroupIndex >= 0).ToList();
+        var blankSlots = slots.Where(slot => slot.GroupIndex < 0).ToList();
+
+        Assert.Equal(6, contentSlots.Count);
+        Assert.Equal(page.Rows * 2, blankSlots.Count);
+        Assert.All(blankSlots, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+
+        var pitch = slots[0].SizeMm + spec.GridGapMm;
+        var blankColumnXs = blankSlots.Select(slot => Math.Round(slot.XMm, 3)).Distinct().ToList();
+        Assert.Equal(2, blankColumnXs.Count);
+        Assert.Contains(Math.Round(contentSlots[0].XMm - pitch, 3), blankColumnXs);
+        Assert.Contains(Math.Round(contentSlots[0].XMm - pitch * 3, 3), blankColumnXs);
+        Assert.Equal(contentSlots[0].XMm - pitch * 2, contentSlots[3].XMm, 3);
     }
 
     [Fact]

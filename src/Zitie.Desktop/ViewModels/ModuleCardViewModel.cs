@@ -2,19 +2,23 @@ using System.Windows.Input;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 using Zitie.Desktop.Services;
+using Prism.Mvvm;
 
 namespace Zitie.Desktop.ViewModels;
 
 /// <summary>
 ///     模块卡片展示项：包一层命令，避免视图里做 $parent 绑定。
 /// </summary>
-public sealed class ModuleCardViewModel
+public sealed class ModuleCardViewModel : BindableBase
 {
+    private double _previewZoom;
+
     public ModuleCardViewModel(ModuleDefinition module, ICommand openCommand)
     {
         Module = module;
         OpenCommand = openCommand;
         Preview = ModulePreviewFactory.Create(module);
+        _previewZoom = 0.26;
     }
 
     public ModuleDefinition Module { get; }
@@ -25,8 +29,11 @@ public sealed class ModuleCardViewModel
 
     public IReadOnlyList<SheetPage> PreviewPages => Preview.Pages;
 
-    // 预览控件以 2 倍像素密度渲染，0.26 保持卡片内约 25% 的逻辑显示比例。
-    public double PreviewZoom => 0.26;
+    public double PreviewZoom
+    {
+        get => _previewZoom;
+        set => SetProperty(ref _previewZoom, Math.Clamp(value, 0.18, 0.48));
+    }
 
     public string CategoryText => Preview.Category;
 

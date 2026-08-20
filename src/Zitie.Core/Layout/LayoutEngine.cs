@@ -60,7 +60,7 @@ public static class LayoutEngine
         var gridSizeMm = ResolveGridSizeMm(spec, vertical);
         var pitch = gridSizeMm + Math.Max(0, spec.GridGapMm);
         var columns = ResolveColumnCount(spec, vertical, pitch);
-        var blankCellRowCount = vertical ? 0 : Math.Clamp(spec.BlankCellRowCount, 0, 10);
+        var blankCellLineCount = Math.Clamp(spec.BlankCellLineCount, 0, 10);
         var firstPageRows = Math.Max(1,
             (int)Math.Floor((spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm) / pitch));
         var otherPageRows = Math.Max(1,
@@ -101,22 +101,36 @@ public static class LayoutEngine
                 // 竖排：句子必须完整放在一列内；当前列剩余空间不足时对齐到下一列首
                 if (vertical)
                 {
-                    var columnSpaceLeft = rows - cursor % rows;
-                    if (groupSize > columnSpaceLeft)
+                    var alignedCursor = AlignVerticalCursor(cursor, groupSize, rows, blankCellLineCount);
+                    if (blankCellLineCount > 0 && alignedCursor > cursor)
                     {
-                        cursor = (cursor / rows + 1) * rows;
-                        if (cursor + groupSize > capacity) break;
+                        var blankStart = (cursor / rows + 1) * rows;
+                        AddBlankSlots(
+                            cells,
+                            spec,
+                            vertical,
+                            blankStart,
+                            alignedCursor,
+                            columns,
+                            rows,
+                            contentTop,
+                            pitch,
+                            gridSizeMm);
                     }
+
+                    cursor = alignedCursor;
+                    if (cursor + groupSize > capacity) break;
                 }
                 else
                 {
-                    var alignedCursor = AlignHorizontalCursor(cursor, groupSize, columns, blankCellRowCount);
-                    if (blankCellRowCount > 0 && alignedCursor > cursor)
+                    var alignedCursor = AlignHorizontalCursor(cursor, groupSize, columns, blankCellLineCount);
+                    if (blankCellLineCount > 0 && alignedCursor > cursor)
                     {
                         var blankStart = (cursor / columns + 1) * columns;
                         AddBlankSlots(
                             cells,
                             spec,
+                            vertical,
                             blankStart,
                             alignedCursor,
                             columns,
@@ -159,16 +173,37 @@ public static class LayoutEngine
 
                 if (vertical)
                 {
-                    cursor += groupSize;
+                    var contentEnd = cursor + groupSize;
+                    var nextCursor = AdvanceVerticalCursor(cursor, groupSize, rows, blankCellLineCount);
+                    if (nextCursor > contentEnd)
+                    {
+                        var blankStart = blankCellLineCount > 0
+                            ? (cursor / rows + 1) * rows
+                            : contentEnd;
+                        AddBlankSlots(
+                            cells,
+                            spec,
+                            vertical,
+                            blankStart,
+                            nextCursor,
+                            columns,
+                            rows,
+                            contentTop,
+                            pitch,
+                            gridSizeMm);
+                    }
+
+                    cursor = nextCursor;
                 }
                 else
                 {
                     var contentEnd = cursor + groupSize;
-                    var nextCursor = AdvanceCursor(cursor, groupSize, columns, blankCellRowCount);
+                    var nextCursor = AdvanceHorizontalCursor(cursor, groupSize, columns, blankCellLineCount);
                     if (nextCursor > contentEnd)
                         AddBlankSlots(
                             cells,
                             spec,
+                            vertical,
                             contentEnd,
                             nextCursor,
                             columns,
@@ -195,10 +230,10 @@ public static class LayoutEngine
 
     private static double ResolveGridSizeMm(CharacterSheetSpec spec, bool vertical)
     {
-        if (vertical || spec.CharactersPerLine <= 0)
+        if (vertical || spec.CellsPerLine <= 0)
             return Math.Max(1, spec.GridSizeMm);
 
-        var columns = Math.Clamp(spec.CharactersPerLine, 1, 64);
+        var columns = Math.Clamp(spec.CellsPerLine, 1, 64);
         var gap = Math.Max(0, spec.GridGapMm);
         var available = spec.Page.UsableWidthMm - gap * (columns - 1);
         return available > columns
@@ -208,39 +243,65 @@ public static class LayoutEngine
 
     private static int ResolveColumnCount(CharacterSheetSpec spec, bool vertical, double pitch)
     {
-        if (!vertical && spec.CharactersPerLine > 0)
-            return Math.Clamp(spec.CharactersPerLine, 1, 64);
+        if (!vertical && spec.CellsPerLine > 0)
+            return Math.Clamp(spec.CellsPerLine, 1, 64);
 
         return Math.Max(1, (int)Math.Floor(spec.Page.UsableWidthMm / pitch));
     }
 
-    private static int AdvanceCursor(int cursor, int groupSize, int columns, int blankCellRowCount)
+    private static int AdvanceHorizontalCursor(int cursor, int groupSize, int columns, int blankCellLineCount)
     {
         var next = cursor + groupSize;
-        if (blankCellRowCount <= 0 || columns <= 0 || next % columns != 0) return next;
+        if (blankCellLineCount <= 0 || columns <= 0 || next % columns != 0) return next;
 
-        return next + columns * blankCellRowCount;
+        return next + columns * blankCellLineCount;
     }
 
-    private static int AlignHorizontalCursor(int cursor, int groupSize, int columns, int blankCellRowCount)
+    private static int AdvanceVerticalCursor(int cursor, int groupSize, int rows, int blankCellLineCount)
+    {
+        var next = cursor + groupSize;
+        if (blankCellLineCount <= 0 || rows <= 0) return next;
+
+        var column = cursor / rows;
+        return (column + 1 + blankCellLineCount) * rows;
+    }
+
+    private static int AlignHorizontalCursor(int cursor, int groupSize, int columns, int blankCellLineCount)
     {
         if (columns <= 0 || groupSize > columns) return cursor;
 
         var column = cursor % columns;
         if (column == 0 || column + groupSize <= columns) return cursor;
 
-        return NextContentRowCursor(cursor, columns, blankCellRowCount);
+        return NextContentRowCursor(cursor, columns, blankCellLineCount);
     }
 
-    private static int NextContentRowCursor(int cursor, int columns, int blankCellRowCount)
+    private static int AlignVerticalCursor(int cursor, int groupSize, int rows, int blankCellLineCount)
+    {
+        if (rows <= 0 || groupSize > rows) return cursor;
+
+        var row = cursor % rows;
+        if (row == 0 || row + groupSize <= rows) return cursor;
+
+        return NextContentColumnCursor(cursor, rows, blankCellLineCount);
+    }
+
+    private static int NextContentRowCursor(int cursor, int columns, int blankCellLineCount)
     {
         var row = cursor / columns;
-        return (row + 1 + Math.Max(0, blankCellRowCount)) * columns;
+        return (row + 1 + Math.Max(0, blankCellLineCount)) * columns;
+    }
+
+    private static int NextContentColumnCursor(int cursor, int rows, int blankCellLineCount)
+    {
+        var column = cursor / rows;
+        return (column + 1 + Math.Max(0, blankCellLineCount)) * rows;
     }
 
     private static void AddBlankSlots(
         List<CellSlot> cells,
         CharacterSheetSpec spec,
+        bool vertical,
         int start,
         int end,
         int columns,
@@ -252,7 +313,7 @@ public static class LayoutEngine
         var capacity = columns * rows;
         for (var absolute = Math.Max(0, start); absolute < Math.Min(end, capacity); absolute++)
         {
-            var (x, y) = CellPosition(spec, false, absolute, columns, rows, contentTop, pitch);
+            var (x, y) = CellPosition(spec, vertical, absolute, columns, rows, contentTop, pitch);
             cells.Add(new CellSlot(
                 x,
                 y,

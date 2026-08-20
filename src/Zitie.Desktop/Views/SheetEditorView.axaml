@@ -136,23 +136,40 @@
                                             <TextBlock Text="内容资源" Classes="editor-label" Margin="0" />
                                             <TextBlock Grid.Column="1" Text="{Binding ContentSelection.ResultSummary}" Classes="muted-text" />
                                         </Grid>
-                                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                        <TextBox Text="{Binding ContentSelection.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Classes="editor-input"
+                                                 AutomationProperties.Name="快速搜索内容"
+                                                 PlaceholderText="搜索标题、年级、单元、作者或正文">
+                                            <TextBox.InnerLeftContent>
+                                                <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
+                                                                    IconSize="15"
+                                                                    StrokeThickness="2"
+                                                                    Foreground="{DynamicResource ZitieInkMutedBrush}"
+                                                                    Margin="10,0,6,0" />
+                                            </TextBox.InnerLeftContent>
+                                        </TextBox>
+                                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8" Margin="{StaticResource ZitieEditorSubcontrolSpacing}">
                                             <ComboBox Grid.Row="0" Grid.Column="0"
                                                       ItemsSource="{Binding ContentSelection.Subjects}"
                                                       SelectedItem="{Binding ContentSelection.SelectedSubject}"
                                                       Classes="editor-input"
                                                       AutomationProperties.Name="内容学科" />
                                             <ComboBox Grid.Row="0" Grid.Column="1"
+                                                      ItemsSource="{Binding ContentSelection.Editions}"
+                                                      SelectedItem="{Binding ContentSelection.SelectedEdition}"
+                                                      Classes="editor-input"
+                                                      AutomationProperties.Name="教材版本" />
+                                            <ComboBox Grid.Row="1" Grid.Column="0"
                                                       ItemsSource="{Binding ContentSelection.Grades}"
                                                       SelectedItem="{Binding ContentSelection.SelectedGrade}"
                                                       Classes="editor-input"
                                                       AutomationProperties.Name="内容年级" />
-                                            <ComboBox Grid.Row="1" Grid.Column="0"
+                                            <ComboBox Grid.Row="1" Grid.Column="1"
                                                       ItemsSource="{Binding ContentSelection.Semesters}"
                                                       SelectedItem="{Binding ContentSelection.SelectedSemester}"
                                                       Classes="editor-input"
                                                       AutomationProperties.Name="内容学期" />
-                                            <ComboBox Grid.Row="1" Grid.Column="1"
+                                            <ComboBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
                                                       ItemsSource="{Binding ContentSelection.Units}"
                                                       SelectedItem="{Binding ContentSelection.SelectedUnit}"
                                                       Classes="editor-input"
@@ -247,12 +264,12 @@
                                 </Border>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="每行字数" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding CharactersPerLineChoices}" SelectedIndex="{Binding CharactersPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行字数" />
+                                        <TextBlock Text="每行格数" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding CellsPerLineChoices}" SelectedIndex="{Binding CellsPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行格数" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="空格子行" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding BlankCellRowChoices}" SelectedItem="{Binding BlankCellRowCount}" Classes="editor-input" AutomationProperties.Name="空格子行" />
+                                        <TextBlock Text="{Binding BlankCellLineLabel}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding BlankCellLineChoices}" SelectedItem="{Binding BlankCellLineCount}" Classes="editor-input" AutomationProperties.Name="{Binding BlankCellLineLabel}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
@@ -411,7 +428,7 @@
                         <TextBlock Text="字 帖 工 坊"
                                    Foreground="{DynamicResource ZitieInkMutedBrush}"
                                    Opacity="0.55"
-                                   FontSize="12"
+                                   FontSize="{DynamicResource ZitieUiFontSizeSmall}"
                                    LetterSpacing="10"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Top"

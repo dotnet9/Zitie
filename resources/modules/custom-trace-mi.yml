@@ -1,0 +1,11 @@
+id: "custom-trace-mi"
+name: "生字描红 · 米字格"
+description: "输入生字，每字按“范字 + 描红 + 空格”练习，米字格辅助定位。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 5
+  traceCount: 2
+  title: "生字描红练习"

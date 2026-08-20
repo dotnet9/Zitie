@@ -23,6 +23,7 @@
     <PackageVersion Include="Markdig" Version="1.3.2" />
     <PackageVersion Include="Prism.Avalonia" Version="8.1.97.11073" />
     <PackageVersion Include="Prism.DryIoc.Avalonia" Version="8.1.97.11073" />
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />
     <!-- 旧系统兼容（仅 Windows） -->
     <PackageVersion Include="VC-LTL" Version="5.3.1" />
     <PackageVersion Include="YY-Thunks" Version="1.2.2" />

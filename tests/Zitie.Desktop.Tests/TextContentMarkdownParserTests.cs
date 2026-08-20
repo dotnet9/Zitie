@@ -10,18 +10,25 @@ public sealed class TextContentMarkdownParserTests
     {
         var catalog = new TextCatalog();
 
-        Assert.True(catalog.Entries.Count >= 190);
-        Assert.Contains(catalog.Entries, entry => entry.Subject == "语文" && entry.Grade == "三年级");
-        Assert.Contains(catalog.Entries, entry => entry.Subject == "语文" && entry.Grade == "五年级");
-        Assert.Contains(catalog.Entries, entry => entry.Subject == "英语" && entry.Grade == "三年级");
-        Assert.Contains(catalog.Entries, entry => entry.Subject == "英语" && entry.Grade == "五年级");
+        Assert.True(catalog.Entries.Count >= 230);
+        foreach (var grade in new[]
+                 {
+                     "一年级", "二年级", "三年级", "四年级", "五年级", "六年级",
+                     "初一", "初二", "初三",
+                     "高一", "高二", "高三"
+                 })
+        {
+            Assert.Contains(catalog.Entries, entry => entry.Subject == "语文" && entry.Grade == grade);
+            Assert.Contains(catalog.Entries, entry => entry.Subject == "英语" && entry.Grade == grade);
+        }
+
         Assert.Contains(catalog.Entries, entry => entry.Subject == "名言警句");
     }
 
     [Fact]
     public void BundledMarkdownFiles_HaveNoParserDiagnostics()
     {
-        var directory = Path.Combine(AppContext.BaseDirectory, "texts");
+        var directory = Path.Combine(AppContext.BaseDirectory, "resources", "texts");
         var parser = new TextContentMarkdownParser();
 
         foreach (var file in Directory.EnumerateFiles(directory, "*.md", SearchOption.AllDirectories))

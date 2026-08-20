@@ -1,0 +1,12 @@
+id: "big-character-sheet"
+name: "大字独字帖 · 单字大字"
+description: "超大格子（每页少数大字），适合毛笔/大字练习，一个字一个格，格大字显。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "copy"
+  repeats: 1
+  gridSize: 40
+  title: "大字练习"
+  text: "永字八法"

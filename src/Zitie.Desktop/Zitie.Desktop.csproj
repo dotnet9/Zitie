@@ -23,6 +23,7 @@
     <PackageReference Include="Irihi.Ursa" />
     <PackageReference Include="Irihi.Ursa.Themes.Semi" />
     <PackageReference Include="Markdig" />
+    <PackageReference Include="YamlDotNet" />
     <PackageReference Include="Prism.DryIoc.Avalonia" />
     <PackageReference Include="CodeWF.Log.Avalonia" />
     <PackageReference Include="VC-LTL" Condition="'$(OS)' == 'Windows_NT'" />
@@ -39,19 +40,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="modules\*.json"
+    <None Include="..\..\resources\modules\*.yml"
+          Link="resources\modules\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
           CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="texts\**\*.md"
+    <None Include="..\..\resources\texts\**\*.md"
+          Link="resources\texts\%(RecursiveDir)%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
           CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="pinyin\*.json"
+    <None Include="..\..\resources\pinyin\*.yml"
+          Link="resources\pinyin\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\resources\textbooks\*.yml"
+          Link="resources\textbooks\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
           CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

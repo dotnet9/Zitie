@@ -7,7 +7,5 @@ namespace Zitie.Desktop.Services;
     WriteIndented = true,
     UseStringEnumConverter = true,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-[JsonSerializable(typeof(ModuleDefinition))]
-[JsonSerializable(typeof(List<PinyinCategory>))]
 [JsonSerializable(typeof(SheetDocument))]
 internal sealed partial class ZitieJsonContext : JsonSerializerContext;

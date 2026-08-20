@@ -19,14 +19,16 @@ public class MainWindowViewModel : BindableBase
     private const string GalleryViewName = "ModuleGallery";
 
     private readonly IRegionManager _regionManager;
+    private readonly DeviceSettingsService _deviceSettings;
     private bool _isMainRegionHooked;
     private bool _isGalleryMode = true;
     private bool _isLogVisible;
     private object? _logView;
 
-    public MainWindowViewModel(IRegionManager regionManager)
+    public MainWindowViewModel(IRegionManager regionManager, DeviceSettingsService deviceSettings)
     {
         _regionManager = regionManager;
+        _deviceSettings = deviceSettings;
 
         NavigateGalleryCommand = new DelegateCommand(
             () => _regionManager.RequestNavigate(MainRegionName, GalleryViewName));
@@ -45,6 +47,20 @@ public class MainWindowViewModel : BindableBase
     public DelegateCommand NavigateEditorCommand { get; }
 
     public DelegateCommand ToggleLogCommand { get; }
+
+    public IReadOnlyList<string> UiFontSizeChoices => _deviceSettings.FontSizeLabels;
+
+    public int UiFontSizeIndex
+    {
+        get => _deviceSettings.FontSizeIndex;
+        set
+        {
+            var previous = _deviceSettings.FontSizeIndex;
+            _deviceSettings.FontSizeIndex = value;
+            if (previous != _deviceSettings.FontSizeIndex)
+                RaisePropertyChanged();
+        }
+    }
 
     /// <summary>当前是否处于模板库页面（控制导航栏高亮）。</summary>
     public bool IsGalleryMode

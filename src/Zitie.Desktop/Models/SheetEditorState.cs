@@ -14,8 +14,8 @@ public sealed record SheetEditorState
     public GridKind Grid { get; init; }
     public PracticeMode Mode { get; init; }
     public int RepeatsPerChar { get; init; } = 5;
-    public int CharactersPerLine { get; init; }
-    public int BlankCellRowCount { get; init; }
+    public int CellsPerLine { get; init; }
+    public int BlankCellLineCount { get; init; }
     public TraceIntensity TraceIntensity { get; init; } = TraceIntensity.Medium;
     public string GridColor { get; init; } = "#B04A3F";
     public string TextColor { get; init; } = "#1A1A1A";
@@ -59,8 +59,8 @@ public sealed record SheetEditorState
             Grid = spec.Grid,
             Mode = spec.Mode,
             RepeatsPerChar = spec.RepeatsPerChar,
-            CharactersPerLine = spec.CharactersPerLine,
-            BlankCellRowCount = spec.BlankCellRowCount,
+            CellsPerLine = spec.CellsPerLine,
+            BlankCellLineCount = spec.BlankCellLineCount,
             TraceIntensity = spec.TraceIntensity,
             GridColor = string.IsNullOrWhiteSpace(spec.GridColor) ? "#B04A3F" : spec.GridColor!,
             TextColor = string.IsNullOrWhiteSpace(spec.TextColor) ? "#1A1A1A" : spec.TextColor!,

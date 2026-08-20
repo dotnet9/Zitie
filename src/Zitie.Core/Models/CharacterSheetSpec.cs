@@ -13,12 +13,12 @@ public sealed record CharacterSheetSpec
     public PracticeMode Mode { get; init; } = PracticeMode.Trace;
 
     /// <summary>
-    ///     每行字数。0 表示按格子大小自动计算；桌面端默认提供 12 / 16 两档。
+    ///     每行格数。0 表示按格子大小自动计算；桌面端默认提供 12 / 16 两档。
     /// </summary>
-    public int CharactersPerLine { get; init; }
+    public int CellsPerLine { get; init; }
 
-    /// <summary>练习行后生成的空格子行数，范围 0-10；格线保留，格子角色为 Blank。</summary>
-    public int BlankCellRowCount { get; init; }
+    /// <summary>横排练习行后、竖排练习列后生成的空格子行/列数，范围 0-10；格线保留，格子角色为 Blank。</summary>
+    public int BlankCellLineCount { get; init; }
 
     /// <summary>每个字的总格数（含范字与描红格）。</summary>
     public int RepeatsPerChar { get; init; } = 5;

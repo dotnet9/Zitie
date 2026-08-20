@@ -1,16 +1,16 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style Selector="TextBlock.page-title">
-        <Setter Property="FontSize" Value="26" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTitle}" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
     </Style>
     <Style Selector="TextBlock.page-subtitle">
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
     </Style>
     <Style Selector="TextBlock.page-title-en">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
         <Setter Property="LetterSpacing" Value="3" />
         <Setter Property="FontWeight" Value="Normal" />
@@ -24,7 +24,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
     </Style>
     <Style Selector="Button.gallery-action:pointerover">
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
@@ -41,21 +41,25 @@
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
     </Style>
     <Style Selector="TextBox.gallery-search:focus">
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
+    <Style Selector="Slider.gallery-zoom">
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
     <Style Selector="TextBlock.gallery-count">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="TextBlock.gallery-path">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="TextBlock.module-empty">
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
         <Setter Property="Margin" Value="2,6,0,0" />
     </Style>
@@ -68,7 +72,7 @@
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
     </Style>
     <Style Selector="Button.gallery-chip:pointerover">
         <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
@@ -90,7 +94,7 @@
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
     </Style>
     <Style Selector="ToggleButton.gallery-chip:pointerover">
         <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
@@ -155,21 +159,21 @@
         <Setter Property="ZIndex" Value="2" />
     </Style>
     <Style Selector="TextBlock.module-card-category">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
     <Style Selector="TextBlock.module-card-title">
-        <Setter Property="FontSize" Value="14.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeLarge}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
     </Style>
     <Style Selector="TextBlock.module-card-desc">
-        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
         <Setter Property="MaxHeight" Value="34" />
     </Style>
     <Style Selector="TextBlock.module-card-status">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="Border.module-card-dot">
@@ -192,7 +196,7 @@
     </Style>
     <Style Selector="TextBlock.card-overlay-text">
         <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
-        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeMedium}" />
         <Setter Property="LetterSpacing" Value="2" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />

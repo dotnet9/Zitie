@@ -9,7 +9,10 @@ Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖
 - A4 纵向、A4 横向、A3 纵向、Letter 纵向，以及 0-40 mm 页边距。
 - 纸张底纹、格线/文字十六进制颜色、字体和页面装饰边框。
 - 预览当前页，导出多页 PDF、单页 PNG、批量 PNG，并调用系统打印队列。
-- `.zitie.json` 文档保存/打开；模板页支持刷新用户模板目录。
+- 内容资源覆盖小学一年级到高中三年级，支持按学科、版本、年级、学期、单元筛选和关键词快速搜索。
+- 模板库支持关键词搜索、分类筛选、缩略图缩放和刷新用户模板目录。
+- 软件字号可按设备显示效果切换小/中/大，并保存到本机设置。
+- `.zitie.json` 文档保存/打开。
 
 ## 使用
 
@@ -23,7 +26,14 @@ dotnet run --project src/Zitie.Desktop/Zitie.Desktop.csproj -f net10.0
 
 `%LOCALAPPDATA%\Zitie\modules`
 
-模板是普通 JSON 文件，内置模板位于 `src/Zitie.Desktop/modules`。保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
+模板是普通 YAML 文件，内置模板位于仓库根目录 `resources/modules`。保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
+
+内置资源统一位于仓库根目录 `resources`：
+
+- `resources/modules`：字帖模板 YAML。
+- `resources/texts`：可直接生成字帖的练习文本 Markdown，含语文/英语小学到高中全年级同步拓展内容。
+- `resources/pinyin`：拼音词表 YAML。
+- `resources/textbooks`：2026 教材版本索引，覆盖小学、初中、高中在线教材元数据。
 
 ## 文档格式
 
@@ -72,6 +82,7 @@ Windows 发布启用 NativeAOT；macOS/Linux 使用不裁剪的单文件发布�
 - `src/Zitie.Core`：UI 无关的规格模型、格子布局和分页引擎。
 - `src/Zitie.Avalonia`：预览控件、Skia 渲染器、PDF/PNG 导出和内嵌字体。
 - `src/Zitie.Desktop`：Avalonia 工作台、模板目录、文本库和文档操作。
+- `resources`：桌面工程以链接方式引用的内置资源。
 - `tests`：布局、导出、文档持久化和编辑状态回归测试。
 
 项目采用 MIT 许可证；内嵌霞鹜文楷字体的许可证见 `src/Zitie.Avalonia/Fonts/OFL.txt`。

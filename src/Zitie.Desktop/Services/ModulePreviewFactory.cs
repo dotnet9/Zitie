@@ -1,27 +1,24 @@
-using System.Text.Json;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 
 namespace Zitie.Desktop.Services;
 
-/// <summary>根据模块 JSON 默认值生成模板画廊所需的首屏预览。</summary>
+/// <summary>根据模块 YAML 默认值生成模板画廊所需的首屏预览。</summary>
 public static class ModulePreviewFactory
 {
     private static readonly PageSettings PreviewPage = PageSettings.A4;
 
     public static ModulePreview Create(ModuleDefinition module)
     {
-        var defaults = module.Defaults is { ValueKind: JsonValueKind.Object } value
-            ? value
-            : default;
+        var defaults = module.Defaults;
 
-        var grid = ParseGrid(GetString(defaults, "grid"));
-        var mode = ParseMode(GetString(defaults, "mode"));
-        var title = GetString(defaults, "title");
-        var vertical = GetBoolean(defaults, "vertical");
-        var requestedPoemHeader = GetBoolean(defaults, "showPoemHeader");
+        var grid = ParseGrid(defaults.Grid);
+        var mode = ParseMode(defaults.Mode);
+        var title = Normalize(defaults.Title);
+        var vertical = defaults.Vertical == true;
+        var requestedPoemHeader = defaults.ShowPoemHeader == true;
         var headerPreset = ParseHeaderPreset(
-            GetString(defaults, "headerPreset"),
+            defaults.HeaderPreset,
             title,
             requestedPoemHeader);
         var showPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
@@ -29,49 +26,49 @@ public static class ModulePreviewFactory
         var showHeaderFields = headerPreset is SheetHeaderPreset.Fields
             or SheetHeaderPreset.TitleAndFields
             or SheetHeaderPreset.Custom;
-        var text = GetString(defaults, "text") ?? FallbackText(module.Id, grid);
-        var repeats = Math.Clamp(GetInt32(defaults, "repeats") ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
-        var traceCount = Math.Clamp(GetInt32(defaults, "traceCount") ?? 2, 0, repeats - 1);
+        var text = Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
+        var repeats = Math.Clamp(defaults.Repeats ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
+        var traceCount = Math.Clamp(defaults.TraceCount ?? 2, 0, repeats - 1);
 
         var spec = new CharacterSheetSpec
         {
             Text = text,
             Grid = grid,
             Mode = mode,
-            CharactersPerLine = vertical
+            CellsPerLine = vertical
                 ? 0
-                : Math.Clamp(GetInt32(defaults, "charactersPerLine") ?? 12, 1, 64),
-            BlankCellRowCount = Math.Clamp(GetInt32(defaults, "blankCellRowCount") ?? 0, 0, 10),
+                : Math.Clamp(defaults.CellsPerLine ?? 12, 1, 64),
+            BlankCellLineCount = Math.Clamp(defaults.BlankCellLineCount ?? 0, 0, 10),
             RepeatsPerChar = repeats,
             TraceSlotCount = traceCount,
-            GridSizeMm = Math.Max(8, GetDouble(defaults, "gridSize") ?? 14),
-            GridGapMm = Math.Max(0, GetDouble(defaults, "gridGap") ?? 2),
+            GridSizeMm = Math.Max(8, defaults.GridSize ?? 14),
+            GridGapMm = Math.Max(0, defaults.GridGap ?? 2),
             Title = headerPreset is SheetHeaderPreset.TitleAndFields
                 or SheetHeaderPreset.Poem
                 or SheetHeaderPreset.Custom
                 ? title
                 : null,
             HeaderPreset = headerPreset,
-            HeaderTextTemplate = GetString(defaults, "headerText"),
+            HeaderTextTemplate = Normalize(defaults.HeaderText),
             ShowHeaderFields = showHeaderFields,
             Orientation = vertical ? SheetOrientation.Vertical : SheetOrientation.Horizontal,
             ShowPoemHeader = showPoemHeader,
-            FrameBorder = GetBoolean(defaults, "frameBorder"),
-            Background = ParseBackground(GetString(defaults, "background")),
-            BackgroundColor = GetString(defaults, "backgroundColor"),
-            BackgroundLineColor = GetString(defaults, "backgroundLineColor"),
-            BackgroundLineSpacingMm = GetDouble(defaults, "backgroundLineSpacing"),
-            Author = GetString(defaults, "author"),
-            Dynasty = GetString(defaults, "dynasty"),
-            GroupByWord = GetBoolean(defaults, "groupByWord"),
-            ShowPinyin = GetBoolean(defaults, "showPinyin"),
-            PinyinOnly = GetBoolean(defaults, "pinyinOnly"),
-            HollowGlyph = GetBoolean(defaults, "hollowGlyph"),
-            TraceIntensity = ParseTraceIntensity(GetString(defaults, "traceIntensity")),
-            TraceColor = GetString(defaults, "traceColor"),
-            GridColor = GetString(defaults, "gridColor"),
-            TextColor = GetString(defaults, "textColor"),
-            FontFamilyName = GetString(defaults, "fontFamily"),
+            FrameBorder = defaults.FrameBorder == true,
+            Background = ParseBackground(defaults.Background),
+            BackgroundColor = Normalize(defaults.BackgroundColor),
+            BackgroundLineColor = Normalize(defaults.BackgroundLineColor),
+            BackgroundLineSpacingMm = defaults.BackgroundLineSpacing,
+            Author = Normalize(defaults.Author),
+            Dynasty = Normalize(defaults.Dynasty),
+            GroupByWord = defaults.GroupByWord == true,
+            ShowPinyin = defaults.ShowPinyin == true,
+            PinyinOnly = defaults.PinyinOnly == true,
+            HollowGlyph = defaults.HollowGlyph == true,
+            TraceIntensity = ParseTraceIntensity(defaults.TraceIntensity),
+            TraceColor = Normalize(defaults.TraceColor),
+            GridColor = Normalize(defaults.GridColor),
+            TextColor = Normalize(defaults.TextColor),
+            FontFamilyName = Normalize(defaults.FontFamily),
             Page = PreviewPage
         };
 
@@ -89,8 +86,7 @@ public static class ModulePreviewFactory
     {
         if (grid is GridKind.English or GridKind.Pinyin) return "拼音 / 英文";
         if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "诗词排版";
-        var hollowGlyph = module.Defaults is { ValueKind: JsonValueKind.Object } defaults &&
-                          GetBoolean(defaults, "hollowGlyph");
+        var hollowGlyph = module.Defaults.HollowGlyph == true;
         if (hollowGlyph || module.Id.Contains("hollow", StringComparison.OrdinalIgnoreCase))
             return "双钩临摹";
         return mode == PracticeMode.Trace ? "描红练习" : "基础临摹";
@@ -172,41 +168,9 @@ public static class ModulePreviewFactory
         return "春风化雨";
     }
 
-    private static string? GetString(JsonElement element, string name)
+    private static string? Normalize(string? value)
     {
-        if (element.ValueKind != JsonValueKind.Object ||
-            !element.TryGetProperty(name, out var value) ||
-            value.ValueKind != JsonValueKind.String)
-            return null;
-
-        var result = value.GetString();
-        return string.IsNullOrWhiteSpace(result) ? null : result.Trim();
-    }
-
-    private static bool GetBoolean(JsonElement element, string name)
-    {
-        return element.ValueKind == JsonValueKind.Object &&
-               element.TryGetProperty(name, out var value) &&
-               value.ValueKind is JsonValueKind.True or JsonValueKind.False &&
-               value.GetBoolean();
-    }
-
-    private static int? GetInt32(JsonElement element, string name)
-    {
-        return element.ValueKind == JsonValueKind.Object &&
-               element.TryGetProperty(name, out var value) &&
-               value.TryGetInt32(out var result)
-            ? result
-            : null;
-    }
-
-    private static double? GetDouble(JsonElement element, string name)
-    {
-        return element.ValueKind == JsonValueKind.Object &&
-               element.TryGetProperty(name, out var value) &&
-               value.TryGetDouble(out var result)
-            ? result
-            : null;
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 }
 

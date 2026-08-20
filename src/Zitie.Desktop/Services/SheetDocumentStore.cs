@@ -1,6 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using Zitie.Core.Models;
 
 namespace Zitie.Desktop.Services;
@@ -15,26 +13,9 @@ public sealed record SheetDocument
     public CharacterSheetSpec Spec { get; init; } = new();
 }
 
-/// <summary>字帖文档与用户模板的 JSON 读写。</summary>
+/// <summary>字帖文档使用 JSON，用户模板使用 YAML。</summary>
 public static class SheetDocumentStore
 {
-    private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.General)
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
-    static SheetDocumentStore()
-    {
-        Options.Converters.Add(new JsonStringEnumConverter<GridKind>(JsonNamingPolicy.CamelCase));
-        Options.Converters.Add(new JsonStringEnumConverter<PracticeMode>(JsonNamingPolicy.CamelCase));
-        Options.Converters.Add(new JsonStringEnumConverter<SheetHeaderPreset>(JsonNamingPolicy.CamelCase));
-        Options.Converters.Add(new JsonStringEnumConverter<SheetBackground>(JsonNamingPolicy.CamelCase));
-        Options.Converters.Add(new JsonStringEnumConverter<TraceIntensity>(JsonNamingPolicy.CamelCase));
-        Options.Converters.Add(new JsonStringEnumConverter<SheetOrientation>(JsonNamingPolicy.CamelCase));
-    }
-
     public static void Save(string path, CharacterSheetSpec spec, string? moduleId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -73,63 +54,51 @@ public static class SheetDocumentStore
         var templateName = string.IsNullOrWhiteSpace(name)
             ? Path.GetFileNameWithoutExtension(path)
             : name.Trim();
-        var defaults = new Dictionary<string, object?>
+        var defaults = new ModuleDefaults
         {
-            ["grid"] = spec.Grid.ToString().ToLowerInvariant(),
-            ["mode"] = spec.Mode.ToString().ToLowerInvariant(),
-            ["repeats"] = spec.RepeatsPerChar,
-            ["traceCount"] = spec.TraceSlotCount,
-            ["gridSize"] = spec.GridSizeMm,
-            ["gridGap"] = spec.GridGapMm,
-            ["title"] = spec.Title,
-            ["headerPreset"] = spec.HeaderPreset.ToString().ToLowerInvariant(),
-            ["headerText"] = spec.HeaderTextTemplate,
-            ["charactersPerLine"] = spec.CharactersPerLine,
-            ["blankCellRowCount"] = spec.BlankCellRowCount,
-            ["vertical"] = spec.Orientation == SheetOrientation.Vertical,
-            ["frameBorder"] = spec.FrameBorder,
-            ["background"] = spec.Background.ToString().ToLowerInvariant(),
-            ["backgroundColor"] = spec.BackgroundColor,
-            ["backgroundLineColor"] = spec.BackgroundLineColor,
-            ["backgroundLineSpacing"] = spec.BackgroundLineSpacingMm,
-            ["author"] = spec.Author,
-            ["dynasty"] = spec.Dynasty,
-            ["groupByWord"] = spec.GroupByWord,
-            ["showPinyin"] = spec.ShowPinyin,
-            ["pinyinOnly"] = spec.PinyinOnly,
-            ["hollowGlyph"] = spec.HollowGlyph,
-            ["traceIntensity"] = spec.TraceIntensity.ToString().ToLowerInvariant(),
-            ["traceColor"] = spec.TraceColor,
-            ["gridColor"] = spec.GridColor,
-            ["textColor"] = spec.TextColor,
-            ["fontFamily"] = spec.FontFamilyName,
-            ["pageSize"] = PageSizeName(spec.Page),
-            ["pageMargin"] = spec.Page.MarginTopMm,
-            ["text"] = spec.Text
+            Grid = spec.Grid.ToString().ToLowerInvariant(),
+            Mode = spec.Mode.ToString().ToLowerInvariant(),
+            Repeats = spec.RepeatsPerChar,
+            TraceCount = spec.TraceSlotCount,
+            GridSize = spec.GridSizeMm,
+            GridGap = spec.GridGapMm,
+            Title = spec.Title,
+            HeaderPreset = spec.HeaderPreset.ToString().ToLowerInvariant(),
+            HeaderText = spec.HeaderTextTemplate,
+            CellsPerLine = spec.CellsPerLine,
+            BlankCellLineCount = spec.BlankCellLineCount,
+            Vertical = spec.Orientation == SheetOrientation.Vertical,
+            FrameBorder = spec.FrameBorder,
+            Background = spec.Background.ToString().ToLowerInvariant(),
+            BackgroundColor = spec.BackgroundColor,
+            BackgroundLineColor = spec.BackgroundLineColor,
+            BackgroundLineSpacing = spec.BackgroundLineSpacingMm,
+            Author = spec.Author,
+            Dynasty = spec.Dynasty,
+            GroupByWord = spec.GroupByWord,
+            ShowPinyin = spec.ShowPinyin,
+            PinyinOnly = spec.PinyinOnly,
+            HollowGlyph = spec.HollowGlyph,
+            TraceIntensity = spec.TraceIntensity.ToString().ToLowerInvariant(),
+            TraceColor = spec.TraceColor,
+            GridColor = spec.GridColor,
+            TextColor = spec.TextColor,
+            FontFamily = spec.FontFamilyName,
+            PageSize = PageSizeName(spec.Page),
+            PageMargin = spec.Page.MarginTopMm,
+            Text = spec.Text
         };
 
-        var defaultsNode = new JsonObject();
-        foreach (var (key, value) in defaults)
-            defaultsNode[key] = value switch
-            {
-                null => null,
-                string text => JsonValue.Create(text),
-                int number => JsonValue.Create(number),
-                double number => JsonValue.Create(number),
-                bool flag => JsonValue.Create(flag),
-                _ => JsonValue.Create(value.ToString())
-            };
-
-        var template = new JsonObject
+        var module = new ModuleDefinition
         {
-            ["id"] = $"user-{Guid.NewGuid():N}",
-            ["name"] = templateName,
-            ["description"] = "用户保存的字帖模板",
-            ["kind"] = "customText",
-            ["enabled"] = true,
-            ["defaults"] = defaultsNode
+            Id = $"user-{Guid.NewGuid():N}",
+            Name = templateName,
+            Description = "用户保存的字帖模板",
+            Kind = "customText",
+            Enabled = true,
+            Defaults = defaults
         };
-        File.WriteAllText(path, template.ToJsonString(Options));
+        YamlResourceSerializer.SerializeFile(path, module);
     }
 
     private static string PageSizeName(PageSettings page)

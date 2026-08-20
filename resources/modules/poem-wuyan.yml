@@ -1,0 +1,12 @@
+id: "poem-wuyan"
+name: "五言诗抄写 · 田字格"
+description: "从文本库挑选古诗整首抄写；默认已嵌入《静夜思》，可在编辑页从 resources/texts 目录挑选更多诗词。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  groupByWord: false
+  title: "古诗抄写"
+  text: "床前明月光，疑是地上霜。举头望明月，低头思故乡。"

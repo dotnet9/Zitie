@@ -29,10 +29,10 @@ public sealed record TextEntry
 
     public string Body { get; init; } = string.Empty;
 
-    public string DisplayPath => string.Join(" · ", new[] { Grade, Semester, Unit, ResourceType }
+    public string DisplayPath => string.Join(" · ", new[] { Grade, Semester, Edition, Unit, ResourceType }
         .Where(static value => !string.IsNullOrWhiteSpace(value)));
 
-    public string Identity => string.Join('\u001f', Subject, Grade, Semester, Unit, Title);
+    public string Identity => string.Join('\u001f', Subject, Grade, Semester, Edition, Textbook, Unit, Title);
 
     public override string ToString() => Title;
 }

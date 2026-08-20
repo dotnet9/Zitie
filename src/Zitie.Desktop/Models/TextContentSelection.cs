@@ -24,7 +24,24 @@ public sealed class TextContentSelection : BindableBase
             ["四年级"] = 4,
             ["五年级"] = 5,
             ["六年级"] = 6,
+            ["初一"] = 7,
+            ["初二"] = 8,
+            ["初三"] = 9,
+            ["高一"] = 10,
+            ["高二"] = 11,
+            ["高三"] = 12,
             ["通用"] = 99
+        };
+
+    private static readonly IReadOnlyDictionary<string, int> EditionOrder =
+        new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["统编版"] = 0,
+            ["人教版"] = 1,
+            ["北师大版"] = 2,
+            ["外研版"] = 3,
+            ["译林版"] = 4,
+            ["通用版"] = 99
         };
 
     private static readonly IReadOnlyDictionary<string, int> SemesterOrder =
@@ -37,10 +54,13 @@ public sealed class TextContentSelection : BindableBase
 
     private readonly IReadOnlyList<TextEntry> _entries;
     private string _selectedSubject = All;
+    private string _selectedEdition = All;
     private string _selectedGrade = All;
     private string _selectedSemester = All;
     private string _selectedUnit = All;
+    private string _searchText = string.Empty;
     private TextEntry? _selectedEntry;
+    private IReadOnlyList<string> _editions = [All];
     private IReadOnlyList<string> _grades = [All];
     private IReadOnlyList<string> _semesters = [All];
     private IReadOnlyList<string> _units = [All];
@@ -50,12 +70,18 @@ public sealed class TextContentSelection : BindableBase
     {
         _entries = entries;
         Subjects = BuildChoices(entries.Select(static entry => entry.Subject), SubjectOrder);
-        Rebuild(resetGrade: true, resetSemester: true, resetUnit: true);
+        Rebuild(resetEdition: true, resetGrade: true, resetSemester: true, resetUnit: true);
     }
 
     public event EventHandler<TextEntry>? EntrySelected;
 
     public IReadOnlyList<string> Subjects { get; }
+
+    public IReadOnlyList<string> Editions
+    {
+        get => _editions;
+        private set => SetChoices(ref _editions, value, nameof(Editions));
+    }
 
     public IReadOnlyList<string> Grades
     {
@@ -87,6 +113,17 @@ public sealed class TextContentSelection : BindableBase
 
     public string ResultSummary => $"{FilteredEntries.Count} 条内容";
 
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            var normalized = value?.Trim() ?? string.Empty;
+            if (!SetProperty(ref _searchText, normalized)) return;
+            Rebuild();
+        }
+    }
+
     public string SelectedSubject
     {
         get => _selectedSubject;
@@ -94,6 +131,17 @@ public sealed class TextContentSelection : BindableBase
         {
             var normalized = NormalizeChoice(value, Subjects);
             if (!SetProperty(ref _selectedSubject, normalized)) return;
+            Rebuild(resetEdition: true, resetGrade: true, resetSemester: true, resetUnit: true);
+        }
+    }
+
+    public string SelectedEdition
+    {
+        get => _selectedEdition;
+        set
+        {
+            var normalized = NormalizeChoice(value, Editions);
+            if (!SetProperty(ref _selectedEdition, normalized)) return;
             Rebuild(resetGrade: true, resetSemester: true, resetUnit: true);
         }
     }
@@ -144,30 +192,43 @@ public sealed class TextContentSelection : BindableBase
 
     public void Reset()
     {
-        var changed = _selectedSubject != All || _selectedGrade != All ||
-                      _selectedSemester != All || _selectedUnit != All || _selectedEntry is not null;
+        var changed = _selectedSubject != All || _selectedEdition != All || _selectedGrade != All ||
+                      _selectedSemester != All || _selectedUnit != All || _selectedEntry is not null ||
+                      _searchText.Length > 0;
         _selectedSubject = All;
+        _selectedEdition = All;
         _selectedGrade = All;
         _selectedSemester = All;
         _selectedUnit = All;
+        _searchText = string.Empty;
         _selectedEntry = null;
-        Rebuild(resetGrade: true, resetSemester: true, resetUnit: true);
+        Rebuild(resetEdition: true, resetGrade: true, resetSemester: true, resetUnit: true);
         if (!changed) return;
 
         RaisePropertyChanged(nameof(SelectedSubject));
+        RaisePropertyChanged(nameof(SelectedEdition));
         RaisePropertyChanged(nameof(SelectedGrade));
         RaisePropertyChanged(nameof(SelectedSemester));
         RaisePropertyChanged(nameof(SelectedUnit));
+        RaisePropertyChanged(nameof(SearchText));
         RaisePropertyChanged(nameof(SelectedEntry));
     }
 
-    private void Rebuild(bool resetGrade = false, bool resetSemester = false, bool resetUnit = false)
+    private void Rebuild(
+        bool resetEdition = false,
+        bool resetGrade = false,
+        bool resetSemester = false,
+        bool resetUnit = false)
     {
         var bySubject = Filter(_entries, static entry => entry.Subject, SelectedSubject);
-        var grades = BuildChoices(bySubject.Select(static entry => entry.Grade), GradeOrder);
+        var editions = BuildChoices(bySubject.Select(static entry => entry.Edition), EditionOrder);
+        var edition = resetEdition ? All : NormalizeChoice(_selectedEdition, editions);
+
+        var byEdition = Filter(bySubject, static entry => entry.Edition, edition);
+        var grades = BuildChoices(byEdition.Select(static entry => entry.Grade), GradeOrder);
         var grade = resetGrade ? All : NormalizeChoice(_selectedGrade, grades);
 
-        var byGrade = Filter(bySubject, static entry => entry.Grade, grade);
+        var byGrade = Filter(byEdition, static entry => entry.Grade, grade);
         var semesters = BuildChoices(byGrade.Select(static entry => entry.Semester), SemesterOrder);
         var semester = resetSemester ? All : NormalizeChoice(_selectedSemester, semesters);
 
@@ -175,14 +236,16 @@ public sealed class TextContentSelection : BindableBase
         var units = BuildChoices(bySemester.Select(static entry => entry.Unit));
         var unit = resetUnit ? All : NormalizeChoice(_selectedUnit, units);
 
+        SetSelectedField(ref _selectedEdition, edition, nameof(SelectedEdition));
         SetSelectedField(ref _selectedGrade, grade, nameof(SelectedGrade));
         SetSelectedField(ref _selectedSemester, semester, nameof(SelectedSemester));
         SetSelectedField(ref _selectedUnit, unit, nameof(SelectedUnit));
+        Editions = editions;
         Grades = grades;
         Semesters = semesters;
         Units = units;
 
-        FilteredEntries = Filter(bySemester, static entry => entry.Unit, unit)
+        FilteredEntries = Search(Filter(bySemester, static entry => entry.Unit, unit), SearchText)
             .OrderBy(static entry => entry.Unit, StringComparer.CurrentCulture)
             .ThenBy(static entry => entry.Title, StringComparer.CurrentCulture)
             .ToArray();
@@ -200,6 +263,36 @@ public sealed class TextContentSelection : BindableBase
         return choice == All
             ? source.ToArray()
             : source.Where(entry => string.Equals(selector(entry), choice, StringComparison.Ordinal)).ToArray();
+    }
+
+    private static IEnumerable<TextEntry> Search(IEnumerable<TextEntry> source, string keyword)
+    {
+        var terms = keyword
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (terms.Length == 0) return source;
+
+        return source.Where(entry => terms.All(term => Matches(entry, term)));
+    }
+
+    private static bool Matches(TextEntry entry, string term)
+    {
+        return Contains(entry.Subject, term) ||
+               Contains(entry.Grade, term) ||
+               Contains(entry.Semester, term) ||
+               Contains(entry.Unit, term) ||
+               Contains(entry.Title, term) ||
+               Contains(entry.ResourceType, term) ||
+               Contains(entry.Textbook, term) ||
+               Contains(entry.Edition, term) ||
+               Contains(entry.Dynasty, term) ||
+               Contains(entry.Author, term) ||
+               Contains(entry.Source, term) ||
+               Contains(entry.Body, term);
+    }
+
+    private static bool Contains(string value, string term)
+    {
+        return value.Contains(term, StringComparison.CurrentCultureIgnoreCase);
     }
 
     private static IReadOnlyList<string> BuildChoices(

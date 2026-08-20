@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -141,7 +140,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         try
         {
-            var path = await _dialogs.PickSaveFileAsync("字帖模板", "json", "我的字帖模板.json");
+            var path = await _dialogs.PickSaveFileAsync("字帖模板", "yml", "我的字帖模板.yml");
             if (path is null) return;
             SaveTemplateTo(path);
         }
@@ -209,11 +208,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
 
-    public string[] CharactersPerLineChoices { get; } = ["自动", "12", "16"];
+    public string[] CellsPerLineChoices { get; } = ["自动", "12", "16"];
 
-    private static readonly int[] CharactersPerLineValues = [0, 12, 16];
+    private static readonly int[] CellsPerLineValues = [0, 12, 16];
 
-    public int[] BlankCellRowChoices { get; } = Enumerable.Range(0, 11).ToArray();
+    public int[] BlankCellLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
 
     public string[] ColorChoices { get; } = ["红色", "黑色", "绿色"];
 
@@ -250,25 +249,27 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public TextContentSelection ContentSelection { get; }
 
-    public int CharactersPerLineIndex
+    public int CellsPerLineIndex
     {
         get
         {
-            var index = Array.IndexOf(CharactersPerLineValues, _editorState.CharactersPerLine);
+            var index = Array.IndexOf(CellsPerLineValues, _editorState.CellsPerLine);
             return index < 0 ? 0 : index;
         }
         set
         {
-            var index = Math.Clamp(value, 0, CharactersPerLineValues.Length - 1);
-            SetEditorState(_editorState with { CharactersPerLine = CharactersPerLineValues[index] });
+            var index = Math.Clamp(value, 0, CellsPerLineValues.Length - 1);
+            SetEditorState(_editorState with { CellsPerLine = CellsPerLineValues[index] });
         }
     }
 
-    public int BlankCellRowCount
+    public int BlankCellLineCount
     {
-        get => _editorState.BlankCellRowCount;
-        set => SetEditorState(_editorState with { BlankCellRowCount = Math.Clamp(value, 0, 10) });
+        get => _editorState.BlankCellLineCount;
+        set => SetEditorState(_editorState with { BlankCellLineCount = Math.Clamp(value, 0, 10) });
     }
+
+    public string BlankCellLineLabel => IsVertical ? "空格子列" : "空格子行";
 
     public int TraceIntensityIndex
     {
@@ -346,10 +347,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public bool IsVertical
     {
         get => _editorState.Orientation == SheetOrientation.Vertical;
-        set => SetEditorState(_editorState with
+        set
         {
-            Orientation = value ? SheetOrientation.Vertical : SheetOrientation.Horizontal
-        });
+            if (!SetEditorState(_editorState with
+                {
+                    Orientation = value ? SheetOrientation.Vertical : SheetOrientation.Horizontal
+                }))
+                return;
+
+            RaisePropertyChanged(nameof(BlankCellLineLabel));
+        }
     }
 
     public bool ShowPoemHeader
@@ -751,9 +758,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                                  !string.IsNullOrWhiteSpace(HeaderTextTemplate)
                 ? HeaderTextTemplate.Trim()
                 : null,
-            CharactersPerLine = CharactersPerLineValues[
-                Math.Clamp(CharactersPerLineIndex, 0, CharactersPerLineValues.Length - 1)],
-            BlankCellRowCount = BlankCellRowCount,
+            CellsPerLine = CellsPerLineValues[
+                Math.Clamp(CellsPerLineIndex, 0, CellsPerLineValues.Length - 1)],
+            BlankCellLineCount = BlankCellLineCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
             RepeatsPerChar = RepeatsChoices[Math.Clamp(RepeatsIndex, 0, RepeatsChoices.Length - 1)],
@@ -818,175 +825,136 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private void ApplyModuleDefaults(ModuleDefinition module)
     {
         _module = module;
-        if (module.Defaults is not { ValueKind: JsonValueKind.Object } defaults) return;
+        var defaults = module.Defaults;
 
-        var hasHeaderPreset = defaults.TryGetProperty("headerPreset", out var headerPresetValue) &&
-                              headerPresetValue.ValueKind == JsonValueKind.String;
+        var hasHeaderPreset = !string.IsNullOrWhiteSpace(defaults.HeaderPreset);
 
-        foreach (var property in defaults.EnumerateObject())
-            switch (property.Name.ToLowerInvariant())
+        if (defaults.Grid is { Length: > 0 } grid)
+            GridKindIndex = grid.ToLowerInvariant() switch
             {
-                case "grid" when property.Value.GetString() is { } grid:
-                    GridKindIndex = grid.ToLowerInvariant() switch
-                    {
-                        "mi" => 0,
-                        "tian" => 1,
-                        "huigong" => 2,
-                        "plain" => 3,
-                        "english" => 4,
-                        "nine" => 5,
-                        "pinyin" => 6,
-                        _ => GridKindIndex
-                    };
-                    break;
-                case "gridsize" when property.Value.ValueKind == System.Text.Json.JsonValueKind.Number:
-                    GridSizeMm = property.Value.GetDouble();
-                    break;
-                case "hollowglyph" when property.Value.GetBooleanValue(out var hollowGlyph):
-                    HollowGlyph = hollowGlyph;
-                    break;
-                case "mode" when property.Value.GetString() is { } mode:
-                    PracticeModeIndex = mode.ToLowerInvariant() switch
-                    {
-                        "trace" => 0,
-                        "copy" => 1,
-                        _ => PracticeModeIndex
-                    };
-                    break;
-                case "groupbyword" when property.Value.GetBooleanValue(out var groupByWord):
-                    GroupByWord = groupByWord;
-                    break;
-                case "showpinyin" when property.Value.GetBooleanValue(out var showPinyin):
-                    ShowPinyin = showPinyin;
-                    break;
-                case "pinyinonly" when property.Value.GetBooleanValue(out var pinyinOnly):
-                    PinyinOnly = pinyinOnly;
-                    break;
-                case "vertical" when property.Value.GetBooleanValue(out var vertical):
-                    IsVertical = vertical;
-                    break;
-                case "showpoemheader" when property.Value.GetBooleanValue(out var showPoemHeader):
-                    ShowPoemHeader = showPoemHeader;
-                    break;
-                case "frameborder" when property.Value.GetBooleanValue(out var frameBorder):
-                    FrameBorder = frameBorder;
-                    break;
-                case "background" when property.Value.GetString() is { } background:
-                    BackgroundIndex = background.ToLowerInvariant() switch
-                    {
-                        "redgrid" => 1,
-                        "letter" => 2,
-                        "ricepaper" => 3,
-                        _ => BackgroundIndex
-                    };
-                    break;
-                case "backgroundcolor" when property.Value.GetString() is { } backgroundColor
-                                            && Color.TryParse(backgroundColor, out _):
-                    _editorState = _editorState with { BackgroundColor = backgroundColor };
-                    break;
-                case "backgroundlinecolor" when property.Value.GetString() is { } backgroundLineColor
-                                                && Color.TryParse(backgroundLineColor, out _):
-                    _editorState = _editorState with { BackgroundLineColor = backgroundLineColor };
-                    break;
-                case "backgroundlinespacing" when property.Value.TryGetDouble(out var backgroundLineSpacing):
-                    _editorState = _editorState with
-                    {
-                        BackgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60)
-                    };
-                    break;
-                case "author" when property.Value.GetString() is { } author:
-                    Author = author;
-                    break;
-                case "dynasty" when property.Value.GetString() is { } dynasty:
-                    Dynasty = dynasty;
-                    break;
-                case "repeats" when property.Value.TryGetInt32(out var repeats):
-                {
-                    var index = Array.IndexOf(RepeatsChoices, repeats);
-                    if (index >= 0) RepeatsIndex = index;
-                    break;
-                }
-                case "tracecount" when property.Value.TryGetInt32(out var traceCount):
-                    _editorState = _editorState with { TraceSlotCount = Math.Clamp(traceCount, 0, 8) };
-                    break;
-                case "title" when property.Value.GetString() is { } title:
-                    Title = title;
-                    break;
-                case "tracecolor" when property.Value.GetString() is { } traceColor
-                                       && Color.TryParse(traceColor, out _):
-                    TraceColor = traceColor;
-                    break;
-                case "traceintensity" when property.Value.GetString() is { } traceIntensity:
-                    TraceIntensityIndex = traceIntensity.ToLowerInvariant() switch
-                    {
-                        "verydark" => 0,
-                        "dark" => 1,
-                        "mediumdark" => 2,
-                        "medium" => 3,
-                        "light" => 4,
-                        "verylight" => 5,
-                        "white" => 6,
-                        "hollow" => 7,
-                        _ => TraceIntensityIndex
-                    };
-                    break;
-                case "charactersperline" when property.Value.TryGetInt32(out var charactersPerLine):
-                {
-                    var index = Array.IndexOf(CharactersPerLineValues, charactersPerLine);
-                    if (index >= 0) CharactersPerLineIndex = index;
-                    break;
-                }
-                case "blankcellrowcount" when property.Value.TryGetInt32(out var blankCellRowCount):
-                    BlankCellRowCount = blankCellRowCount;
-                    break;
-                case "gridcolor" when property.Value.GetString() is { } gridColor
-                                      && Color.TryParse(gridColor, out _):
-                    _editorState = _editorState with { GridColor = gridColor };
-                    RaisePropertyChanged(nameof(GridColorIndex));
-                    RaisePropertyChanged(nameof(GridColorHex));
-                    RequestRebuild();
-                    break;
-                case "textcolor" when property.Value.GetString() is { } textColor
-                                      && Color.TryParse(textColor, out _):
-                    _editorState = _editorState with { TextColor = textColor };
-                    RaisePropertyChanged(nameof(TextColorIndex));
-                    RaisePropertyChanged(nameof(TextColorHex));
-                    RequestRebuild();
-                    break;
-                case "pagesize" when property.Value.GetString() is { } pageSize:
-                    PageSizeIndex = pageSize.ToLowerInvariant() switch
-                    {
-                        "a4landscape" => 1,
-                        "a3portrait" => 2,
-                        "letter" => 3,
-                        _ => 0
-                    };
-                    break;
-                case "pagemargin" when property.Value.TryGetDouble(out var pageMargin):
-                    PageMarginMm = pageMargin;
-                    break;
-                case "fontfamily" when property.Value.GetString() is { } fontFamily:
-                    SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
-                                        FontOption.CreateUnclassified(fontFamily.Trim());
-                    break;
-                case "headerpreset" when property.Value.GetString() is { } headerPreset:
-                    HeaderPresetIndex = headerPreset.ToLowerInvariant() switch
-                    {
-                        "none" => 0,
-                        "fields" => 1,
-                        "titleandfields" => 2,
-                        "poem" => 3,
-                        "custom" => 4,
-                        _ => HeaderPresetIndex
-                    };
-                    break;
-                case "headertext" when property.Value.GetString() is { } headerText:
-                    HeaderTextTemplate = headerText;
-                    break;
-                case "text" when property.Value.GetString() is { } text:
-                    InputText = text;
-                    break;
-            }
+                "mi" => 0,
+                "tian" => 1,
+                "huigong" => 2,
+                "plain" => 3,
+                "english" => 4,
+                "nine" => 5,
+                "pinyin" => 6,
+                _ => GridKindIndex
+            };
+
+        if (defaults.GridSize is { } gridSize) GridSizeMm = gridSize;
+        if (defaults.HollowGlyph is { } hollowGlyph) HollowGlyph = hollowGlyph;
+        if (defaults.Mode is { Length: > 0 } mode)
+            PracticeModeIndex = mode.ToLowerInvariant() switch
+            {
+                "trace" => 0,
+                "copy" => 1,
+                _ => PracticeModeIndex
+            };
+
+        if (defaults.GroupByWord is { } groupByWord) GroupByWord = groupByWord;
+        if (defaults.ShowPinyin is { } showPinyin) ShowPinyin = showPinyin;
+        if (defaults.PinyinOnly is { } pinyinOnly) PinyinOnly = pinyinOnly;
+        if (defaults.Vertical is { } vertical) IsVertical = vertical;
+        if (defaults.ShowPoemHeader is { } showPoemHeader) ShowPoemHeader = showPoemHeader;
+        if (defaults.FrameBorder is { } frameBorder) FrameBorder = frameBorder;
+
+        if (defaults.Background is { Length: > 0 } background)
+            BackgroundIndex = background.ToLowerInvariant() switch
+            {
+                "redgrid" => 1,
+                "letter" => 2,
+                "ricepaper" => 3,
+                _ => BackgroundIndex
+            };
+
+        if (defaults.BackgroundColor is { Length: > 0 } backgroundColor &&
+            Color.TryParse(backgroundColor, out _))
+            _editorState = _editorState with { BackgroundColor = backgroundColor };
+        if (defaults.BackgroundLineColor is { Length: > 0 } backgroundLineColor &&
+            Color.TryParse(backgroundLineColor, out _))
+            _editorState = _editorState with { BackgroundLineColor = backgroundLineColor };
+        if (defaults.BackgroundLineSpacing is { } backgroundLineSpacing)
+            _editorState = _editorState with
+            {
+                BackgroundLineSpacingMm = Math.Clamp(backgroundLineSpacing, 1, 60)
+            };
+
+        if (defaults.Author is { } author) Author = author;
+        if (defaults.Dynasty is { } dynasty) Dynasty = dynasty;
+        if (defaults.Repeats is { } repeats)
+        {
+            var index = Array.IndexOf(RepeatsChoices, repeats);
+            if (index >= 0) RepeatsIndex = index;
+        }
+
+        if (defaults.TraceCount is { } traceCount)
+            _editorState = _editorState with { TraceSlotCount = Math.Clamp(traceCount, 0, 8) };
+        if (defaults.Title is { } title) Title = title;
+        if (defaults.TraceColor is { Length: > 0 } traceColor && Color.TryParse(traceColor, out _))
+            TraceColor = traceColor;
+        if (defaults.TraceIntensity is { Length: > 0 } traceIntensity)
+            TraceIntensityIndex = traceIntensity.ToLowerInvariant() switch
+            {
+                "verydark" => 0,
+                "dark" => 1,
+                "mediumdark" => 2,
+                "medium" => 3,
+                "light" => 4,
+                "verylight" => 5,
+                "white" => 6,
+                "hollow" => 7,
+                _ => TraceIntensityIndex
+            };
+
+        if (defaults.CellsPerLine is { } cellsPerLine)
+        {
+            var index = Array.IndexOf(CellsPerLineValues, cellsPerLine);
+            if (index >= 0) CellsPerLineIndex = index;
+        }
+
+        if (defaults.BlankCellLineCount is { } blankCellLineCount)
+            BlankCellLineCount = blankCellLineCount;
+        if (defaults.GridColor is { Length: > 0 } gridColor && Color.TryParse(gridColor, out _))
+        {
+            _editorState = _editorState with { GridColor = gridColor };
+            RaisePropertyChanged(nameof(GridColorIndex));
+            RaisePropertyChanged(nameof(GridColorHex));
+            RequestRebuild();
+        }
+
+        if (defaults.TextColor is { Length: > 0 } textColor && Color.TryParse(textColor, out _))
+        {
+            _editorState = _editorState with { TextColor = textColor };
+            RaisePropertyChanged(nameof(TextColorIndex));
+            RaisePropertyChanged(nameof(TextColorHex));
+            RequestRebuild();
+        }
+
+        if (defaults.PageSize is { Length: > 0 } pageSize)
+            PageSizeIndex = pageSize.ToLowerInvariant() switch
+            {
+                "a4landscape" => 1,
+                "a3portrait" => 2,
+                "letter" => 3,
+                _ => 0
+            };
+        if (defaults.PageMargin is { } pageMargin) PageMarginMm = pageMargin;
+        if (defaults.FontFamily is { Length: > 0 } fontFamily)
+            SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
+                                FontOption.CreateUnclassified(fontFamily.Trim());
+        if (defaults.HeaderPreset is { Length: > 0 } headerPreset)
+            HeaderPresetIndex = headerPreset.ToLowerInvariant() switch
+            {
+                "none" => 0,
+                "fields" => 1,
+                "titleandfields" => 2,
+                "poem" => 3,
+                "custom" => 4,
+                _ => HeaderPresetIndex
+            };
+        if (defaults.HeaderText is { } headerText) HeaderTextTemplate = headerText;
+        if (defaults.Text is { } text) InputText = text;
 
         // 旧模板用 showPoemHeader 表示诗词题头，升级后统一映射到“诗词题头”预设。
         if (!hasHeaderPreset && ShowPoemHeader)
@@ -1053,22 +1021,5 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
-    }
-}
-
-/// <summary>JsonElement 布尔取值辅助（System.Text.Json 无 TryGetBoolean）。</summary>
-internal static class JsonElementBooleanExtensions
-{
-    public static bool GetBooleanValue(this System.Text.Json.JsonElement element, out bool value)
-    {
-        if (element.ValueKind == System.Text.Json.JsonValueKind.True ||
-            element.ValueKind == System.Text.Json.JsonValueKind.False)
-        {
-            value = element.GetBoolean();
-            return true;
-        }
-
-        value = false;
-        return false;
     }
 }

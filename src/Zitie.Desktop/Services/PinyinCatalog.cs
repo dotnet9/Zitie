@@ -1,41 +1,39 @@
 using System.IO;
-using System.Text.Json;
 
 namespace Zitie.Desktop.Services;
 
 /// <summary>拼音词条。</summary>
 public sealed record PinyinWord
 {
-    public string Word { get; init; } = string.Empty;
+    public string Word { get; set; } = string.Empty;
 
-    public string Pinyin { get; init; } = string.Empty;
+    public string Pinyin { get; set; } = string.Empty;
 }
 
-/// <summary>拼音分类词表（pinyin/words.json）。</summary>
+/// <summary>拼音分类词表（resources/pinyin/words.yml）。</summary>
 public sealed record PinyinCategory
 {
-    public string Category { get; init; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
 
-    public IReadOnlyList<PinyinWord> Words { get; init; } = Array.Empty<PinyinWord>();
+    public List<PinyinWord> Words { get; set; } = [];
 }
 
 /// <summary>
-///     扫描输出目录 pinyin/*.json 加载词表，并提供 字符 → 拼音 映射（“看拼音写词语”用）。
+///     扫描输出目录 resources/pinyin/*.yml 加载词表，并提供 字符 → 拼音 映射（“看拼音写词语”用）。
 /// </summary>
 public sealed class PinyinCatalog
 {
     public PinyinCatalog()
     {
-        var directory = Path.Combine(AppContext.BaseDirectory, "pinyin");
+        var directory = ResourcePaths.Pinyin;
         var categories = new List<PinyinCategory>();
         var map = new Dictionary<string, string>();
 
         if (Directory.Exists(directory))
-            foreach (var file in Directory.EnumerateFiles(directory, "*.json"))
+            foreach (var file in Directory.EnumerateFiles(directory, "*.yml"))
                 try
                 {
-                    var items = JsonSerializer.Deserialize(
-                        File.ReadAllText(file), ZitieJsonContext.Default.ListPinyinCategory);
+                    var items = YamlResourceSerializer.DeserializeFile<List<PinyinCategory>>(file);
                     if (items is null) continue;
                     foreach (var category in items)
                     {

@@ -13,6 +13,7 @@ public class ModuleGalleryViewModel : BindableBase
     private readonly DelegateCommand<ModuleDefinition> _openCommand;
     private string _searchText = string.Empty;
     private string _selectedCategory = "全部";
+    private double _thumbnailZoom = 0.26;
 
     public ModuleGalleryViewModel(
         IRegionManager regionManager,
@@ -48,6 +49,18 @@ public class ModuleGalleryViewModel : BindableBase
     public int FilteredModuleCount => FilteredModules.Count;
 
     public bool IsEmpty => FilteredModules.Count == 0;
+
+    public double ThumbnailZoom
+    {
+        get => _thumbnailZoom;
+        set
+        {
+            var zoom = Math.Clamp(value, 0.18, 0.48);
+            if (!SetProperty(ref _thumbnailZoom, zoom)) return;
+            foreach (var module in Modules)
+                module.PreviewZoom = zoom;
+        }
+    }
 
     public string SearchText
     {
@@ -90,6 +103,8 @@ public class ModuleGalleryViewModel : BindableBase
         Modules = _catalog.Modules
             .Select(module => new ModuleCardViewModel(module, _openCommand))
             .ToList();
+        foreach (var module in Modules)
+            module.PreviewZoom = ThumbnailZoom;
         var categoryNames = new[] { "全部" }
             .Concat(Modules
                 .Select(module => module.CategoryText)

@@ -34,7 +34,7 @@
         <Setter Property="Opacity" Value="0.48" />
     </Style>
     <Style Selector="TextBlock.dirty-indicator">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
 
@@ -52,12 +52,12 @@
         <Setter Property="Margin" Value="{StaticResource ZitieEditorTabBodyPadding}" />
     </Style>
     <Style Selector="TextBlock.editor-label">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
         <Setter Property="Margin" Value="{StaticResource ZitieEditorLabelSpacing}" />
     </Style>
     <Style Selector="TextBlock.editor-section-title">
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
         <Setter Property="Margin" Value="{StaticResource ZitieEditorLabelSpacing}" />
@@ -72,7 +72,7 @@
         <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
     <Style Selector="TextBox.editor-input:focus">
@@ -85,7 +85,7 @@
         <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
     <Style Selector="ComboBox.editor-input:focus">
@@ -99,7 +99,7 @@
         <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
     <Style Selector="NumericUpDown.editor-input:focus">
@@ -113,12 +113,12 @@
         <Setter Property="VerticalAlignment" Value="Bottom" />
     </Style>
     <Style Selector="Border.field-badge TextBlock">
-        <Setter Property="FontSize" Value="10.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="CheckBox.editor-check">
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
-        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="MinHeight" Value="24" />
         <Setter Property="Margin" Value="0,0,0,8" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -149,11 +149,11 @@
         <Setter Property="BorderThickness" Value="0,1,0,0" />
     </Style>
     <Style Selector="TextBlock.status-text">
-        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="TextBlock.status-path">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
         <Setter Property="FontFamily" Value="Consolas" />
         <Setter Property="MaxWidth" Value="420" />
@@ -166,7 +166,7 @@
         <Setter Property="Margin" Value="14,0,8,0" />
     </Style>
     <Style Selector="TextBlock.muted-text">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
 </Styles>

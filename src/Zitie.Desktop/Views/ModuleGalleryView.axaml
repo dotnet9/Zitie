@@ -16,7 +16,7 @@
                         <TextBlock Text="模板库" Classes="page-title" />
                         <TextBlock Text="TEMPLATE GALLERY" Classes="page-title-en" />
                     </StackPanel>
-                    <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 JSON 配方，可随意改造"
+                    <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造"
                                Classes="page-subtitle" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
@@ -31,10 +31,10 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Margin="0,18,0,0" ColumnDefinitions="300,*,Auto" ColumnSpacing="14">
+            <Grid Margin="0,18,0,0" ColumnDefinitions="300,*,220" ColumnSpacing="14">
                 <TextBox Grid.Column="0"
                          Classes="gallery-search"
-                         Text="{Binding SearchText}"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          AutomationProperties.Name="搜索模板"
                          PlaceholderText="搜索模板名称、说明或分类">
                     <TextBox.InnerLeftContent>
@@ -60,10 +60,29 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Grid.Column="2"
-                           Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
-                           Classes="gallery-count"
-                           VerticalAlignment="Center" />
+                <Grid Grid.Column="2"
+                      ColumnDefinitions="Auto,*,Auto"
+                      ColumnSpacing="8"
+                      VerticalAlignment="Center">
+                    <TextBlock Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                               Classes="gallery-count"
+                               VerticalAlignment="Center" />
+                    <Slider Grid.Column="1"
+                            Classes="gallery-zoom"
+                            AutomationProperties.Name="模板缩略图缩放"
+                            ToolTip.Tip="缩放模板缩略图"
+                            Minimum="0.18"
+                            Maximum="0.48"
+                            TickFrequency="0.02"
+                            IsSnapToTickEnabled="True"
+                            Value="{Binding ThumbnailZoom}" />
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding ThumbnailZoom, StringFormat={}{0:P0}}"
+                               Classes="gallery-count"
+                               MinWidth="38"
+                               TextAlignment="Right"
+                               VerticalAlignment="Center" />
+                </Grid>
             </Grid>
         </StackPanel>
 
@@ -99,7 +118,7 @@
                                         <Border Classes="module-tag">
                                             <TextBlock Text="{Binding CategoryText}"
                                                        Foreground="{DynamicResource ZitieAccentBrush}"
-                                                       FontSize="11" />
+                                                       FontSize="{DynamicResource ZitieUiFontSizeTiny}" />
                                         </Border>
                                     </Grid>
                                     <StackPanel Grid.Row="1" Margin="4,10,4,4" Spacing="4">

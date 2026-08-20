@@ -1,0 +1,12 @@
+id: "letter-copy"
+name: "信纸临摹帖 · 方格"
+description: "淡蓝信纸横线 + 方格，临摹模式每字「范字 + 空格」，适合日常练字。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 3
+  background: "letter"
+  title: "信纸临摹"
+  text: "纸上得来终觉浅"

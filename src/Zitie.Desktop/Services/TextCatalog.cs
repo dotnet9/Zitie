@@ -2,10 +2,10 @@ using Zitie.Desktop.Models;
 
 namespace Zitie.Desktop.Services;
 
-/// <summary>扫描输出目录 texts/**/*.md，构建可筛选的字帖内容库。</summary>
+/// <summary>扫描输出目录 resources/texts/**/*.md，构建可筛选的字帖内容库。</summary>
 public sealed class TextCatalog
 {
-    public TextCatalog() : this(Path.Combine(AppContext.BaseDirectory, "texts"))
+    public TextCatalog() : this(ResourcePaths.Texts)
     {
     }
 
