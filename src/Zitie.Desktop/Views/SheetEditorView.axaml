@@ -16,12 +16,16 @@
                         Classes="editor-icon-button"
                         Command="{Binding GoBackCommand}"
                         ToolTip.Tip="返回模板库">
-                    <Path Classes="back-glyph"
-                          Data="M15,18 L9,12 L15,6"
-                          StrokeThickness="2"
-                          StrokeLineCap="Round"
-                          Width="17"
-                          Height="17" />
+                    <Viewbox Width="{StaticResource ZitieToolbarBackIconSize}"
+                             Height="{StaticResource ZitieToolbarBackIconSize}">
+                        <Canvas Width="24" Height="24">
+                            <Path Classes="back-glyph"
+                                  Data="M15,18 L9,12 L15,6"
+                                  StrokeThickness="2"
+                                  StrokeLineCap="Round"
+                                  StrokeJoin="Round" />
+                        </Canvas>
+                    </Viewbox>
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
                 <controls:ZitieToolButton Grid.Column="2"
