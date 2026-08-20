@@ -69,5 +69,19 @@ public sealed class TextContentSelectionTests
         selection.SelectedEntry = Entries[0];
 
         Assert.Same(Entries[0], selected);
+        Assert.Equal("晨读", selected?.ToString());
+    }
+
+    [Fact]
+    public void SelectingChildFilter_DoesNotReplaceUnchangedParentChoices()
+    {
+        var selection = new TextContentSelection(Entries) { SelectedSubject = "语文" };
+        var changedProperties = new List<string?>();
+        selection.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
+
+        selection.SelectedGrade = "三年级";
+
+        Assert.DoesNotContain(nameof(TextContentSelection.Grades), changedProperties);
+        Assert.Equal("三年级", selection.SelectedGrade);
     }
 }

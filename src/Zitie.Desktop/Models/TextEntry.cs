@@ -33,4 +33,6 @@ public sealed record TextEntry
         .Where(static value => !string.IsNullOrWhiteSpace(value)));
 
     public string Identity => string.Join('\u001f', Subject, Grade, Semester, Unit, Title);
+
+    public override string ToString() => Title;
 }

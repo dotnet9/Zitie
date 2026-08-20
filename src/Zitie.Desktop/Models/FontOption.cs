@@ -61,4 +61,6 @@ public sealed record FontOption(
     {
         return new FontOption(name, SheetFontCategory.Other, FontStrokeStyle.Unknown);
     }
+
+    public override string ToString() => DisplayName;
 }

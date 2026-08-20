@@ -22,6 +22,7 @@ public sealed class FontCatalogTests
 
         Assert.Equal(expectedCategory, option.Category);
         Assert.Equal(expectedStrokeStyle, option.StrokeStyle);
+        Assert.Equal(option.DisplayName, option.ToString());
     }
 
     [Fact]

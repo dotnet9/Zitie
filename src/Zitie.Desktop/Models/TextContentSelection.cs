@@ -60,19 +60,19 @@ public sealed class TextContentSelection : BindableBase
     public IReadOnlyList<string> Grades
     {
         get => _grades;
-        private set => SetProperty(ref _grades, value);
+        private set => SetChoices(ref _grades, value, nameof(Grades));
     }
 
     public IReadOnlyList<string> Semesters
     {
         get => _semesters;
-        private set => SetProperty(ref _semesters, value);
+        private set => SetChoices(ref _semesters, value, nameof(Semesters));
     }
 
     public IReadOnlyList<string> Units
     {
         get => _units;
-        private set => SetProperty(ref _units, value);
+        private set => SetChoices(ref _units, value, nameof(Units));
     }
 
     public IReadOnlyList<TextEntry> FilteredEntries
@@ -164,21 +164,25 @@ public sealed class TextContentSelection : BindableBase
     private void Rebuild(bool resetGrade = false, bool resetSemester = false, bool resetUnit = false)
     {
         var bySubject = Filter(_entries, static entry => entry.Subject, SelectedSubject);
-        Grades = BuildChoices(bySubject.Select(static entry => entry.Grade), GradeOrder);
-        if (resetGrade) SetSelectedField(ref _selectedGrade, All, nameof(SelectedGrade));
-        else NormalizeSelectedField(ref _selectedGrade, Grades, nameof(SelectedGrade));
+        var grades = BuildChoices(bySubject.Select(static entry => entry.Grade), GradeOrder);
+        var grade = resetGrade ? All : NormalizeChoice(_selectedGrade, grades);
 
-        var byGrade = Filter(bySubject, static entry => entry.Grade, SelectedGrade);
-        Semesters = BuildChoices(byGrade.Select(static entry => entry.Semester), SemesterOrder);
-        if (resetSemester) SetSelectedField(ref _selectedSemester, All, nameof(SelectedSemester));
-        else NormalizeSelectedField(ref _selectedSemester, Semesters, nameof(SelectedSemester));
+        var byGrade = Filter(bySubject, static entry => entry.Grade, grade);
+        var semesters = BuildChoices(byGrade.Select(static entry => entry.Semester), SemesterOrder);
+        var semester = resetSemester ? All : NormalizeChoice(_selectedSemester, semesters);
 
-        var bySemester = Filter(byGrade, static entry => entry.Semester, SelectedSemester);
-        Units = BuildChoices(bySemester.Select(static entry => entry.Unit));
-        if (resetUnit) SetSelectedField(ref _selectedUnit, All, nameof(SelectedUnit));
-        else NormalizeSelectedField(ref _selectedUnit, Units, nameof(SelectedUnit));
+        var bySemester = Filter(byGrade, static entry => entry.Semester, semester);
+        var units = BuildChoices(bySemester.Select(static entry => entry.Unit));
+        var unit = resetUnit ? All : NormalizeChoice(_selectedUnit, units);
 
-        FilteredEntries = Filter(bySemester, static entry => entry.Unit, SelectedUnit)
+        SetSelectedField(ref _selectedGrade, grade, nameof(SelectedGrade));
+        SetSelectedField(ref _selectedSemester, semester, nameof(SelectedSemester));
+        SetSelectedField(ref _selectedUnit, unit, nameof(SelectedUnit));
+        Grades = grades;
+        Semesters = semesters;
+        Units = units;
+
+        FilteredEntries = Filter(bySemester, static entry => entry.Unit, unit)
             .OrderBy(static entry => entry.Unit, StringComparer.CurrentCulture)
             .ThenBy(static entry => entry.Title, StringComparer.CurrentCulture)
             .ToArray();
@@ -217,14 +221,16 @@ public sealed class TextContentSelection : BindableBase
         return !string.IsNullOrWhiteSpace(value) && choices.Contains(value, StringComparer.Ordinal) ? value : All;
     }
 
-    private void NormalizeSelectedField(ref string field, IReadOnlyList<string> choices, string propertyName)
-    {
-        SetSelectedField(ref field, NormalizeChoice(field, choices), propertyName);
-    }
-
     private void SetSelectedField(ref string field, string value, string propertyName)
     {
         if (field == value) return;
+        field = value;
+        RaisePropertyChanged(propertyName);
+    }
+
+    private void SetChoices(ref IReadOnlyList<string> field, IReadOnlyList<string> value, string propertyName)
+    {
+        if (field.SequenceEqual(value, StringComparer.Ordinal)) return;
         field = value;
         RaisePropertyChanged(propertyName);
     }
