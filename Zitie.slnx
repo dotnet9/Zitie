@@ -1,4 +1,21 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/发布脚本/">
+    <File Path="pack.bat" />
+    <File Path="publish_all.bat" />
+    <File Path="publish_linux-arm64.bat" />
+    <File Path="publish_linux-x64.bat" />
+    <File Path="publish_osx-arm64.bat" />
+    <File Path="publish_osx-x64.bat" />
+    <File Path="publish_win-x64.bat" />
+    <File Path="scripts/publish_demo.ps1" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Zitie.Avalonia/Zitie.Avalonia.csproj" />
     <Project Path="src/Zitie.Core/Zitie.Core.csproj" />
