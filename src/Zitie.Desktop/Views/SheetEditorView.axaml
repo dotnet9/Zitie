@@ -4,6 +4,7 @@
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              xmlns:services="using:Zitie.Desktop.Services"
              xmlns:zitie="using:Zitie.Avalonia.Controls"
+             xmlns:controls="using:Zitie.Desktop.Controls"
              x:Class="Zitie.Desktop.Views.SheetEditorView"
              x:DataType="vm:SheetEditorViewModel"
              Background="{DynamicResource ZitiePaperBrush}"
@@ -23,59 +24,47 @@
                           Height="17" />
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
-                <Button Grid.Column="2" Classes="editor-tool-button" Command="{Binding OpenDocumentCommand}" ToolTip.Tip="打开字帖文档">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <Path Classes="tool-glyph"
-                              Data="M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <TextBlock Text="打开" />
-                    </StackPanel>
-                </Button>
-                <Button Grid.Column="3" Classes="editor-tool-button" Command="{Binding SaveDocumentCommand}" ToolTip.Tip="保存字帖文档">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <Path Classes="tool-glyph"
-                              Data="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z" />
-                        <TextBlock Text="保存" />
-                    </StackPanel>
-                </Button>
-                <Button Grid.Column="4" Classes="editor-tool-button" Command="{Binding SaveAsDocumentCommand}" ToolTip.Tip="另存字帖文档">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <Path Classes="tool-glyph"
-                              Data="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M14 17l4-4 1.5 1.5L15.5 18.5 13 19z" />
-                        <TextBlock Text="另存" />
-                    </StackPanel>
-                </Button>
-                <Button Grid.Column="5" Classes="editor-tool-button" Command="{Binding SaveTemplateCommand}" ToolTip.Tip="保存为可复用模板">
-                    <StackPanel Orientation="Horizontal" Spacing="7">
-                        <Path Classes="tool-glyph" Data="M6 3h12v18l-6-4.2L6 21z" />
-                        <TextBlock Text="存为模板" />
-                    </StackPanel>
-                </Button>
+                <controls:ZitieToolButton Grid.Column="2"
+                                          Content="打开"
+                                          IconData="M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                                          Command="{Binding OpenDocumentCommand}"
+                                          ToolTip.Tip="打开字帖文档" />
+                <controls:ZitieToolButton Grid.Column="3"
+                                          Content="保存"
+                                          IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z"
+                                          Command="{Binding SaveDocumentCommand}"
+                                          ToolTip.Tip="保存字帖文档" />
+                <controls:ZitieToolButton Grid.Column="4"
+                                          Content="另存"
+                                          IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M14 17l4-4 1.5 1.5L15.5 18.5 13 19z"
+                                          Command="{Binding SaveAsDocumentCommand}"
+                                          ToolTip.Tip="另存字帖文档" />
+                <controls:ZitieToolButton Grid.Column="5"
+                                          Content="存为模板"
+                                          IconData="M6 3h12v18l-6-4.2L6 21z"
+                                          Command="{Binding SaveTemplateCommand}"
+                                          ToolTip.Tip="保存为可复用模板" />
                 <StackPanel Grid.Column="7"
                             Orientation="Horizontal"
                             Spacing="6"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
                     <TextBlock Text="未保存更改 ·" Classes="dirty-indicator" IsVisible="{Binding IsDirty}" VerticalAlignment="Center" />
-                    <Button Classes="editor-tool-button outline" Command="{Binding ExportPngsCommand}" ToolTip.Tip="按页导出多张 PNG">
-                        <StackPanel Orientation="Horizontal" Spacing="7">
-                            <Path Classes="tool-glyph" Data="M8 3h8v8H8z M3 13h8v8H3z M13 13h8v8h-8z" />
-                            <TextBlock Text="批量 PNG" />
-                        </StackPanel>
-                    </Button>
-                    <Button Classes="editor-tool-button outline" Command="{Binding ExportPngCommand}" ToolTip.Tip="导出当前页 PNG">
-                        <StackPanel Orientation="Horizontal" Spacing="7">
-                            <Path Classes="tool-glyph"
-                                  Data="M3 5h18v14H3z M10.1 10a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0z M21 16l-5-5-7 7" />
-                            <TextBlock Text="导出 PNG" />
-                        </StackPanel>
-                    </Button>
-                    <Button Classes="editor-tool-button primary" Command="{Binding ExportPdfCommand}" ToolTip.Tip="导出 PDF（适合打印）">
-                        <StackPanel Orientation="Horizontal" Spacing="7">
-                            <Path Classes="tool-glyph"
-                                  Data="M12 3v11 M7.5 10.5L12 15l4.5-4.5 M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5" />
-                            <TextBlock Text="导出 PDF" />
-                        </StackPanel>
-                    </Button>
+                    <controls:ZitieToolButton Classes="outline"
+                                              Content="批量 PNG"
+                                              IconData="M8 3h8v8H8z M3 13h8v8H3z M13 13h8v8h-8z"
+                                              Command="{Binding ExportPngsCommand}"
+                                              ToolTip.Tip="按页导出多张 PNG" />
+                    <controls:ZitieToolButton Classes="outline"
+                                              Content="导出 PNG"
+                                              IconData="M3 5h18v14H3z M10.1 10a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0z M21 16l-5-5-7 7"
+                                              Command="{Binding ExportPngCommand}"
+                                              ToolTip.Tip="导出当前页 PNG" />
+                    <controls:ZitieToolButton Classes="primary"
+                                              Content="导出 PDF"
+                                              IconData="M12 3v11 M7.5 10.5L12 15l4.5-4.5 M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"
+                                              Command="{Binding ExportPdfCommand}"
+                                              ToolTip.Tip="导出 PDF（适合打印）" />
                 </StackPanel>
             </Grid>
         </Border>

@@ -1,0 +1,95 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:Zitie.Desktop.Controls">
+    <ControlTheme x:Key="{x:Type controls:ZitieToolButton}"
+                  TargetType="controls:ZitieToolButton">
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="{StaticResource ZitieToolbarButtonHeight}" />
+        <Setter Property="Height" Value="{StaticResource ZitieToolbarButtonHeight}" />
+        <Setter Property="Padding" Value="13,0" />
+        <Setter Property="CornerRadius" Value="{StaticResource ZitieToolbarButtonCornerRadius}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="controls:ZitieToolButton">
+                <Border Name="PART_Root"
+                        Padding="{TemplateBinding Padding}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                    <Grid ColumnDefinitions="18,Auto"
+                          ColumnSpacing="7"
+                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                        <Viewbox Width="{StaticResource ZitieToolbarIconSize}"
+                                 Height="{StaticResource ZitieToolbarIconSize}"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Canvas Width="24" Height="24">
+                                <Path Data="{TemplateBinding IconData}"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="1.8"
+                                      StrokeLineCap="Round"
+                                      StrokeJoin="Round" />
+                            </Canvas>
+                        </Viewbox>
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          FontSize="{TemplateBinding FontSize}"
+                                          FontWeight="{TemplateBinding FontWeight}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
+        </Style>
+        <Style Selector="^:focus-visible /template/ Border#PART_Root">
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.48" />
+        </Style>
+
+        <Style Selector="^.outline">
+            <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
+        </Style>
+        <Style Selector="^.outline:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+        </Style>
+
+        <Style Selector="^.primary">
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="^.primary:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentHoverBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+        </Style>
+        <Style Selector="^.primary:pressed">
+            <Setter Property="Background" Value="{DynamicResource ZitieAccentDarkBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentDarkBrush}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

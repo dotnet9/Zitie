@@ -274,22 +274,6 @@
         <Setter Property="BorderBrush" Value="#E8E0D0" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
-    <!-- 工具栏按钮图标：默认墨灰，悬停朱砂，主按钮反白 -->
-    <Style Selector="Path.tool-glyph">
-        <Setter Property="Width" Value="16" />
-        <Setter Property="Height" Value="16" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Stroke" Value="#6E675D" />
-        <Setter Property="StrokeThickness" Value="1.6" />
-        <Setter Property="StrokeLineCap" Value="Round" />
-        <Setter Property="StrokeJoin" Value="Round" />
-    </Style>
-    <Style Selector="Button.editor-tool-button:pointerover Path.tool-glyph">
-        <Setter Property="Stroke" Value="#B04A3F" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.primary Path.tool-glyph">
-        <Setter Property="Stroke" Value="#FBF6EF" />
-    </Style>
     <Style Selector="Button.editor-icon-button">
         <Setter Property="Width" Value="34" />
         <Setter Property="Height" Value="34" />
@@ -311,53 +295,6 @@
         <Setter Property="Background" Value="#F7EBE7" />
         <Setter Property="BorderBrush" Value="#B04A3F" />
         <Setter Property="Foreground" Value="#B04A3F" />
-    </Style>
-    <Style Selector="Button.editor-tool-button">
-        <Setter Property="Height" Value="34" />
-        <Setter Property="Padding" Value="13,0" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="#6E675D" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Button.editor-tool-button StackPanel">
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Button.editor-tool-button TextBlock">
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Button.editor-tool-button:pointerover">
-        <Setter Property="Background" Value="#F7EBE7" />
-        <Setter Property="Foreground" Value="#B04A3F" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.outline">
-        <Setter Property="Background" Value="#FFFFFF" />
-        <Setter Property="BorderBrush" Value="#D9CFBA" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.outline:pointerover">
-        <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
-    </Style>
-    <Style Selector="Button.editor-tool-button:pressed">
-        <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
-    </Style>
-    <Style Selector="Button.editor-tool-button:disabled">
-        <Setter Property="Opacity" Value="0.48" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.primary">
-        <Setter Property="Background" Value="#B04A3F" />
-        <Setter Property="Foreground" Value="#FBF6EF" />
-        <Setter Property="Padding" Value="16,0" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.primary:pointerover">
-        <Setter Property="Background" Value="#C05A4E" />
-    </Style>
-    <Style Selector="Button.editor-tool-button.primary:pressed">
-        <Setter Property="Background" Value="#963E35" />
     </Style>
     <Style Selector="TextBlock.dirty-indicator">
         <Setter Property="FontSize" Value="12" />

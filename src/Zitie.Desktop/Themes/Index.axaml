@@ -5,6 +5,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="/Themes/Tokens/ZitiePalette.axaml" />
                 <ResourceInclude Source="/Themes/Controls/ZitieWindow.axaml" />
+                <ResourceInclude Source="/Themes/Controls/ZitieToolButton.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
