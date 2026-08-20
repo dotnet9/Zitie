@@ -254,6 +254,50 @@ public class LayoutEngineTests
     }
 
     [Fact]
+    public void Paginate_OversizedWordIsNotSilentlyDropped()
+    {
+        var word = new string('永', 200);
+        var spec = new CharacterSheetSpec
+        {
+            Text = word,
+            Grid = GridKind.Plain,
+            Mode = PracticeMode.Copy,
+            RepeatsPerChar = 1,
+            GroupByWord = true,
+            Title = null,
+            ShowHeaderFields = false,
+            Page = PageSettings.A4 with { MarginLeftMm = 90, MarginRightMm = 90 }
+        };
+
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.NotEmpty(pages);
+        Assert.Equal(word.Length, pages.SelectMany(page => page.Cells).Count());
+    }
+
+    [Fact]
+    public void Paginate_OversizedVerticalSentenceKeepsEveryGlyph()
+    {
+        var sentence = new string('永', 200) + "。";
+        var spec = new CharacterSheetSpec
+        {
+            Text = sentence,
+            Grid = GridKind.Plain,
+            Mode = PracticeMode.Copy,
+            RepeatsPerChar = 1,
+            Orientation = SheetOrientation.Vertical,
+            Title = null,
+            ShowHeaderFields = false,
+            Page = PageSettings.A4 with { HeightMm = 80 }
+        };
+
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.NotEmpty(pages);
+        Assert.Equal(sentence.Length, pages.SelectMany(page => page.Cells).Count());
+    }
+
+    [Fact]
     public void Paginate_NineGrid_UsesLargerGridSize()
     {
         var spec = MakeSpec("永字八法", grid: GridKind.Nine, mode: PracticeMode.Copy, repeats: 1)

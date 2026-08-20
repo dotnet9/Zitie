@@ -66,6 +66,16 @@ public static class LayoutEngine
         var otherPageRows = Math.Max(1,
             (int)Math.Floor((spec.Page.UsableHeightMm - FooterLineMm) / pitch));
 
+        // 一个词或句子理论上应保持连续，但不能因为它超过单页容量而静默丢失。
+        // 极端长词/长句按页容量拆成连续分组，普通内容仍保持原有“不拆组”行为。
+        if (!pinyinGrid && (vertical || spec.GroupByWord))
+        {
+            var smallestGroupCapacity = vertical
+                ? Math.Max(1, Math.Min(firstPageRows, otherPageRows))
+                : columns * Math.Max(1, Math.Min(firstPageRows, otherPageRows));
+            groups = SplitOversizedGroups(groups, smallestGroupCapacity);
+        }
+
         var pageIndex = 0;
         var groupIndex = 0;
         while (groupIndex < groups.Count)
@@ -191,6 +201,28 @@ public static class LayoutEngine
     {
         var row = cursor / columns;
         return (row + 1 + Math.Max(0, blankLineCount)) * columns;
+    }
+
+    private static IReadOnlyList<IReadOnlyList<string>> SplitOversizedGroups(
+        IReadOnlyList<IReadOnlyList<string>> groups,
+        int maxGroupSize)
+    {
+        maxGroupSize = Math.Max(1, maxGroupSize);
+        var result = new List<IReadOnlyList<string>>(groups.Count);
+
+        foreach (var group in groups)
+        {
+            if (group.Count <= maxGroupSize)
+            {
+                result.Add(group);
+                continue;
+            }
+
+            for (var offset = 0; offset < group.Count; offset += maxGroupSize)
+                result.Add(group.Skip(offset).Take(maxGroupSize).ToArray());
+        }
+
+        return result;
     }
 
     /// <summary>
