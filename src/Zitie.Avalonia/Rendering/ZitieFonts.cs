@@ -7,6 +7,8 @@ namespace Zitie.Avalonia.Rendering;
 /// </summary>
 public static class ZitieFonts
 {
+    public const string WenKaiFamilyName = "LXGW WenKai";
+
     private static MemoryStream? _wenKaiData;
     private static SKTypeface? _wenKai;
 

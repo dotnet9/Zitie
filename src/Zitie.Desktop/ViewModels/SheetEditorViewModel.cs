@@ -688,7 +688,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _selectedSheetFont = string.IsNullOrWhiteSpace(_editorState.FontFamilyName)
             ? _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ?? _fontCatalog.Fonts.FirstOrDefault()
             : _fontCatalog.Find(_editorState.FontFamilyName) ??
-              new FontOption(_editorState.FontFamilyName, false);
+              FontOption.CreateUnclassified(_editorState.FontFamilyName);
 
         RaisePropertyChanged(string.Empty);
     }
@@ -967,7 +967,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                     break;
                 case "fontfamily" when property.Value.GetString() is { } fontFamily:
                     SelectedSheetFont = _fontCatalog.Find(fontFamily) ??
-                                        new FontOption(fontFamily.Trim(), false);
+                                        FontOption.CreateUnclassified(fontFamily.Trim());
                     break;
                 case "headerpreset" when property.Value.GetString() is { } headerPreset:
                     HeaderPresetIndex = headerPreset.ToLowerInvariant() switch

@@ -398,6 +398,9 @@ public static class SheetRenderer
         if (string.IsNullOrWhiteSpace(spec.FontFamilyName)) return ZitieFonts.WenKai;
 
         var family = spec.FontFamilyName.Trim();
+        if (string.Equals(family, ZitieFonts.WenKaiFamilyName, StringComparison.OrdinalIgnoreCase))
+            return ZitieFonts.WenKai;
+
         var character = text.FirstOrDefault(value => value > 127);
         return character == default
             ? SKTypeface.FromFamilyName(family) ?? ZitieFonts.WenKai

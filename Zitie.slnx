@@ -3,6 +3,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="docs/内容库.md" />
+    <File Path="docs/字体与笔锋.md" />
     <File Path="global.json" />
     <File Path="LICENSE" />
     <File Path="README.md" />

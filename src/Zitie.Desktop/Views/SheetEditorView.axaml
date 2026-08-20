@@ -3,7 +3,6 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              xmlns:models="using:Zitie.Desktop.Models"
-             xmlns:services="using:Zitie.Desktop.Services"
              xmlns:zitie="using:Zitie.Avalonia.Controls"
              xmlns:controls="using:Zitie.Desktop.Controls"
              x:Class="Zitie.Desktop.Views.SheetEditorView"
@@ -342,11 +341,14 @@
                                         <TextBlock Text="字帖字体" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding SheetFonts}" SelectedItem="{Binding SelectedSheetFont}" Classes="editor-input" AutomationProperties.Name="字帖字体" MaxDropDownHeight="360">
                                             <ComboBox.ItemTemplate>
-                                                <DataTemplate x:DataType="services:FontOption">
-                                                    <TextBlock Text="{Binding DisplayName}" FontFamily="{Binding Name}" />
+                                                <DataTemplate x:DataType="models:FontOption">
+                                                    <TextBlock Text="{Binding DisplayName}" FontFamily="{Binding PreviewFamilyName}" />
                                                 </DataTemplate>
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
+                                        <TextBlock Text="{Binding SelectedSheetFont.Description}"
+                                                   Classes="muted-text"
+                                                   Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                 </Border>
                                 <Border Classes="editor-field">
