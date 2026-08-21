@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>字帖 · 主页效果图</title>
+<title>字帖 · 主页（模板库）原型图</title>
 <style>
 @font-face {
   font-family: "LXGW WenKai";
@@ -22,9 +22,11 @@
   --red-tint: #F7EBE7;
   --red-line: #D9A7A0;
   --trace: #DFA79C;
+  --gold: #C9A24B;
+  --blue: #7FA8C9;
+  --green: #7BA05B;
   --shadow-card: 0 1px 2px rgba(43,39,34,.05), 0 6px 18px rgba(43,39,34,.07);
   --shadow-lift: 0 2px 4px rgba(43,39,34,.06), 0 14px 32px rgba(43,39,34,.13);
-  --shadow-sheet: 0 1px 3px rgba(43,39,34,.08), 0 10px 28px rgba(43,39,34,.14);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 1240px; height: 840px; overflow: hidden; }
@@ -32,31 +34,62 @@ body {
   font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", serif;
   background: var(--paper);
   color: var(--ink);
-  display: flex;
 }
+.window { width: 100%; height: 100%; display: flex; flex-direction: column; }
 
-/* ============ 左侧导航栏 ============ */
+/* ============ 窗口标题栏 ============ */
+.titlebar {
+  height: 44px; flex: none;
+  background: linear-gradient(to bottom, #FCFAF4, #F7F2E7);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; user-select: none;
+}
+.tb-left { display: flex; align-items: center; gap: 9px; padding-left: 14px; }
+.tb-seal {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--red); color: #FBF6EF;
+  font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(251,246,239,.35), 0 2px 5px rgba(176,74,63,.3);
+}
+.tb-name { font-size: 14px; font-weight: 700; letter-spacing: 1px; line-height: 1.1; }
+.tb-name-en { font-size: 8.5px; color: var(--ink-3); letter-spacing: 2.5px; }
+.tb-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.tb-workshop { font-size: 12.5px; color: var(--ink-2); letter-spacing: 4px; }
+.tb-divider { width: 1px; height: 14px; background: var(--border-strong); }
+.tb-font-label { font-size: 11px; color: var(--ink-3); }
+input[type=range].mini {
+  -webkit-appearance: none; width: 110px; height: 3px; border-radius: 3px;
+  background: linear-gradient(to right, var(--red) 0 44%, var(--border-strong) 44% 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range].mini::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--red); box-shadow: 0 1px 3px rgba(43,39,34,.25);
+}
+.tb-font-value { font-size: 11px; color: var(--ink-2); min-width: 18px; }
+.tb-right { display: flex; align-self: stretch; }
+.win-btn {
+  width: 46px; display: flex; align-items: center; justify-content: center;
+  color: var(--ink-2); cursor: default;
+}
+.win-btn svg { width: 12px; height: 12px; }
+.win-btn:hover { background: rgba(176,74,63,.08); color: var(--ink); }
+.win-btn.close:hover { background: #C0362C; color: #fff; }
+
+/* ============ 侧边导航栏 ============ */
+.shell { flex: 1; display: flex; min-height: 0; }
 .rail {
-  width: 64px; height: 100%;
+  width: 64px; flex: none;
   background: var(--rail-bg);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column; align-items: center;
   padding: 14px 0 16px;
 }
-.seal {
-  width: 38px; height: 38px; border-radius: 9px;
-  background: var(--red);
-  color: #FBF6EF;
-  font-size: 22px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: inset 0 0 0 1.5px rgba(251,246,239,.35), 0 3px 8px rgba(176,74,63,.35);
-  margin-bottom: 26px; user-select: none;
-}
 .rail-item {
   width: 42px; height: 42px; border-radius: 11px;
   display: flex; align-items: center; justify-content: center;
-  color: var(--ink-3); cursor: pointer; position: relative;
-  margin-bottom: 8px;
+  color: var(--ink-3); cursor: pointer; position: relative; margin-bottom: 8px;
 }
 .rail-item svg { width: 21px; height: 21px; }
 .rail-item:hover { background: rgba(176,74,63,.08); color: var(--ink-2); }
@@ -79,6 +112,12 @@ body {
 .page { padding: 22px 26px 0; }
 
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; }
+.page-title-wrap { display: flex; align-items: flex-start; gap: 14px; }
+.title-accent {
+  width: 5px; height: 44px; border-radius: 3px; margin-top: 3px;
+  background: linear-gradient(to bottom, var(--red), var(--red-line));
+  box-shadow: 0 2px 6px rgba(176,74,63,.3);
+}
 .page-title { font-size: 26px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: baseline; gap: 12px; }
 .page-title .en { font-size: 12px; color: var(--ink-3); letter-spacing: 3px; font-weight: 400; }
 .page-sub { font-size: 13px; color: var(--ink-2); margin-top: 6px; }
@@ -89,12 +128,13 @@ body {
   height: 34px; padding: 0 14px; border-radius: 9px;
   border: 1px solid var(--border-strong); background: var(--panel);
   color: var(--ink-2); font-size: 13px; font-family: inherit; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(43,39,34,.04);
 }
 .btn-ghost svg { width: 15px; height: 15px; }
 .btn-ghost:hover { border-color: var(--red); color: var(--red); }
 
 /* 过滤行 */
-.filterbar { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+.filterbar { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
 .search {
   width: 300px; height: 36px; border-radius: 10px;
   border: 1px solid var(--border-strong); background: var(--panel);
@@ -119,8 +159,8 @@ body {
 .chip.on.red-solid { background: var(--red); color: #FBF6EF; }
 .count { margin-left: auto; font-size: 12px; color: var(--ink-3); }
 
-/* ============ 卡片 ============ */
-.deck { flex: 1; overflow: hidden; padding: 16px 26px 0; }
+/* ============ 模板卡片 ============ */
+.deck { flex: 1; overflow: hidden; padding: 18px 26px 0; }
 .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
 .card {
@@ -138,17 +178,20 @@ body {
 .card .thumb {
   position: relative; border-radius: 8px; overflow: hidden;
   background: #FDFBF6; border: 1px solid #EFE8D8;
-  padding: 12px 12px 10px;
+  height: 158px;
+  display: flex; align-items: center; justify-content: center;
 }
-.card .thumb .sheet {
+.card .sheet {
   background: #fff; border: 1px solid var(--red-line); border-radius: 2px;
   box-shadow: 0 1px 2px rgba(43,39,34,.05);
+  width: 148px; padding: 8px 12px;
 }
 .mini-title {
   text-align: center; font-size: 11px; color: var(--ink-2);
-  padding: 3px 0 5px; letter-spacing: 2px;
+  padding: 2px 0 6px; letter-spacing: 2px;
 }
-.mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; }
+.mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.mini-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .mini-cell {
   aspect-ratio: 1; position: relative;
   border: 1px solid rgba(176,74,63,.4);
@@ -161,13 +204,28 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 17px; color: var(--ink);
 }
+.mini-cell.tian {
+  background:
+    linear-gradient(to right, transparent calc(50% - .5px), rgba(176,74,63,.22) 50%, transparent calc(50% + .5px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), rgba(176,74,63,.22) 50%, transparent calc(50% + .5px)),
+    #fff;
+}
+.mini-cell.huigong { border: 1.5px solid rgba(176,74,63,.55); box-shadow: inset 0 0 0 4px #fff, inset 0 0 0 5.5px rgba(176,74,63,.3); }
 .mini-cell.trace { color: var(--trace); }
 .mini-cell.hollow { color: transparent; -webkit-text-stroke: .8px var(--red-line); }
-.mini-cell.pinyin-four { background:
-    linear-gradient(to bottom, transparent calc(25% - .5px), #7FA8C9 25%, #7FA8C9 calc(25% + .5px), transparent calc(25% + 1px)),
-    linear-gradient(to bottom, transparent calc(50% - .5px), #7FA8C9 50%, #7FA8C9 calc(50% + .5px), transparent calc(50% + 1px)),
-    linear-gradient(to bottom, transparent calc(75% - .5px), #7FA8C9 75%, #7FA8C9 calc(75% + .5px), transparent calc(75% + 1px)),
-    #fff; border-color: #A9C4D8; }
+.mini-cell.big { font-size: 34px; }
+.mini-cell.pinyin-four {
+  background:
+    linear-gradient(to bottom, transparent calc(25% - .5px), var(--blue) 25%, var(--blue) calc(25% + .5px), transparent calc(25% + 1px)),
+    linear-gradient(to bottom, transparent calc(50% - .5px), var(--blue) 50%, var(--blue) calc(50% + .5px), transparent calc(50% + 1px)),
+    linear-gradient(to bottom, transparent calc(75% - .5px), var(--blue) 75%, var(--blue) calc(75% + .5px), transparent calc(75% + 1px)),
+    #fff;
+  border-color: #A9C4D8; font-size: 13px; color: var(--ink-2);
+}
+.mini-cell.pinyin-four.trace { color: var(--trace); }
+.mini-vertical { display: flex; flex-direction: row-reverse; justify-content: center; gap: 4px; }
+.mini-col { display: flex; flex-direction: column; gap: 4px; }
+.mini-col .mini-cell { width: 26px; height: 26px; font-size: 15px; aspect-ratio: auto; }
 
 .tag {
   position: absolute; top: 8px; left: 8px; z-index: 2;
@@ -186,7 +244,7 @@ body {
   margin-top: 8px; font-size: 11px; color: var(--ink-3);
   border-top: 1px dashed var(--border); padding-top: 8px;
 }
-.dot { width: 6px; height: 6px; border-radius: 50%; background: #7BA05B; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .card .meta .sep { color: var(--border-strong); }
 .card .open-hint {
   position: absolute; inset: 0; border-radius: 13px; z-index: 3;
@@ -196,222 +254,272 @@ body {
   opacity: 0; transition: opacity .16s;
 }
 .card:hover .open-hint, .card.demo-hover .open-hint { opacity: 1; }
+
+/* ============ 底部状态栏 ============ */
+.gallery-status {
+  height: 34px; flex: none;
+  background: rgba(251,248,241,.7); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px; font-size: 11.5px; color: var(--ink-3);
+}
+.gallery-status .zoomer { display: flex; align-items: center; gap: 8px; }
 </style>
 </head>
 <body>
+<div class="window">
 
-<nav class="rail">
-  <div class="seal">字</div>
-  <div class="rail-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
-    <span class="tip">模板库</span>
-  </div>
-  <div class="rail-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-    <span class="tip">新建字帖</span>
-  </div>
-  <div class="rail-spacer"></div>
-  <div class="rail-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg>
-    <span class="tip">日志</span>
-  </div>
-</nav>
-
-<main class="main">
-  <div class="page">
-    <div class="page-head">
+  <header class="titlebar">
+    <div class="tb-left">
+      <div class="tb-seal">字</div>
       <div>
-        <div class="page-title">模板库 <span class="en">TEMPLATE GALLERY</span></div>
-        <div class="page-sub">选择模板开始生成字帖 · 内置模板与自定义模板均为 JSON 配方，可随意改造</div>
-      </div>
-      <div class="head-actions">
-        <button class="btn-ghost">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2.2 2.5H19a2 2 0 012 2V17a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-          打开模板目录
-        </button>
-        <button class="btn-ghost">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
-          刷新
-        </button>
+        <div class="tb-name">字帖</div>
+        <div class="tb-name-en">ZITIE WORKSHOP</div>
       </div>
     </div>
+    <div class="tb-center">
+      <span class="tb-workshop">字 帖 工 坊</span>
+      <span class="tb-divider"></span>
+      <span class="tb-font-label">字号</span>
+      <input type="range" class="mini" min="12" max="30" value="16">
+      <span class="tb-font-value">16</span>
+    </div>
+    <div class="tb-right">
+      <div class="win-btn"><svg viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+      <div class="win-btn"><svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></div>
+      <div class="win-btn close"><svg viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    </div>
+  </header>
 
-    <div class="filterbar">
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input placeholder="搜索模板名称、说明或分类">
+  <div class="shell">
+    <nav class="rail">
+      <div class="rail-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+        <span class="tip">模板库</span>
       </div>
-      <div class="chips">
-        <div class="chip on red-solid">全部</div>
-        <div class="chip">基础</div>
-        <div class="chip">诗词</div>
-        <div class="chip">蒙学</div>
-        <div class="chip">拼音</div>
-        <div class="chip">英文</div>
-        <div class="chip">自定义</div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="tip">新建字帖</span>
       </div>
-      <div class="count">17 个模板</div>
-    </div>
+      <div class="rail-spacer"></div>
+      <div class="rail-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg>
+        <span class="tip">日志</span>
+      </div>
+    </nav>
+
+    <main class="main">
+      <div class="page">
+        <div class="page-head">
+          <div class="page-title-wrap">
+            <div class="title-accent"></div>
+            <div>
+              <div class="page-title">模板库 <span class="en">TEMPLATE GALLERY</span></div>
+              <div class="page-sub">选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造</div>
+            </div>
+          </div>
+          <div class="head-actions">
+            <button class="btn-ghost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 012-2h4l2.2 2.5H19a2 2 0 012 2V17a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              打开模板目录
+            </button>
+            <button class="btn-ghost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+              刷新
+            </button>
+          </div>
+        </div>
+
+        <div class="filterbar">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input placeholder="搜索模板名称、说明或分类">
+          </div>
+          <div class="chips">
+            <div class="chip on red-solid">全部</div>
+            <div class="chip">基础</div>
+            <div class="chip">诗词</div>
+            <div class="chip">蒙学</div>
+            <div class="chip">拼音</div>
+            <div class="chip">英文</div>
+            <div class="chip">主题</div>
+            <div class="chip">自定义</div>
+          </div>
+          <div class="count">31 个模板</div>
+        </div>
+      </div>
+
+      <div class="deck">
+        <div class="grid">
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">基础</div>
+              <div class="sheet">
+                <div class="mini-title">大字练习</div>
+                <div class="mini-grid cols-2">
+                  <div class="mini-cell big">永</div><div class="mini-cell big trace">永</div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">大字独字帖 · 单字大格</div>
+              <div class="desc">超大格子，一个字一个格，毛笔与大字练习首选</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 40mm</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">基础</div>
+              <div class="sheet">
+                <div class="mini-title">生字临摹练习</div>
+                <div class="mini-grid">
+                  <div class="mini-cell tian">生</div><div class="mini-cell tian"></div><div class="mini-cell tian">字</div><div class="mini-cell tian"></div>
+                  <div class="mini-cell tian">临</div><div class="mini-cell tian"></div><div class="mini-cell tian">摹</div><div class="mini-cell tian"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">生字临摹 · 田字格</div>
+              <div class="desc">范字加空格照写，十字辅助定位，巩固笔画结构</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card demo-hover">
+            <div class="thumb">
+              <div class="tag">诗词</div>
+              <div class="sheet">
+                <div class="mini-title">静夜思</div>
+                <div class="mini-grid">
+                  <div class="mini-cell">床</div><div class="mini-cell trace">床</div><div class="mini-cell"></div><div class="mini-cell"></div>
+                  <div class="mini-cell">前</div><div class="mini-cell trace">前</div><div class="mini-cell"></div><div class="mini-cell"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">古诗描红 · 五言横排</div>
+              <div class="desc">诗词题头带朝代作者，描红加空格逐句练习</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">诗词</div>
+              <div class="sheet">
+                <div class="mini-title">江南 · 竖排</div>
+                <div class="mini-vertical">
+                  <div class="mini-col">
+                    <div class="mini-cell tian">江</div><div class="mini-cell tian">南</div><div class="mini-cell tian">可</div>
+                  </div>
+                  <div class="mini-col">
+                    <div class="mini-cell tian">采</div><div class="mini-cell tian">莲</div><div class="mini-cell tian"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">七言竖排 · 江南</div>
+              <div class="desc">从右到左传统帖式排布，还原古人书卷气象</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格 · 竖排</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">蒙学</div>
+              <div class="sheet">
+                <div class="mini-title">三字经</div>
+                <div class="mini-grid">
+                  <div class="mini-cell">人</div><div class="mini-cell trace">人</div><div class="mini-cell"></div><div class="mini-cell"></div>
+                  <div class="mini-cell">之</div><div class="mini-cell trace">之</div><div class="mini-cell"></div><div class="mini-cell"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">蒙学描红 · 三字经</div>
+              <div class="desc">人之初性本善，按词分组不拆行，幼小衔接友好</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">拼音</div>
+              <div class="sheet">
+                <div class="mini-title">看拼音写词</div>
+                <div class="mini-grid">
+                  <div class="mini-cell pinyin-four">chūn</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">fēng</div><div class="mini-cell pinyin-four"></div>
+                  <div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">yǔ</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">拼音词组 · 看拼音写词</div>
+              <div class="desc">拼音四线格加田字格组合，看拼音写词语</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>拼音四线格</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">英文</div>
+              <div class="sheet">
+                <div class="mini-title">Handwriting</div>
+                <div class="mini-grid">
+                  <div class="mini-cell pinyin-four">Aa</div><div class="mini-cell pinyin-four trace">Aa</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+                  <div class="mini-cell pinyin-four">Bb</div><div class="mini-cell pinyin-four trace">Bb</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">英文四线三格</div>
+              <div class="desc">标准英文四线格，字母描红加空行照写</div>
+              <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>四线三格</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+          <div class="card">
+            <div class="thumb">
+              <div class="tag">主题</div>
+              <div class="sheet">
+                <div class="mini-title">咏梅</div>
+                <div class="mini-grid">
+                  <div class="mini-cell huigong">梅</div><div class="mini-cell huigong trace">梅</div><div class="mini-cell huigong"></div><div class="mini-cell huigong"></div>
+                  <div class="mini-cell huigong hollow">雪</div><div class="mini-cell huigong"></div><div class="mini-cell huigong hollow">香</div><div class="mini-cell huigong"></div>
+                </div>
+              </div>
+            </div>
+            <div class="body">
+              <div class="name">咏梅 · 回宫格主题帖</div>
+              <div class="desc">梅兰竹菊主题字帖，内外双框约束字形重心</div>
+              <div class="meta"><span class="dot" style="background:var(--gold)"></span>自定义<span class="sep">·</span>回宫格</div>
+            </div>
+            <div class="open-hint">开始生成 →</div>
+          </div>
+
+        </div>
+      </div>
+
+      <footer class="gallery-status">
+        <span>31 个模板 · 基础 8 · 诗词 10 · 蒙学 2 · 拼音 4 · 英文 2 · 主题 4 · 自定义 1</span>
+        <div class="zoomer">
+          <span>缩放</span>
+          <input type="range" class="mini" min="0.5" max="1.5" value="1">
+          <span style="min-width:34px; text-align:center">100%</span>
+        </div>
+      </footer>
+    </main>
   </div>
 
-  <div class="deck">
-    <div class="grid">
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">基础</div>
-          <div class="sheet">
-            <div class="mini-title">大字练习</div>
-            <div class="mini-grid">
-              <div class="mini-cell">永</div><div class="mini-cell trace">永</div><div class="mini-cell"></div><div class="mini-cell"></div>
-              <div class="mini-cell">八</div><div class="mini-cell trace">八</div><div class="mini-cell"></div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">大字独字帖 · 单字大字</div>
-          <div class="desc">超大格子，一个字一个格，毛笔 / 大字练习首选</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 40mm</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">基础</div>
-          <div class="sheet">
-            <div class="mini-title">生字临摹练习</div>
-            <div class="mini-grid">
-              <div class="mini-cell">生</div><div class="mini-cell"></div><div class="mini-cell">字</div><div class="mini-cell"></div>
-              <div class="mini-cell">临</div><div class="mini-cell"></div><div class="mini-cell">摹</div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">生字临摹 · 田字格</div>
-          <div class="desc">范字 + 空格照写，十字辅助定位，巩固笔画</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card demo-hover">
-        <div class="thumb">
-          <div class="tag">诗词</div>
-          <div class="sheet">
-            <div class="mini-title">静夜思</div>
-            <div class="mini-grid">
-              <div class="mini-cell">床</div><div class="mini-cell trace">床</div><div class="mini-cell"></div><div class="mini-cell"></div>
-              <div class="mini-cell">前</div><div class="mini-cell trace">前</div><div class="mini-cell"></div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">古诗描红 · 五言竖排</div>
-          <div class="desc">诗词题头带朝代作者，描红 + 空格逐句练习</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">蒙学</div>
-          <div class="sheet">
-            <div class="mini-title">三字经</div>
-            <div class="mini-grid">
-              <div class="mini-cell">人</div><div class="mini-cell trace">人</div><div class="mini-cell"></div><div class="mini-cell"></div>
-              <div class="mini-cell">之</div><div class="mini-cell trace">之</div><div class="mini-cell"></div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">蒙学描红 · 三字经</div>
-          <div class="desc">人之初性本善，按词分组不拆行，幼小衔接</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>米字格 · 描红</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">拼音</div>
-          <div class="sheet">
-            <div class="mini-title">看拼音写词</div>
-            <div class="mini-grid">
-              <div class="mini-cell pinyin-four">chūn</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">fēng</div><div class="mini-cell pinyin-four"></div>
-              <div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four">yǔ</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">拼音词组 · 看拼音写词</div>
-          <div class="desc">拼音四线格 + 田字格组合，看拼音写词语</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>拼音四线格</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">英文</div>
-          <div class="sheet">
-            <div class="mini-title">Handwriting</div>
-            <div class="mini-grid">
-              <div class="mini-cell pinyin-four">Aa</div><div class="mini-cell pinyin-four trace">Aa</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
-              <div class="mini-cell pinyin-four">Bb</div><div class="mini-cell pinyin-four trace">Bb</div><div class="mini-cell pinyin-four"></div><div class="mini-cell pinyin-four"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">英文四线三格</div>
-          <div class="desc">标准英文四线格，字母描红 + 空行照写</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>四线三格</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">基础</div>
-          <div class="sheet">
-            <div class="mini-title">大字双钩填墨</div>
-            <div class="mini-grid">
-              <div class="mini-cell hollow">虎</div><div class="mini-cell"></div><div class="mini-cell hollow">龙</div><div class="mini-cell"></div>
-              <div class="mini-cell hollow">福</div><div class="mini-cell"></div><div class="mini-cell hollow">寿</div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">大字双钩帖 · 红格纸</div>
-          <div class="desc">空心双钩轮廓供填墨，红格纸底纹，毛笔摹写</div>
-          <div class="meta"><span class="dot"></span>内置<span class="sep">·</span>田字格 40mm</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-      <div class="card">
-        <div class="thumb">
-          <div class="tag">自定义</div>
-          <div class="sheet">
-            <div class="mini-title">我的练字帖</div>
-            <div class="mini-grid">
-              <div class="mini-cell">天</div><div class="mini-cell"></div><div class="mini-cell">地</div><div class="mini-cell"></div>
-              <div class="mini-cell">玄</div><div class="mini-cell"></div><div class="mini-cell">黄</div><div class="mini-cell"></div>
-            </div>
-          </div>
-        </div>
-        <div class="body">
-          <div class="name">回宫格练习（我的）</div>
-          <div class="desc">内外双框约束字形重心，结构进阶练习</div>
-          <div class="meta"><span class="dot" style="background:#C9A24B"></span>自定义<span class="sep">·</span>回宫格</div>
-        </div>
-        <div class="open-hint">开始生成 →</div>
-      </div>
-
-    </div>
-  </div>
-</main>
-
+</div>
 </body>
 </html>

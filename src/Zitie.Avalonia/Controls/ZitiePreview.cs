@@ -47,6 +47,16 @@ public class ZitiePreview : TemplatedControl
         AvaloniaProperty.Register<ZitiePreview, VerticalAlignment>(nameof(VerticalContentAlignment),
             VerticalAlignment.Top);
 
+    public static readonly StyledProperty<ScrollBarVisibility> HorizontalScrollBarVisibilityProperty =
+        AvaloniaProperty.Register<ZitiePreview, ScrollBarVisibility>(
+            nameof(HorizontalScrollBarVisibility),
+            ScrollBarVisibility.Auto);
+
+    public static readonly StyledProperty<ScrollBarVisibility> VerticalScrollBarVisibilityProperty =
+        AvaloniaProperty.Register<ZitiePreview, ScrollBarVisibility>(
+            nameof(VerticalScrollBarVisibility),
+            ScrollBarVisibility.Auto);
+
     public static readonly DirectProperty<ZitiePreview, IImage?> PageImageProperty =
         AvaloniaProperty.RegisterDirect<ZitiePreview, IImage?>(nameof(PageImage), preview => preview.PageImage);
 
@@ -100,6 +110,18 @@ public class ZitiePreview : TemplatedControl
     {
         get => GetValue(VerticalContentAlignmentProperty);
         set => SetValue(VerticalContentAlignmentProperty, value);
+    }
+
+    public ScrollBarVisibility HorizontalScrollBarVisibility
+    {
+        get => GetValue(HorizontalScrollBarVisibilityProperty);
+        set => SetValue(HorizontalScrollBarVisibilityProperty, value);
+    }
+
+    public ScrollBarVisibility VerticalScrollBarVisibility
+    {
+        get => GetValue(VerticalScrollBarVisibilityProperty);
+        set => SetValue(VerticalScrollBarVisibilityProperty, value);
     }
 
     public IImage? PageImage

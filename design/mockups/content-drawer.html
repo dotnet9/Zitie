@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>字帖 · 编辑页原型图</title>
+<title>字帖 · 内容资源抽屉原型图</title>
 <style>
 @font-face {
   font-family: "LXGW WenKai";
@@ -106,7 +106,7 @@ input[type=range].mini::-webkit-slider-thumb {
 .rail-spacer { flex: 1; }
 
 /* ============ 编辑器骨架 ============ */
-.editor { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.editor { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
 
 .toolbar {
   height: 50px; flex: none; background: var(--panel);
@@ -120,7 +120,6 @@ input[type=range].mini::-webkit-slider-thumb {
   color: var(--ink-2); cursor: pointer;
 }
 .icon-btn svg { width: 17px; height: 17px; }
-.icon-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-tint); }
 .tb-sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
 .tpl-switch {
   display: inline-flex; align-items: center; gap: 8px;
@@ -132,7 +131,6 @@ input[type=range].mini::-webkit-slider-thumb {
 .tpl-switch .val { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; }
 .tpl-switch .val .chev { color: var(--ink-3); display: flex; }
 .tpl-switch .val .chev svg { width: 12px; height: 12px; }
-.tpl-switch:hover { border-color: var(--red); background: var(--red-tint); }
 .tb-btn {
   display: inline-flex; align-items: center; gap: 7px;
   height: 34px; padding: 0 13px; border-radius: 10px;
@@ -140,31 +138,25 @@ input[type=range].mini::-webkit-slider-thumb {
   color: var(--ink-2); font-size: 13px; font-family: inherit; cursor: pointer;
 }
 .tb-btn svg { width: 16px; height: 16px; }
-.tb-btn:hover { background: rgba(176,74,63,.07); color: var(--red); }
 .tb-btn.primary {
   background: var(--red); color: #FBF6EF;
   box-shadow: 0 3px 10px rgba(176,74,63,.35);
   padding: 0 16px;
 }
-.tb-btn.primary:hover { background: var(--red-hover); }
 .tb-btn.outline { border: 1px solid var(--border-strong); background: var(--panel); }
 .tb-spacer { flex: 1; }
 .dirty { font-size: 12px; color: var(--ink-3); margin-right: 6px; }
 .dirty b { color: var(--red); font-weight: 600; }
 
-/* ============ 主体 ============ */
+/* ============ 主体（被遮罩压暗） ============ */
 .body { flex: 1; display: flex; min-height: 0; }
 
-/* 左侧设置面板 */
 .panel {
   width: 316px; flex: none; background: var(--panel);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column; min-height: 0;
 }
-.tabs {
-  display: flex; padding: 10px 12px 0; gap: 2px;
-  border-bottom: 1px solid var(--border);
-}
+.tabs { display: flex; padding: 10px 12px 0; gap: 2px; border-bottom: 1px solid var(--border); }
 .tab {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 7px 0 9px; border-radius: 9px 9px 0 0;
@@ -172,7 +164,6 @@ input[type=range].mini::-webkit-slider-thumb {
   border-bottom: 2px solid transparent; margin-bottom: -1px;
 }
 .tab svg { width: 18px; height: 18px; }
-.tab:hover { color: var(--ink-2); }
 .tab.on { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
 
 .tab-body { flex: 1; overflow: hidden; padding: 16px 16px 12px; }
@@ -183,26 +174,17 @@ input[type=range].mini::-webkit-slider-thumb {
   border-radius: 999px; padding: 1px 8px; margin-left: auto;
 }
 .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
 .input, .select, .textarea {
   width: 100%; border: 1px solid var(--border-strong); border-radius: 9px;
   background: #FDFCF9; color: var(--ink);
   font-family: inherit; font-size: 13px; padding: 8px 11px; outline: none;
-}
-.input::placeholder, .textarea::placeholder { color: var(--ink-3); }
-.input:focus, .select:focus, .textarea:focus {
-  border-color: var(--red); box-shadow: 0 0 0 3px rgba(176,74,63,.12); background: #fff;
 }
 .textarea { min-height: 108px; resize: none; line-height: 1.7; }
 .select {
   appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A29886' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 11px center; cursor: pointer;
 }
-.select:disabled { color: var(--ink-3); background-color: var(--paper); }
-.check {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12.5px; color: var(--ink-2); cursor: pointer; user-select: none;
-}
+.check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
 .checkbox {
   width: 16px; height: 16px; border-radius: 5px;
   border: 1.5px solid var(--border-strong); background: #fff;
@@ -222,10 +204,8 @@ input[type=range].mini::-webkit-slider-thumb {
   display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
 }
 .library-btn svg { width: 16px; height: 16px; }
-.library-btn:hover { background: #F3DED7; }
 .library-hint { font-size: 11px; color: var(--ink-3); margin-top: 6px; }
 
-/* 中部预览舞台 */
 .stage { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .desk {
   flex: 1;
@@ -239,11 +219,7 @@ input[type=range].mini::-webkit-slider-thumb {
   content: "字 帖 工 坊"; position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
   font-size: 12px; letter-spacing: 10px; color: rgba(162,152,134,.55); user-select: none;
 }
-.sheet {
-  background: #FFFEFA; border-radius: 3px;
-  box-shadow: var(--shadow-sheet);
-  padding: 26px 30px 22px;
-}
+.sheet { background: #FFFEFA; border-radius: 3px; box-shadow: var(--shadow-sheet); padding: 26px 30px 22px; }
 .sheet-title { text-align: center; font-size: 21px; font-weight: 700; letter-spacing: 6px; }
 .sheet-author { text-align: center; font-size: 11.5px; color: var(--ink-2); margin-top: 4px; letter-spacing: 2px; }
 .sheet-line {
@@ -265,7 +241,6 @@ input[type=range].mini::-webkit-slider-thumb {
 }
 .gcell.trace { color: var(--trace); }
 
-/* 底部舞台栏 */
 .stagebar {
   height: 46px; flex: none;
   display: flex; align-items: center; justify-content: space-between;
@@ -281,13 +256,10 @@ input[type=range].mini::-webkit-slider-thumb {
   color: var(--ink-2); display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 .pg-btn svg { width: 14px; height: 14px; }
-.pg-btn:hover { background: var(--red-tint); color: var(--red); }
-.pg-btn:disabled { color: var(--border-strong); cursor: default; }
 .pg-text { font-size: 12.5px; color: var(--ink-2); min-width: 52px; text-align: center; }
 .pg-text b { color: var(--ink); font-weight: 600; }
 .zoom-text { font-size: 12px; color: var(--ink-2); min-width: 44px; text-align: center; }
 
-/* 状态栏 */
 .status {
   height: 28px; flex: none;
   background: var(--rail-bg); border-top: 1px solid var(--border);
@@ -297,6 +269,114 @@ input[type=range].mini::-webkit-slider-thumb {
 .status .left { display: flex; align-items: center; gap: 8px; }
 .status .ok { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(123,160,91,.18); }
 .status .path { font-family: Consolas, monospace; font-size: 11px; }
+
+/* ============ 内容资源抽屉（遮罩层） ============ */
+.overlay {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; justify-content: flex-end;
+}
+.overlay .dim { position: absolute; inset: 0; background: rgba(43,39,34,.42); }
+.drawer {
+  position: relative; width: 462px; height: 100%;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: -12px 0 36px rgba(43,39,34,.22);
+  display: flex; flex-direction: column;
+  animation: slide-in .22s ease;
+}
+@keyframes slide-in { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.drawer-head { padding: 16px 18px 0; }
+.drawer-head-row { display: flex; align-items: flex-start; gap: 10px; }
+.drawer-title { font-size: 18px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: baseline; gap: 10px; }
+.drawer-title .en { font-size: 10px; color: var(--ink-3); letter-spacing: 2px; font-weight: 400; }
+.drawer-sub { font-size: 11.5px; color: var(--ink-2); margin-top: 5px; }
+.drawer-sub mark { background: var(--red-tint); color: var(--red); padding: 0 3px; border-radius: 3px; }
+.drawer-close {
+  margin-left: auto; width: 30px; height: 30px; border-radius: 9px; flex: none;
+  border: 1px solid var(--border-strong); background: var(--panel);
+  display: flex; align-items: center; justify-content: center; color: var(--ink-2); cursor: pointer;
+}
+.drawer-close svg { width: 14px; height: 14px; }
+.drawer-close:hover { border-color: var(--red); color: var(--red); background: var(--red-tint); }
+
+.drawer-search { display: flex; gap: 8px; margin-top: 14px; }
+.search {
+  flex: 1; height: 36px; border-radius: 10px;
+  border: 1px solid var(--red); background: #fff;
+  display: flex; align-items: center; gap: 9px; padding: 0 12px;
+  box-shadow: 0 0 0 3px rgba(176,74,63,.12);
+}
+.search svg { width: 15px; height: 15px; color: var(--ink-3); flex: none; }
+.search input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 13px; color: var(--ink);
+}
+.btn-reset {
+  height: 36px; padding: 0 14px; border-radius: 10px; flex: none;
+  border: 1px solid var(--border-strong); background: var(--panel);
+  color: var(--ink-2); font-size: 12.5px; font-family: inherit; cursor: pointer;
+}
+.btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+.drawer-filters {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 12px;
+}
+.drawer-filters .select.full { grid-column: 1 / -1; }
+
+.recent { padding: 14px 18px 0; }
+.recent-label { font-size: 11px; color: var(--ink-3); letter-spacing: 1px; margin-bottom: 8px; }
+.recent-chips { display: flex; gap: 8px; }
+.recent-chip {
+  border: 1px solid var(--border-strong); border-radius: 10px;
+  background: #FDFCF9; padding: 6px 12px; cursor: pointer; text-align: left;
+}
+.recent-chip:hover { border-color: var(--red); background: var(--red-tint); }
+.recent-chip .t { font-size: 12.5px; color: var(--ink); }
+.recent-chip .p { font-size: 10px; color: var(--ink-3); margin-top: 2px; }
+
+.results { flex: 1; overflow: hidden; padding: 14px 18px 0; display: flex; flex-direction: column; min-height: 0; }
+.results-label {
+  font-size: 11px; color: var(--ink-3); letter-spacing: 1px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+}
+.result-list { flex: 1; overflow: hidden; }
+.result {
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  border: 1px solid transparent; border-left: 3px solid transparent;
+  margin-top: 6px;
+}
+.result:hover { background: #FBF8F1; }
+.result.on {
+  background: var(--red-tint);
+  border-color: var(--red-line); border-left-color: var(--red);
+}
+.result .r-title { font-size: 14px; font-weight: 600; }
+.result .r-path { font-size: 10.5px; color: var(--ink-3); margin-top: 3px; }
+.result .r-excerpt { font-size: 11.5px; color: var(--ink-2); margin-top: 4px; line-height: 1.6; }
+.result mark, .drawer-sub mark {
+  background: var(--red-tint); color: var(--red);
+  padding: 0 3px; border-radius: 3px; font-weight: 600;
+}
+
+.drawer-foot {
+  flex: none; padding: 12px 18px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(to top, #FCFAF4, #fff);
+}
+.apply-btn {
+  flex: 1; height: 38px; border-radius: 10px; border: none;
+  background: var(--red); color: #FBF6EF;
+  font-family: inherit; font-size: 13.5px; font-weight: 600; letter-spacing: 2px;
+  box-shadow: 0 3px 10px rgba(176,74,63,.35); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.apply-btn svg { width: 16px; height: 16px; }
+.apply-btn:hover { background: var(--red-hover); }
+.foot-hint { font-size: 11px; color: var(--ink-3); }
 </style>
 </head>
 <body>
@@ -425,7 +505,7 @@ input[type=range].mini::-webkit-slider-thumb {
             <div class="fgroup">
               <div class="flabel">内容资源 <span class="mini-badge">语文 · 人教版</span></div>
               <button class="library-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/><path d="M8 7h7M8 11h7"/><path d="M12 2v20" opacity="0"/><path d="M19 17H6"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 012-2h13v18H6a2 2 0 01-2-2z"/><path d="M8 7h7M8 11h7"/><path d="M19 17H6"/></svg>
                 打开内容资源
               </button>
               <div class="library-hint">覆盖小学到高中课文、古诗与拓展文本</div>
@@ -509,6 +589,92 @@ input[type=range].mini::-webkit-slider-thumb {
         </div>
         <span class="path">E:\Documents\字帖\静夜思-描红.zitie.json *</span>
       </footer>
+
+      <!-- ============ 内容资源抽屉 ============ -->
+      <div class="overlay">
+        <div class="dim"></div>
+        <aside class="drawer">
+          <div class="drawer-head">
+            <div class="drawer-head-row">
+              <div>
+                <div class="drawer-title">内容资源 <span class="en">CONTENT LIBRARY</span></div>
+                <div class="drawer-sub">语文 · 人教版 · 三年级上 · 第一单元 · 关键词「<mark>月</mark>」 · 命中 4 篇</div>
+              </div>
+              <button class="drawer-close" title="关闭">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+            </div>
+
+            <div class="drawer-search">
+              <div class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input value="月">
+              </div>
+              <button class="btn-reset">重置</button>
+            </div>
+
+            <div class="drawer-filters">
+              <div class="select">学科：语文</div>
+              <div class="select">版本：人教版</div>
+              <div class="select">年级：三年级</div>
+              <div class="select">学期：上学期</div>
+              <div class="select full">单元：第一单元</div>
+            </div>
+          </div>
+
+          <div class="recent">
+            <div class="recent-label">最 近 使 用</div>
+            <div class="recent-chips">
+              <div class="recent-chip">
+                <div class="t">静夜思</div>
+                <div class="p">语文 · 三年级上</div>
+              </div>
+              <div class="recent-chip">
+                <div class="t">望庐山瀑布</div>
+                <div class="p">语文 · 二年级下</div>
+              </div>
+              <div class="recent-chip">
+                <div class="t">春晓</div>
+                <div class="p">语文 · 一年级下</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="results">
+            <div class="results-label"><span>搜 索 结 果</span><span>4 / 128 篇</span></div>
+            <div class="result-list">
+              <div class="result on">
+                <div class="r-title">静夜思 · 古诗三首</div>
+                <div class="r-path">语文 / 人教版 / 三年级上 / 第一单元 / 课文 1</div>
+                <div class="r-excerpt">床前明<mark>月</mark>光，疑是地上霜。举头望明<mark>月</mark>，低头思故乡。</div>
+              </div>
+              <div class="result">
+                <div class="r-title">古朗<mark>月</mark>行（节选）</div>
+                <div class="r-path">语文 / 人教版 / 一年级下 / 第六单元 / 课文 8</div>
+                <div class="r-excerpt">小时不识<mark>月</mark>，呼作白玉盘。又疑瑶台镜，飞在青云端。</div>
+              </div>
+              <div class="result">
+                <div class="r-title"><mark>月</mark>迹 · 阅读链接</div>
+                <div class="r-path">语文 / 人教版 / 五年级上 / 第七单元 / 拓展阅读</div>
+                <div class="r-excerpt">我们看时，那竹窗帘儿里果然有了个<mark>月</mark>亮……</div>
+              </div>
+              <div class="result">
+                <div class="r-title">暮江吟 · 古诗三首</div>
+                <div class="r-path">语文 / 人教版 / 四年级上 / 第三单元 / 课文 9</div>
+                <div class="r-excerpt">一道残阳铺水中，半江瑟瑟半江红。可怜九月初三夜，露似真珠<mark>月</mark>似弓。</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="drawer-foot">
+            <button class="apply-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              应用所选内容
+            </button>
+            <span class="foot-hint">应用到练习文本</span>
+          </div>
+        </aside>
+      </div>
 
     </div>
   </div>

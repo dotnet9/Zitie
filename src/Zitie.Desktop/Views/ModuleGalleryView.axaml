@@ -11,13 +11,16 @@
     <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource ZitiePaperBrush}">
         <StackPanel Grid.Row="0" Margin="26,22,26,0" Spacing="0">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-                <StackPanel Spacing="5">
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                        <TextBlock Text="模板库" Classes="page-title" />
-                        <TextBlock Text="TEMPLATE GALLERY" Classes="page-title-en" />
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                    <Border Classes="page-title-accent" />
+                    <StackPanel Spacing="5">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                            <TextBlock Text="模板库" Classes="page-title" />
+                            <TextBlock Text="TEMPLATE GALLERY" Classes="page-title-en" />
+                        </StackPanel>
+                        <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造"
+                                   Classes="page-subtitle" />
                     </StackPanel>
-                    <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造"
-                               Classes="page-subtitle" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
                     <Button Content="打开模板目录"
@@ -31,7 +34,7 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Margin="0,18,0,0" ColumnDefinitions="300,*" ColumnSpacing="14">
+            <Grid Margin="0,20,0,0" ColumnDefinitions="300,*,Auto" ColumnSpacing="14">
                 <TextBox Grid.Column="0"
                          Classes="gallery-search"
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
@@ -60,10 +63,14 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                           Classes="gallery-count"
+                           VerticalAlignment="Center" />
             </Grid>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" Margin="26,16,26,0" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" Margin="26,18,26,0" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <TextBlock Text="未找到匹配的模板"
                            Classes="module-empty"
@@ -91,6 +98,8 @@
                                                                Pages="{Binding PreviewPages}"
                                                                PageIndex="0"
                                                                Zoom="{Binding PreviewZoom}"
+                                                               HorizontalScrollBarVisibility="Hidden"
+                                                               VerticalScrollBarVisibility="Hidden"
                                                                HorizontalContentAlignment="Center"
                                                                VerticalContentAlignment="Center"
                                                                IsHitTestVisible="False" />
@@ -129,7 +138,7 @@
 
         <Border Grid.Row="2" Classes="gallery-status-bar">
             <Grid ColumnDefinitions="Auto,*,Auto">
-                <TextBlock Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                <TextBlock Text="{Binding CatalogSummary}"
                            Classes="gallery-count"
                            VerticalAlignment="Center" />
                 <Grid Grid.Column="2"

@@ -5,8 +5,8 @@
     </Style>
 
     <Style Selector="Border.window-seal">
-        <Setter Property="Width" Value="25" />
-        <Setter Property="Height" Value="25" />
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
         <Setter Property="CornerRadius" Value="7" />
         <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
@@ -23,6 +23,7 @@
     <Style Selector="TextBlock.window-center-title">
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
+        <Setter Property="LetterSpacing" Value="4" />
     </Style>
     <Style Selector="TextBlock.device-label">
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
@@ -30,7 +31,7 @@
     </Style>
     <Style Selector="Border.device-divider">
         <Setter Property="Width" Value="1" />
-        <Setter Property="Height" Value="16" />
+        <Setter Property="Height" Value="14" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Background" Value="{DynamicResource ZitieBorderBrush}" />
     </Style>

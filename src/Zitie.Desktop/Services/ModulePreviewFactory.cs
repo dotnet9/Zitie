@@ -86,19 +86,23 @@ public static class ModulePreviewFactory
         PracticeMode mode,
         bool vertical)
     {
-        if (grid is GridKind.English or GridKind.Pinyin) return "拼音 / 英文";
-        if (!string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork))
-        {
-            if (module.Id.Contains("couplet", StringComparison.OrdinalIgnoreCase)) return "节庆模板";
-            if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "古诗背景";
-            return "主题背景";
-        }
+        if (!IsBuiltIn(module)) return "自定义";
+        if (grid == GridKind.English) return "英文";
+        if (grid == GridKind.Pinyin) return "拼音";
+        if (module.Id.Contains("mengxue", StringComparison.OrdinalIgnoreCase)) return "蒙学";
+        if (!string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork)) return "主题";
+        if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "诗词";
+        return "基础";
+    }
 
-        if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "诗词排版";
-        var hollowGlyph = module.Defaults.HollowGlyph == true;
-        if (hollowGlyph || module.Id.Contains("hollow", StringComparison.OrdinalIgnoreCase))
-            return "双钩临摹";
-        return mode == PracticeMode.Trace ? "描红练习" : "基础临摹";
+    private static bool IsBuiltIn(ModuleDefinition module)
+    {
+        if (string.IsNullOrWhiteSpace(module.SourcePath)) return true;
+
+        var sourcePath = Path.GetFullPath(module.SourcePath);
+        var builtInDirectory = Path.GetFullPath(ResourcePaths.Modules)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        return sourcePath.StartsWith(builtInDirectory, StringComparison.OrdinalIgnoreCase);
     }
 
     private static GridKind ParseGrid(string? value)

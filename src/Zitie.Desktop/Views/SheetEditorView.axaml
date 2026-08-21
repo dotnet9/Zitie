@@ -25,15 +25,15 @@
                                         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
-                <StackPanel Grid.Column="2"
-                            Classes="template-switcher"
-                            Orientation="Horizontal"
-                            Spacing="6"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="模板"
-                               Classes="toolbar-label"
-                               VerticalAlignment="Center" />
+                <Border Grid.Column="2"
+                        Classes="template-switcher-shell"
+                        VerticalAlignment="Center">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                        <TextBlock Text="模板"
+                                   Classes="toolbar-label"
+                                   VerticalAlignment="Center" />
                     <ComboBox ItemsSource="{Binding TemplateChoices}"
+                              Grid.Column="1"
                               SelectedItem="{Binding SelectedModule}"
                               Classes="template-switcher"
                               AutomationProperties.Name="切换字帖模板"
@@ -44,7 +44,8 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                </StackPanel>
+                    </Grid>
+                </Border>
                 <Border Grid.Column="3" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
                 <controls:ZitieToolButton Grid.Column="4"
                                           Content="打开"
@@ -99,7 +100,7 @@
         </Border>
 
         <Border DockPanel.Dock="Bottom" Classes="editor-status-bar">
-            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                 <Border Classes="status-dot" VerticalAlignment="Center" />
                 <TextBlock Grid.Column="1"
                            Text="{Binding StatusMessage}"
@@ -107,34 +108,10 @@
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
                 <TextBlock Grid.Column="2"
-                           Text="{Binding DocumentPath, StringFormat={}文档：{0}}"
+                           Text="{Binding DocumentDisplayPath}"
                            Classes="status-path"
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
-                <Grid Grid.Column="3"
-                      ColumnDefinitions="Auto,Auto,Auto"
-                      ColumnSpacing="8"
-                      VerticalAlignment="Center">
-                    <TextBlock Text="缩放"
-                               Classes="status-text"
-                               VerticalAlignment="Center" />
-                    <Slider Grid.Column="1"
-                            Width="{StaticResource ZitieStageZoomSliderWidth}"
-                            Classes="editor-slider"
-                            AutomationProperties.Name="画布缩放"
-                            ToolTip.Tip="缩放字帖画布"
-                            Minimum="0.3"
-                            Maximum="2"
-                            TickFrequency="0.1"
-                            IsSnapToTickEnabled="True"
-                            Value="{Binding Zoom}" />
-                    <TextBlock Grid.Column="2"
-                               MinWidth="{StaticResource ZitieStageZoomValueWidth}"
-                               Text="{Binding Zoom, StringFormat={}{0:P0}}"
-                               TextAlignment="Center"
-                               Classes="status-text"
-                               VerticalAlignment="Center" />
-                </Grid>
             </Grid>
         </Border>
 
@@ -181,12 +158,35 @@
                                     <StackPanel>
                                         <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
                                             <TextBlock Text="内容资源" Classes="editor-label" Margin="0" />
-                                            <TextBlock Grid.Column="1" Text="{Binding ContentSelection.ResultSummary}" Classes="muted-text" />
+                                            <Border Grid.Column="1" Classes="field-badge" VerticalAlignment="Bottom">
+                                                <TextBlock Text="{Binding ContentSelection.SourceSummary}" />
+                                            </Border>
                                         </Grid>
-                                        <Button Content="打开内容资源"
-                                                Classes="content-picker-button"
+                                        <Button Classes="content-picker-button"
                                                 Command="{Binding OpenContentPickerCommand}"
-                                                AutomationProperties.Name="打开内容资源" />
+                                                AutomationProperties.Name="打开内容资源">
+                                            <Grid>
+                                                <Rectangle Stroke="{DynamicResource ZitieAccentDisabledBrush}"
+                                                           StrokeThickness="1"
+                                                           StrokeDashArray="4,3"
+                                                           RadiusX="10"
+                                                           RadiusY="10"
+                                                           IsHitTestVisible="False" />
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center">
+                                                    <controls:ZitieIcon Data="M4,19 V5 A2,2 0 0 1 6,3 H19 V21 H6 A2,2 0 0 1 4,19 Z M8,7 H15 M8,11 H15 M19,17 H6"
+                                                                        IconSize="16"
+                                                                        StrokeThickness="1.8"
+                                                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                                    <TextBlock Text="打开内容资源" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                        <TextBlock Text="覆盖小学到高中课文、古诗与拓展文本"
+                                                   Classes="muted-text"
+                                                   Margin="0,6,0,0" />
                                     </StackPanel>
                                 </Border>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
@@ -442,7 +442,7 @@
                     </Grid>
                 </Border>
                 <Border Grid.Row="1" Classes="stage-bar">
-                    <Grid ColumnDefinitions="Auto,*">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
                         <controls:ZitieStepper ValueText="{Binding PageIndicator}"
                                                AutomationProperties.Name="分页控制"
                                                ValueWidth="60"
@@ -452,6 +452,16 @@
                                                IncreaseCommand="{Binding NextPageCommand}"
                                                DecreaseToolTip="上一页"
                                                IncreaseToolTip="下一页" />
+                        <controls:ZitieStepper Grid.Column="2"
+                                               ValueText="{Binding Zoom, StringFormat={}{0:P0}}"
+                                               AutomationProperties.Name="画布缩放"
+                                               ValueWidth="44"
+                                               DecreaseIconData="M5 12h14"
+                                               IncreaseIconData="M12 5v14 M5 12h14"
+                                               DecreaseCommand="{Binding ZoomOutCommand}"
+                                               IncreaseCommand="{Binding ZoomInCommand}"
+                                               DecreaseToolTip="缩小画布"
+                                               IncreaseToolTip="放大画布" />
                     </Grid>
                 </Border>
             </Grid>
@@ -460,18 +470,25 @@
 
     <Grid IsVisible="{Binding IsContentPickerOpen}"
           ZIndex="20">
-        <Border Background="{DynamicResource ZitieOverlayBrush}"
-                Opacity="0.55" />
+        <Border Background="{DynamicResource ZitieOverlayBrush}" />
         <Border Classes="content-drawer"
                 HorizontalAlignment="Right">
-            <Grid RowDefinitions="Auto,Auto,Auto,*">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
                 <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
-                    <StackPanel Spacing="2">
-                        <TextBlock Text="内容资源" Classes="content-drawer-title" />
-                        <TextBlock Text="{Binding ContentSelection.ResultSummary}" Classes="muted-text" />
+                    <StackPanel Spacing="5">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="内容资源" Classes="content-drawer-title" />
+                            <TextBlock Text="CONTENT LIBRARY"
+                                       Classes="content-drawer-title-en"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,2" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding ContentSelection.FilterSummary}"
+                                   Classes="content-drawer-summary"
+                                   TextWrapping="Wrap" />
                     </StackPanel>
                     <Button Grid.Column="1"
-                            Classes="editor-icon-button"
+                            Classes="content-drawer-close"
                             Command="{Binding CloseContentPickerCommand}"
                             AutomationProperties.Name="关闭内容资源"
                             ToolTip.Tip="关闭">
@@ -484,7 +501,7 @@
 
                 <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <TextBox Text="{Binding ContentSelection.SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="editor-input"
+                             Classes="editor-input content-search"
                              AutomationProperties.Name="快速搜索内容"
                              PlaceholderText="搜索标题、年级、单元、作者或正文">
                         <TextBox.InnerLeftContent>
@@ -502,37 +519,74 @@
                             AutomationProperties.Name="重置内容筛选" />
                 </Grid>
 
-                <StackPanel Grid.Row="2" Margin="0,12,0,12" Spacing="10">
-                    <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="8">
-                        <ComboBox Grid.Column="0"
+                <Grid Grid.Row="2"
+                      RowDefinitions="Auto,Auto,Auto"
+                      ColumnDefinitions="*,*"
+                      RowSpacing="8"
+                      ColumnSpacing="8"
+                      Margin="0,12,0,0">
+                        <ComboBox Grid.Row="0" Grid.Column="0"
                                   ItemsSource="{Binding ContentSelection.Subjects}"
                                   SelectedItem="{Binding ContentSelection.SelectedSubject}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容学科" />
-                        <ComboBox Grid.Column="1"
+                                  AutomationProperties.Name="内容学科">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding ., StringFormat=学科：{0}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox Grid.Row="0" Grid.Column="1"
                                   ItemsSource="{Binding ContentSelection.Editions}"
                                   SelectedItem="{Binding ContentSelection.SelectedEdition}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="教材版本" />
-                        <ComboBox Grid.Column="2"
+                                  AutomationProperties.Name="教材版本">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding ., StringFormat=版本：{0}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox Grid.Row="1" Grid.Column="0"
                                   ItemsSource="{Binding ContentSelection.Grades}"
                                   SelectedItem="{Binding ContentSelection.SelectedGrade}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容年级" />
-                        <ComboBox Grid.Column="3"
+                                  AutomationProperties.Name="内容年级">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding ., StringFormat=年级：{0}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox Grid.Row="1" Grid.Column="1"
                                   ItemsSource="{Binding ContentSelection.Semesters}"
                                   SelectedItem="{Binding ContentSelection.SelectedSemester}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容学期" />
-                        <ComboBox Grid.Column="4"
+                                  AutomationProperties.Name="内容学期">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding ., StringFormat=学期：{0}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox Grid.Row="2" Grid.ColumnSpan="2"
                                   ItemsSource="{Binding ContentSelection.Units}"
                                   SelectedItem="{Binding ContentSelection.SelectedUnit}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容单元" />
-                    </Grid>
+                                  AutomationProperties.Name="内容单元">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding ., StringFormat=单元：{0}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                </Grid>
 
-                    <StackPanel IsVisible="{Binding ContentSelection.HasRecentItems}" Spacing="6">
-                        <TextBlock Text="最近使用" Classes="editor-label" Margin="0" />
+                    <StackPanel Grid.Row="3"
+                                IsVisible="{Binding ContentSelection.HasRecentItems}"
+                                Spacing="8"
+                                Margin="0,14,0,0">
+                        <TextBlock Text="最 近 使 用" Classes="content-section-label" />
                         <ListBox ItemsSource="{Binding ContentSelection.RecentItems}"
                                  SelectedItem="{Binding ContentSelection.SelectedResult}"
                                  Classes="recent-content-list"
@@ -552,67 +606,96 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </StackPanel>
-                </StackPanel>
 
-                <ListBox Grid.Row="3"
-                         ItemsSource="{Binding ContentSelection.FilteredItems}"
-                         SelectedItem="{Binding ContentSelection.SelectedResult}"
-                         Classes="content-results"
-                         AutomationProperties.Name="内容搜索结果">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="models:TextContentSearchResult">
-                            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="5">
-                                <ItemsControl ItemsSource="{Binding TitleSegments}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="models:TextHighlightSegment">
-                                            <TextBlock Text="{Binding Text}"
-                                                       Classes="content-segment title"
-                                                       Classes.highlight="{Binding IsHighlight}" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <ItemsControl Grid.Row="1" ItemsSource="{Binding PathSegments}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="models:TextHighlightSegment">
-                                            <TextBlock Text="{Binding Text}"
-                                                       Classes="content-segment path"
-                                                       Classes.highlight="{Binding IsHighlight}" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <ItemsControl Grid.Row="2" ItemsSource="{Binding ExcerptSegments}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="models:TextHighlightSegment">
-                                            <TextBlock Text="{Binding Text}"
-                                                       Classes="content-segment excerpt"
-                                                       Classes.highlight="{Binding IsHighlight}" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <Grid Grid.Row="4" RowDefinitions="Auto,*" Margin="0,14,0,0" MinHeight="0">
+                    <Border Classes="content-results-header">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="搜 索 结 果" Classes="content-section-label" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding ContentSelection.ResultCountSummary}"
+                                       Classes="content-section-label" />
+                        </Grid>
+                    </Border>
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding ContentSelection.FilteredItems}"
+                             SelectedItem="{Binding ContentSelection.SelectedResult}"
+                             Classes="content-results"
+                             AutomationProperties.Name="内容搜索结果">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:TextContentSearchResult">
+                                <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                    <ItemsControl ItemsSource="{Binding TitleSegments}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TextHighlightSegment">
+                                                <TextBlock Text="{Binding Text}"
+                                                           Classes="content-segment title"
+                                                           Classes.highlight="{Binding IsHighlight}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding PathSegments}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TextHighlightSegment">
+                                                <TextBlock Text="{Binding Text}"
+                                                           Classes="content-segment path"
+                                                           Classes.highlight="{Binding IsHighlight}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <ItemsControl Grid.Row="2" ItemsSource="{Binding ExcerptSegments}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="models:TextHighlightSegment">
+                                                <TextBlock Text="{Binding Text}"
+                                                           Classes="content-segment excerpt"
+                                                           Classes.highlight="{Binding IsHighlight}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+
+                <Border Grid.Row="5" Classes="content-drawer-footer">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Button Classes="content-apply-button"
+                                Command="{Binding ApplySelectedContentCommand}"
+                                AutomationProperties.Name="应用所选内容">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <controls:ZitieIcon Data="M20,6 L9,17 L4,12"
+                                                    IconSize="16"
+                                                    StrokeThickness="2"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                <TextBlock Text="应用所选内容" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Grid.Column="1"
+                                   Text="应用到练习文本"
+                                   Classes="muted-text"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
     </Grid>

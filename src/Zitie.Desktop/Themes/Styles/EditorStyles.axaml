@@ -37,8 +37,14 @@
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
-    <Style Selector="StackPanel.template-switcher">
+    <Style Selector="Border.template-switcher-shell">
         <Setter Property="MaxWidth" Value="210" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="12,0,6,0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style Selector="TextBlock.toolbar-label">
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeSmall}" />
@@ -46,15 +52,16 @@
     </Style>
     <Style Selector="ComboBox.template-switcher">
         <Setter Property="Width" Value="156" />
-        <Setter Property="MinHeight" Value="34" />
-        <Setter Property="CornerRadius" Value="9" />
-        <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
     </Style>
     <Style Selector="ComboBox.template-switcher:focus">
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
     </Style>
 
     <Style Selector="Border.editor-settings-panel">
@@ -189,32 +196,74 @@
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
     </Style>
     <Style Selector="Button.content-picker-button">
-        <Setter Property="MinHeight" Value="36" />
-        <Setter Property="Padding" Value="12,0" />
-        <Setter Property="CornerRadius" Value="9" />
-        <Setter Property="HorizontalContentAlignment" Value="Center" />
-        <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="Button.content-picker-button:pointerover">
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentPressedBrush}" />
     </Style>
     <Style Selector="Border.content-drawer">
-        <Setter Property="Width" Value="680" />
-        <Setter Property="Padding" Value="18" />
+        <Setter Property="Width" Value="462" />
+        <Setter Property="Padding" Value="18,16,18,0" />
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
         <Setter Property="BorderThickness" Value="1,0,0,0" />
-        <Setter Property="BoxShadow" Value="{StaticResource ZitieCardShadow}" />
+        <Setter Property="BoxShadow" Value="{StaticResource ZitieDrawerShadow}" />
     </Style>
     <Style Selector="TextBlock.content-drawer-title">
-        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeLarge}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeMedium}" />
+        <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieInkBrush}" />
+        <Setter Property="LetterSpacing" Value="1" />
+    </Style>
+    <Style Selector="TextBlock.content-drawer-title-en">
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeMicro}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
+        <Setter Property="LetterSpacing" Value="2" />
+    </Style>
+    <Style Selector="TextBlock.content-drawer-summary">
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+    </Style>
+    <Style Selector="Button.content-drawer-close">
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkSecondaryBrush}" />
+    </Style>
+    <Style Selector="Button.content-drawer-close:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
+    <Style Selector="TextBox.content-search">
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
+    </Style>
+    <Style Selector="TextBlock.content-section-label">
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeTiny}" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieInkMutedBrush}" />
+        <Setter Property="LetterSpacing" Value="1" />
+    </Style>
+    <Style Selector="Border.content-results-header">
+        <Setter Property="Padding" Value="0,0,0,8" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
     <Style Selector="ListBox.content-results">
         <Setter Property="Background" Value="Transparent" />
@@ -222,16 +271,16 @@
         <Setter Property="Padding" Value="0" />
     </Style>
     <Style Selector="ListBox.content-results ListBoxItem">
-        <Setter Property="MinHeight" Value="88" />
-        <Setter Property="Padding" Value="12,10" />
-        <Setter Property="Margin" Value="0,0,0,8" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinHeight" Value="72" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Margin" Value="0,6,0,0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="3,1,1,1" />
     </Style>
     <Style Selector="ListBox.content-results ListBoxItem:pointerover">
-        <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentDisabledBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ZitieRailBrush}" />
     </Style>
     <Style Selector="ListBox.content-results ListBoxItem:selected">
         <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
@@ -244,7 +293,7 @@
         <Setter Property="MinHeight" Value="54" />
     </Style>
     <Style Selector="ListBox.recent-content-list ListBoxItem">
-        <Setter Property="Width" Value="150" />
+        <Setter Property="Width" Value="126" />
         <Setter Property="Padding" Value="8,6" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="{DynamicResource ZitieInputBrush}" />
@@ -282,5 +331,30 @@
     <Style Selector="TextBlock.content-segment.highlight">
         <Setter Property="Background" Value="{DynamicResource ZitieAccentTintBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ZitieAccentBrush}" />
+    </Style>
+    <Style Selector="Border.content-drawer-footer">
+        <Setter Property="Margin" Value="-18,12,-18,0" />
+        <Setter Property="Padding" Value="18,12,18,16" />
+        <Setter Property="Background" Value="{DynamicResource ZitieRailBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+    </Style>
+    <Style Selector="Button.content-apply-button">
+        <Setter Property="Height" Value="38" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+        <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="LetterSpacing" Value="2" />
+    </Style>
+    <Style Selector="Button.content-apply-button:pointerover">
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentHoverBrush}" />
+    </Style>
+    <Style Selector="Button.content-apply-button:disabled">
+        <Setter Property="Opacity" Value="0.45" />
     </Style>
 </Styles>

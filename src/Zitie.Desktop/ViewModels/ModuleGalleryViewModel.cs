@@ -7,6 +7,11 @@ namespace Zitie.Desktop.ViewModels;
 
 public class ModuleGalleryViewModel : BindableBase
 {
+    private static readonly string[] PreferredCategories =
+    [
+        "全部", "基础", "诗词", "蒙学", "拼音", "英文", "主题", "自定义"
+    ];
+
     public const double MinimumGalleryZoom = 0.8;
     public const double MaximumGalleryZoom = 1.6;
     public const double DefaultGalleryZoom = 1;
@@ -51,6 +56,22 @@ public class ModuleGalleryViewModel : BindableBase
     public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
     public int FilteredModuleCount => FilteredModules.Count;
+
+    public string CatalogSummary
+    {
+        get
+        {
+            var counts = Modules
+                .GroupBy(module => module.CategoryText, StringComparer.CurrentCultureIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.CurrentCultureIgnoreCase);
+            var parts = new List<string> { $"{Modules.Count} 个模板" };
+            parts.AddRange(PreferredCategories
+                .Skip(1)
+                .Where(counts.ContainsKey)
+                .Select(category => $"{category} {counts[category]}"));
+            return string.Join(" · ", parts);
+        }
+    }
 
     public bool IsEmpty => FilteredModules.Count == 0;
 
@@ -114,10 +135,14 @@ public class ModuleGalleryViewModel : BindableBase
             .ToList();
         foreach (var module in Modules)
             module.CardZoom = GalleryZoom;
-        var categoryNames = new[] { "全部" }
-            .Concat(Modules
-                .Select(module => module.CategoryText)
-                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+        var categories = Modules
+            .Select(module => module.CategoryText)
+            .Distinct(StringComparer.CurrentCultureIgnoreCase)
+            .ToArray();
+        var categoryNames = PreferredCategories
+            .Where(category => category == "全部" || categories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
+            .Concat(categories
+                .Where(category => !PreferredCategories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
                 .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase))
             .ToArray();
         CategoryChoices = categoryNames
@@ -128,6 +153,7 @@ public class ModuleGalleryViewModel : BindableBase
 
         RaisePropertyChanged(nameof(Modules));
         RaisePropertyChanged(nameof(CategoryChoices));
+        RaisePropertyChanged(nameof(CatalogSummary));
         ApplyFilter();
     }
 

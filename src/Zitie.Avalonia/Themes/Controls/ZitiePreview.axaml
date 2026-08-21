@@ -13,8 +13,8 @@
                         CornerRadius="6"
                         ClipToBounds="True"
                         Padding="12">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Auto"
+                    <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                  VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
                                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"

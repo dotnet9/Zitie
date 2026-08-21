@@ -71,7 +71,6 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
         RefreshTemplateChoices();
         ContentSelection = new TextContentSelection(textCatalog.Entries);
-        ContentSelection.EntrySelected += OnTextEntrySelected;
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
         PreviousPageCommand = new DelegateCommand(
@@ -93,6 +92,22 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         OpenContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = true);
         CloseContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = false);
         ResetContentFiltersCommand = new DelegateCommand(ContentSelection.Reset);
+        ApplySelectedContentCommand = new DelegateCommand(
+            ApplySelectedContent,
+            () => ContentSelection.SelectedEntry is not null);
+        ContentSelection.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(TextContentSelection.SelectedEntry))
+                ApplySelectedContentCommand.RaiseCanExecuteChanged();
+        };
+        ZoomOutCommand = new DelegateCommand(
+                () => AdjustZoom(-0.1),
+                () => Zoom > 0.3)
+            .ObservesProperty(() => Zoom);
+        ZoomInCommand = new DelegateCommand(
+                () => AdjustZoom(0.1),
+                () => Zoom < 2)
+            .ObservesProperty(() => Zoom);
     }
 
     private async Task OpenDocumentAsync()
@@ -450,7 +465,15 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set => SetEditorState(_editorState with { TraceColor = value });
     }
 
-    private void OnTextEntrySelected(object? sender, TextEntry entry)
+    private void ApplySelectedContent()
+    {
+        var entry = ContentSelection.SelectedEntry;
+        if (entry is null) return;
+
+        ApplyTextEntry(entry);
+    }
+
+    private void ApplyTextEntry(TextEntry entry)
     {
         InputText = entry.Body;
         Title = entry.Title;
@@ -651,16 +674,34 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public DelegateCommand ResetContentFiltersCommand { get; }
 
+    public DelegateCommand ApplySelectedContentCommand { get; }
+
+    public DelegateCommand ZoomOutCommand { get; }
+
+    public DelegateCommand ZoomInCommand { get; }
+
     public string? DocumentPath
     {
         get => _documentPath;
-        private set => SetProperty(ref _documentPath, value);
+        private set
+        {
+            if (SetProperty(ref _documentPath, value))
+                RaisePropertyChanged(nameof(DocumentDisplayPath));
+        }
     }
+
+    public string DocumentDisplayPath => string.IsNullOrWhiteSpace(DocumentPath)
+        ? $"未保存文档{(IsDirty ? " *" : string.Empty)}"
+        : $"{DocumentPath}{(IsDirty ? " *" : string.Empty)}";
 
     public bool IsDirty
     {
         get => _isDirty;
-        private set => SetProperty(ref _isDirty, value);
+        private set
+        {
+            if (SetProperty(ref _isDirty, value))
+                RaisePropertyChanged(nameof(DocumentDisplayPath));
+        }
     }
 
     public string StatusMessage

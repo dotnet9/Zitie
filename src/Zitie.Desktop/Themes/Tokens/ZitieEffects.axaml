@@ -3,4 +3,5 @@
     <BoxShadows x:Key="ZitieSealShadow">0 3 8 #59B04A3F</BoxShadows>
     <BoxShadows x:Key="ZitieCardShadow">0 1 2 #0D2B2722, 0 6 18 #122B2722</BoxShadows>
     <BoxShadows x:Key="ZitieCardHoverShadow">0 2 4 #0F2B2722, 0 14 32 #212B2722</BoxShadows>
+    <BoxShadows x:Key="ZitieDrawerShadow">-12 0 36 #382B2722</BoxShadows>
 </ResourceDictionary>

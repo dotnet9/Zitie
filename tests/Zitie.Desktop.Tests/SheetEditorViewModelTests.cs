@@ -41,6 +41,36 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         Assert.True(viewModel.IsDirty);
     }
 
+    [Fact]
+    public void ContentSelection_AppliesOnlyAfterConfirmation()
+    {
+        _ = fixture;
+        var viewModel = new SheetEditorViewModel(
+            new ModuleCatalog(),
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs())
+        {
+            InputText = "原始练习内容",
+            IsContentPickerOpen = true
+        };
+        var result = viewModel.ContentSelection.FilteredItems.First();
+
+        viewModel.ContentSelection.SelectedResult = result;
+
+        Assert.Equal("原始练习内容", viewModel.InputText);
+        Assert.True(viewModel.IsContentPickerOpen);
+        Assert.True(viewModel.ApplySelectedContentCommand.CanExecute());
+
+        viewModel.ApplySelectedContentCommand.Execute();
+
+        Assert.Equal(result.Entry.Body, viewModel.InputText);
+        Assert.Equal(result.Entry.Title, viewModel.Title);
+        Assert.False(viewModel.IsContentPickerOpen);
+    }
+
     private sealed class StubNavigationJournal : IRegionNavigationJournal
     {
         public bool CanGoBack => false;

@@ -112,10 +112,44 @@ public sealed class TextContentSelection : BindableBase
         {
             if (!SetProperty(ref _filteredEntries, value)) return;
             RaisePropertyChanged(nameof(ResultSummary));
+            RaisePropertyChanged(nameof(ResultCountSummary));
+            RaisePropertyChanged(nameof(FilterSummary));
         }
     }
 
     public string ResultSummary => $"{FilteredEntries.Count} 条内容";
+
+    public string ResultCountSummary => $"{FilteredEntries.Count} / {_entries.Count} 篇";
+
+    public string FilterSummary
+    {
+        get
+        {
+            var parts = new List<string>();
+            AddSelected(parts, SelectedSubject);
+            AddSelected(parts, SelectedEdition);
+            AddSelected(parts, SelectedGrade);
+            AddSelected(parts, SelectedSemester);
+            AddSelected(parts, SelectedUnit);
+            if (SearchText.Length > 0) parts.Add($"关键词「{SearchText}」");
+            parts.Add($"命中 {FilteredEntries.Count} 篇");
+            return string.Join(" · ", parts);
+        }
+    }
+
+    public string SourceSummary
+    {
+        get
+        {
+            var entry = SelectedEntry;
+            var parts = entry is null
+                ? new[] { SelectedSubject, SelectedEdition }
+                : new[] { entry.Subject, entry.Edition };
+            var summary = string.Join(" · ", parts
+                .Where(value => !string.IsNullOrWhiteSpace(value) && value != All));
+            return summary.Length > 0 ? summary : $"{_entries.Count} 条内容";
+        }
+    }
 
     public string SearchText
     {
@@ -136,6 +170,7 @@ public sealed class TextContentSelection : BindableBase
             var normalized = NormalizeChoice(value, Subjects);
             if (!SetProperty(ref _selectedSubject, normalized)) return;
             Rebuild(resetEdition: true, resetGrade: true, resetSemester: true, resetUnit: true);
+            RaisePropertyChanged(nameof(SourceSummary));
         }
     }
 
@@ -165,6 +200,7 @@ public sealed class TextContentSelection : BindableBase
             var normalized = NormalizeChoice(value, Editions);
             if (!SetProperty(ref _selectedEdition, normalized)) return;
             Rebuild(resetGrade: true, resetSemester: true, resetUnit: true);
+            RaisePropertyChanged(nameof(SourceSummary));
         }
     }
 
@@ -247,6 +283,7 @@ public sealed class TextContentSelection : BindableBase
         RaisePropertyChanged(nameof(SearchText));
         RaisePropertyChanged(nameof(SelectedEntry));
         RaisePropertyChanged(nameof(SelectedResult));
+        RaisePropertyChanged(nameof(SourceSummary));
     }
 
     private void Rebuild(
@@ -307,6 +344,7 @@ public sealed class TextContentSelection : BindableBase
         _selectedEntry = null;
         SetSelectedResult(null);
         RaisePropertyChanged(nameof(SelectedEntry));
+        RaisePropertyChanged(nameof(SourceSummary));
     }
 
     private static IReadOnlyList<TextEntry> Filter(
@@ -392,6 +430,7 @@ public sealed class TextContentSelection : BindableBase
     {
         if (entry is not null && !_entries.Contains(entry)) return;
         if (!SetProperty(ref _selectedEntry, entry, nameof(SelectedEntry))) return;
+        RaisePropertyChanged(nameof(SourceSummary));
 
         SetSelectedResult(result ?? FilteredItems.FirstOrDefault(item => item.Entry == entry));
         if (entry is null) return;
@@ -415,5 +454,10 @@ public sealed class TextContentSelection : BindableBase
     private void SetSelectedResult(TextContentSearchResult? result)
     {
         SetProperty(ref _selectedResult, result, nameof(SelectedResult));
+    }
+
+    private static void AddSelected(ICollection<string> parts, string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value) && value != All) parts.Add(value);
     }
 }

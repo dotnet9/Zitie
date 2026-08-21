@@ -15,6 +15,14 @@
         <Setter Property="LetterSpacing" Value="3" />
         <Setter Property="FontWeight" Value="Normal" />
     </Style>
+    <Style Selector="Border.page-title-accent">
+        <Setter Property="Width" Value="5" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="Margin" Value="0,3,0,0" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="BoxShadow" Value="0 2 6 #4DB04A3F" />
+    </Style>
 
     <Style Selector="Button.gallery-action">
         <Setter Property="Height" Value="34" />
@@ -52,7 +60,7 @@
     </Style>
     <Style Selector="Border.gallery-status-bar">
         <Setter Property="Height" Value="34" />
-        <Setter Property="Padding" Value="26,0" />
+        <Setter Property="Padding" Value="18,0" />
         <Setter Property="Background" Value="{DynamicResource ZitieRailBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
