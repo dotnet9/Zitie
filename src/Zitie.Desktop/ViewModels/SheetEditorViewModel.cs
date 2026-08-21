@@ -41,10 +41,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private bool _suppressRebuild;
     private bool _isRebuildQueued;
     private bool _isContentPickerOpen;
+    private bool _isTemplatePickerOpen;
     private CharacterSheetSpec _spec = new();
     private IReadOnlyList<SheetPage> _pages = Array.Empty<SheetPage>();
     private IReadOnlyList<ModuleDefinition> _templateChoices = Array.Empty<ModuleDefinition>();
+    private IReadOnlyList<ModuleDefinition> _filteredTemplateChoices = Array.Empty<ModuleDefinition>();
     private ModuleDefinition? _module;
+    private ModuleDefinition? _previewTemplateModule;
+    private EditorPreviewSnapshot? _contentPreviewSnapshot;
+    private EditorPreviewSnapshot? _templatePreviewSnapshot;
+    private string _templateSearchText = string.Empty;
 
     private static readonly string[] ColorChoiceValues =
     [
@@ -89,8 +95,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ExportPdfCommand = new AsyncDelegateCommand(ExportPdfAsync);
         ExportPngCommand = new AsyncDelegateCommand(ExportPngAsync);
         ExportPngsCommand = new AsyncDelegateCommand(ExportPngsAsync);
-        OpenContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = true);
-        CloseContentPickerCommand = new DelegateCommand(() => IsContentPickerOpen = false);
+        OpenContentPickerCommand = new DelegateCommand(OpenContentPicker);
+        CloseContentPickerCommand = new DelegateCommand(() => CloseContentPicker(commit: false));
         ResetContentFiltersCommand = new DelegateCommand(ContentSelection.Reset);
         ApplySelectedContentCommand = new DelegateCommand(
             ApplySelectedContent,
@@ -98,8 +104,17 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         ContentSelection.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(TextContentSelection.SelectedEntry))
+            {
                 ApplySelectedContentCommand.RaiseCanExecuteChanged();
+                PreviewSelectedContent();
+            }
         };
+        OpenTemplatePickerCommand = new DelegateCommand(OpenTemplatePicker);
+        CloseTemplatePickerCommand = new DelegateCommand(() => CloseTemplatePicker(commit: false));
+        ResetTemplateSearchCommand = new DelegateCommand(() => TemplateSearchText = string.Empty);
+        ApplySelectedTemplateCommand = new DelegateCommand(
+            ApplySelectedTemplate,
+            () => PreviewTemplateModule is not null);
         ZoomOutCommand = new DelegateCommand(
                 () => AdjustZoom(-0.1),
                 () => Zoom > 0.3)
@@ -273,7 +288,52 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public IReadOnlyList<ModuleDefinition> TemplateChoices
     {
         get => _templateChoices;
-        private set => SetProperty(ref _templateChoices, value);
+        private set
+        {
+            if (!SetProperty(ref _templateChoices, value)) return;
+            ApplyTemplateFilter();
+        }
+    }
+
+    public IReadOnlyList<ModuleDefinition> FilteredTemplateChoices
+    {
+        get => _filteredTemplateChoices;
+        private set
+        {
+            if (!SetProperty(ref _filteredTemplateChoices, value)) return;
+            RaisePropertyChanged(nameof(FilteredTemplateChoiceCount));
+            RaisePropertyChanged(nameof(TemplateFilterSummary));
+            RaisePropertyChanged(nameof(IsTemplateFilterEmpty));
+        }
+    }
+
+    public int FilteredTemplateChoiceCount => FilteredTemplateChoices.Count;
+
+    public bool IsTemplateFilterEmpty => FilteredTemplateChoices.Count == 0;
+
+    public string TemplateFilterSummary => $"{FilteredTemplateChoiceCount} / {TemplateChoices.Count} 个模板";
+
+    public string TemplateSearchText
+    {
+        get => _templateSearchText;
+        set
+        {
+            if (!SetProperty(ref _templateSearchText, value?.Trim() ?? string.Empty)) return;
+            ApplyTemplateFilter();
+        }
+    }
+
+    public ModuleDefinition? PreviewTemplateModule
+    {
+        get => _previewTemplateModule;
+        set
+        {
+            if (value is { Enabled: false }) return;
+            if (SameModule(_previewTemplateModule, value)) return;
+
+            SetPreviewTemplateModule(value);
+            PreviewSelectedTemplate();
+        }
     }
 
     public ModuleDefinition? SelectedModule
@@ -470,17 +530,159 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         var entry = ContentSelection.SelectedEntry;
         if (entry is null) return;
 
-        ApplyTextEntry(entry);
+        if (IsContentPickerOpen)
+        {
+            PreviewContentEntry(entry);
+            _contentPreviewSnapshot = null;
+            IsDirty = true;
+            CloseContentPicker(commit: true);
+            SetStatus($"已应用内容：{entry.Title}");
+            return;
+        }
+
+        ApplyTextEntryToState(entry);
+        SetStatus($"已应用内容：{entry.Title}");
     }
 
-    private void ApplyTextEntry(TextEntry entry)
+    private void ApplyTextEntryToState(TextEntry entry)
     {
         InputText = entry.Body;
         Title = entry.Title;
         Author = entry.Author;
         Dynasty = entry.Dynasty;
         ShowPoemHeader = !string.IsNullOrWhiteSpace(entry.Author);
-        IsContentPickerOpen = false;
+    }
+
+    private void OpenContentPicker()
+    {
+        if (_isContentPickerOpen) return;
+        if (_isTemplatePickerOpen) CloseTemplatePicker(commit: false);
+
+        _contentPreviewSnapshot = CaptureEditorPreviewSnapshot();
+        SetProperty(ref _isContentPickerOpen, true, nameof(IsContentPickerOpen));
+    }
+
+    private void CloseContentPicker(bool commit)
+    {
+        if (!_isContentPickerOpen) return;
+
+        if (!commit && _contentPreviewSnapshot is { } snapshot)
+            RestoreEditorPreviewSnapshot(snapshot);
+
+        _contentPreviewSnapshot = null;
+        SetProperty(ref _isContentPickerOpen, false, nameof(IsContentPickerOpen));
+    }
+
+    private void PreviewSelectedContent()
+    {
+        if (!_isContentPickerOpen || _contentPreviewSnapshot is null) return;
+
+        var entry = ContentSelection.SelectedEntry;
+        if (entry is null)
+        {
+            RestoreEditorPreviewSnapshot(_contentPreviewSnapshot);
+            return;
+        }
+
+        PreviewContentEntry(entry);
+    }
+
+    private void PreviewContentEntry(TextEntry entry)
+    {
+        if (_contentPreviewSnapshot is null) return;
+
+        ApplyPreviewFromSnapshot(
+            _contentPreviewSnapshot,
+            () => ApplyTextEntryToState(entry));
+        SetStatus($"预览内容：{entry.Title}");
+    }
+
+    private void OpenTemplatePicker()
+    {
+        if (_isTemplatePickerOpen) return;
+        if (_isContentPickerOpen) CloseContentPicker(commit: false);
+
+        _templatePreviewSnapshot = CaptureEditorPreviewSnapshot();
+        SetProperty(ref _isTemplatePickerOpen, true, nameof(IsTemplatePickerOpen));
+
+        var current = FindTemplateChoice(_module);
+        if (current is not null)
+            SetPreviewTemplateModule(current);
+        else
+            ClearPreviewTemplateModule();
+    }
+
+    private void CloseTemplatePicker(bool commit)
+    {
+        if (!_isTemplatePickerOpen) return;
+
+        if (!commit && _templatePreviewSnapshot is { } snapshot)
+            RestoreEditorPreviewSnapshot(snapshot);
+
+        _templatePreviewSnapshot = null;
+        SetProperty(ref _isTemplatePickerOpen, false, nameof(IsTemplatePickerOpen));
+        ClearPreviewTemplateModule();
+    }
+
+    private void ApplySelectedTemplate()
+    {
+        var module = PreviewTemplateModule;
+        if (module is null) return;
+
+        if (!IsTemplatePickerOpen)
+        {
+            SwitchTemplate(module);
+            return;
+        }
+
+        var changed = _templatePreviewSnapshot is null || !SameModule(_templatePreviewSnapshot.Module, module);
+        if (changed)
+        {
+            PreviewTemplate(module);
+            IsDirty = true;
+        }
+
+        _templatePreviewSnapshot = null;
+        CloseTemplatePicker(commit: true);
+        SetStatus($"已应用模板：{module.Name}");
+    }
+
+    private void PreviewSelectedTemplate()
+    {
+        if (!_isTemplatePickerOpen || _templatePreviewSnapshot is null) return;
+
+        if (PreviewTemplateModule is null)
+        {
+            RestoreEditorPreviewSnapshot(_templatePreviewSnapshot);
+            return;
+        }
+
+        PreviewTemplate(PreviewTemplateModule);
+    }
+
+    private void PreviewTemplate(ModuleDefinition module)
+    {
+        if (_templatePreviewSnapshot is null) return;
+
+        var preservedContent = ContentSnapshot.Capture(_templatePreviewSnapshot.State);
+        ApplyPreviewFromSnapshot(
+            _templatePreviewSnapshot,
+            () => ApplyModuleDefaults(module, preserveContent: true, preservedContent));
+        SetStatus($"预览模板：{module.Name}");
+    }
+
+    private void ClearPreviewTemplateModule()
+    {
+        if (_previewTemplateModule is null) return;
+
+        SetPreviewTemplateModule(null);
+    }
+
+    private void SetPreviewTemplateModule(ModuleDefinition? module)
+    {
+        _previewTemplateModule = module;
+        RaisePropertyChanged(nameof(PreviewTemplateModule));
+        ApplySelectedTemplateCommand.RaiseCanExecuteChanged();
     }
 
     public string GridColorHex
@@ -617,7 +819,25 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public bool IsContentPickerOpen
     {
         get => _isContentPickerOpen;
-        set => SetProperty(ref _isContentPickerOpen, value);
+        set
+        {
+            if (value)
+                OpenContentPicker();
+            else
+                CloseContentPicker(commit: false);
+        }
+    }
+
+    public bool IsTemplatePickerOpen
+    {
+        get => _isTemplatePickerOpen;
+        set
+        {
+            if (value)
+                OpenTemplatePicker();
+            else
+                CloseTemplatePicker(commit: false);
+        }
     }
 
     public int PageIndex
@@ -675,6 +895,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public DelegateCommand ResetContentFiltersCommand { get; }
 
     public DelegateCommand ApplySelectedContentCommand { get; }
+
+    public DelegateCommand OpenTemplatePickerCommand { get; }
+
+    public DelegateCommand CloseTemplatePickerCommand { get; }
+
+    public DelegateCommand ResetTemplateSearchCommand { get; }
+
+    public DelegateCommand ApplySelectedTemplateCommand { get; }
 
     public DelegateCommand ZoomOutCommand { get; }
 
@@ -799,6 +1027,82 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
               FontOption.CreateUnclassified(_editorState.FontFamilyName);
 
         RaisePropertyChanged(string.Empty);
+    }
+
+    private EditorPreviewSnapshot CaptureEditorPreviewSnapshot()
+    {
+        FlushPendingRebuild();
+
+        return new EditorPreviewSnapshot(
+            _editorState,
+            _selectedSheetFont,
+            _module,
+            PageIndex,
+            IsDirty,
+            StatusMessage);
+    }
+
+    private void ApplyPreviewFromSnapshot(EditorPreviewSnapshot snapshot, Action applyPreview)
+    {
+        var previousSuppressRebuild = _suppressRebuild;
+        var previousSuppressDirty = _suppressDirty;
+        _suppressRebuild = true;
+        _suppressDirty = true;
+        try
+        {
+            RestoreEditorPreviewSnapshotCore(snapshot);
+            applyPreview();
+            RaisePropertyChanged(string.Empty);
+        }
+        finally
+        {
+            _suppressRebuild = previousSuppressRebuild;
+            _suppressDirty = previousSuppressDirty;
+        }
+
+        RebuildPreservingDirty(snapshot.IsDirty);
+    }
+
+    private void RestoreEditorPreviewSnapshot(EditorPreviewSnapshot snapshot)
+    {
+        var previousSuppressRebuild = _suppressRebuild;
+        _suppressRebuild = true;
+        try
+        {
+            RestoreEditorPreviewSnapshotCore(snapshot);
+        }
+        finally
+        {
+            _suppressRebuild = previousSuppressRebuild;
+        }
+
+        RebuildPreservingDirty(snapshot.IsDirty);
+    }
+
+    private void RestoreEditorPreviewSnapshotCore(EditorPreviewSnapshot snapshot)
+    {
+        _editorState = snapshot.State;
+        _selectedSheetFont = snapshot.SelectedSheetFont;
+        _pageIndex = snapshot.PageIndex;
+        _statusMessage = snapshot.StatusMessage;
+        SetCurrentModule(snapshot.Module);
+        RaisePropertyChanged(string.Empty);
+    }
+
+    private void RebuildPreservingDirty(bool isDirty)
+    {
+        var previousSuppressDirty = _suppressDirty;
+        _suppressDirty = true;
+        try
+        {
+            RebuildImmediately();
+        }
+        finally
+        {
+            _suppressDirty = previousSuppressDirty;
+        }
+
+        IsDirty = isDirty;
     }
 
     private bool SetEditorState(
@@ -1123,10 +1427,40 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             SetCurrentModule(current);
     }
 
+    private void ApplyTemplateFilter()
+    {
+        var keyword = TemplateSearchText.Trim();
+        var filtered = TemplateChoices
+            .Where(module => keyword.Length == 0 ||
+                             module.Name.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
+                             module.Description.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
+                             module.Id.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        FilteredTemplateChoices = filtered;
+
+        if (_isTemplatePickerOpen &&
+            _previewTemplateModule is not null &&
+            !filtered.Any(module => SameModule(module, _previewTemplateModule)))
+            PreviewTemplateModule = null;
+
+        RaisePropertyChanged(nameof(TemplateFilterSummary));
+    }
+
+    private ModuleDefinition? FindTemplateChoice(ModuleDefinition? module)
+    {
+        if (module is null) return null;
+        return TemplateChoices.FirstOrDefault(choice => SameModule(choice, module));
+    }
+
     private bool IsCurrentModule(ModuleDefinition module)
     {
-        return _module is not null &&
-               string.Equals(_module.Id, module.Id, StringComparison.OrdinalIgnoreCase);
+        return SameModule(_module, module);
+    }
+
+    private static bool SameModule(ModuleDefinition? left, ModuleDefinition? right)
+    {
+        if (left is null || right is null) return left is null && right is null;
+        return string.Equals(left.Id, right.Id, StringComparison.OrdinalIgnoreCase);
     }
 
     private void SetCurrentModule(ModuleDefinition? module)
@@ -1223,7 +1557,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         _statusMessage = "已就绪";
         _isDirty = false;
         _isRebuildQueued = false;
+        _isContentPickerOpen = false;
+        _isTemplatePickerOpen = false;
+        _contentPreviewSnapshot = null;
+        _templatePreviewSnapshot = null;
+        _previewTemplateModule = null;
+        _templateSearchText = string.Empty;
         SetCurrentModule(null);
+        ApplyTemplateFilter();
 
         RaisePropertyChanged(string.Empty);
     }
@@ -1235,7 +1576,17 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        if (_isContentPickerOpen) CloseContentPicker(commit: false);
+        if (_isTemplatePickerOpen) CloseTemplatePicker(commit: false);
     }
+
+    private sealed record EditorPreviewSnapshot(
+        SheetEditorState State,
+        FontOption? SelectedSheetFont,
+        ModuleDefinition? Module,
+        int PageIndex,
+        bool IsDirty,
+        string StatusMessage);
 
     private sealed record ContentSnapshot(
         string InputText,
