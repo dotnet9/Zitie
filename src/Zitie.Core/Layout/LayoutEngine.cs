@@ -41,14 +41,16 @@ public static class LayoutEngine
         var pages = new List<SheetPage>();
         var vertical = spec.Orientation == SheetOrientation.Vertical;
         var pinyinGrid = spec.Grid == GridKind.Pinyin;
-        var groups = pinyinGrid
-            ? EnumeratePinyinGroups(spec.Text)
+        var blankContentLayout = spec.BlankContentLayout;
+        var groups = blankContentLayout
+            ? Array.Empty<IReadOnlyList<string>>()
+            : pinyinGrid
+            ? EnumeratePinyinGroups(spec)
             : vertical
                 ? EnumerateSentenceGlyphGroups(spec.Text)
                 : spec.GroupByWord
                     ? EnumerateWordGlyphGroups(spec.Text)
                     : EnumerateGlyphGroups(spec.Text);
-        if (groups.Count == 0) return pages;
 
         var roles = pinyinGrid
             ? new[] { CellRole.Model }
@@ -66,10 +68,38 @@ public static class LayoutEngine
         var columnPitch = vertical ? cellPitch + groupGapMm : cellPitch;
         var columns = ResolveColumnCount(spec, vertical, repeatedGroupSize, gridSizeMm, cellPitch, columnPitch);
         var blankCellLineCount = Math.Clamp(spec.BlankCellLineCount, 0, 10);
-        var firstPageRows = Math.Max(1,
-            CountThatFits(spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm, gridSizeMm, rowPitch));
-        var otherPageRows = Math.Max(1,
-            CountThatFits(spec.Page.UsableHeightMm - FooterLineMm, gridSizeMm, rowPitch));
+        var firstPageRows = ResolveRowCount(
+            spec,
+            spec.Page.UsableHeightMm - HeaderHeightMm(spec) - FooterLineMm,
+            gridSizeMm,
+            rowPitch);
+        var otherPageRows = ResolveRowCount(
+            spec,
+            spec.Page.UsableHeightMm - FooterLineMm,
+            gridSizeMm,
+            rowPitch);
+
+        if (groups.Count == 0)
+        {
+            if (blankContentLayout)
+            {
+                pages.Add(spec.LayoutColumns <= 0 && spec.LayoutRows <= 0
+                    ? new SheetPage(0, 0, 0, true, Array.Empty<CellSlot>())
+                    : CreateBlankLayoutPage(
+                        spec,
+                        columns,
+                        firstPageRows,
+                        hasHeader: true,
+                        gridSizeMm,
+                        cellPitch,
+                        rowPitch,
+                        columnPitch,
+                        groupGapMm,
+                        repeatedGroupSize));
+            }
+
+            return pages;
+        }
 
         // 一个词或句子理论上应保持连续，但不能因为它超过单页容量而静默丢失。
         // 极端长词/长句按页容量拆成连续分组，普通内容仍保持原有“不拆组”行为。
@@ -266,10 +296,11 @@ public static class LayoutEngine
         int repeatedGroupSize,
         double groupGapMm)
     {
-        if (vertical || spec.CellsPerLine <= 0)
+        if (vertical || spec.CellsPerLine <= 0 && spec.LayoutColumns <= 0)
             return Math.Max(1, spec.GridSizeMm);
 
-        var columns = EffectiveHorizontalColumns(Math.Clamp(spec.CellsPerLine, 1, 64), repeatedGroupSize);
+        var requestedColumns = spec.LayoutColumns > 0 ? spec.LayoutColumns : spec.CellsPerLine;
+        var columns = EffectiveHorizontalColumns(Math.Clamp(requestedColumns, 1, 64), repeatedGroupSize);
         var gap = Math.Max(0, spec.GridGapMm);
         var groupGapCount = repeatedGroupSize > 0
             ? Math.Max(0, columns / repeatedGroupSize - 1)
@@ -288,6 +319,9 @@ public static class LayoutEngine
         double cellPitch,
         double columnPitch)
     {
+        if (spec.LayoutColumns > 0)
+            return EffectiveHorizontalColumns(Math.Clamp(spec.LayoutColumns, 1, 64), vertical ? 0 : repeatedGroupSize);
+
         if (!vertical && spec.CellsPerLine > 0)
             return EffectiveHorizontalColumns(Math.Clamp(spec.CellsPerLine, 1, 64), repeatedGroupSize);
 
@@ -295,6 +329,17 @@ public static class LayoutEngine
         return vertical
             ? Math.Max(1, count)
             : EffectiveHorizontalColumns(Math.Max(1, count), repeatedGroupSize);
+    }
+
+    private static int ResolveRowCount(
+        CharacterSheetSpec spec,
+        double availableHeightMm,
+        double gridSizeMm,
+        double rowPitch)
+    {
+        return spec.LayoutRows > 0
+            ? Math.Clamp(spec.LayoutRows, 1, 128)
+            : Math.Max(1, CountThatFits(availableHeightMm, gridSizeMm, rowPitch));
     }
 
     private static int CountThatFits(double availableMm, double itemSizeMm, double pitchMm)
@@ -361,6 +406,40 @@ public static class LayoutEngine
     {
         var column = cursor / rows;
         return (column + 1 + Math.Max(0, blankCellLineCount)) * rows;
+    }
+
+    private static SheetPage CreateBlankLayoutPage(
+        CharacterSheetSpec spec,
+        int columns,
+        int rows,
+        bool hasHeader,
+        double gridSizeMm,
+        double cellPitch,
+        double rowPitch,
+        double columnPitch,
+        double groupGapMm,
+        int repeatedGroupSize)
+    {
+        var contentTop = spec.Page.MarginTopMm + (hasHeader ? HeaderHeightMm(spec) : 0);
+        var cells = new List<CellSlot>();
+        var capacity = Math.Max(0, columns) * Math.Max(0, rows);
+        AddBlankSlots(
+            cells,
+            spec,
+            spec.Orientation == SheetOrientation.Vertical,
+            0,
+            capacity,
+            columns,
+            rows,
+            contentTop,
+            cellPitch,
+            rowPitch,
+            columnPitch,
+            groupGapMm,
+            repeatedGroupSize,
+            gridSizeMm);
+
+        return new SheetPage(0, columns, rows, hasHeader, cells);
     }
 
     private static void AddBlankSlots(
@@ -503,13 +582,43 @@ public static class LayoutEngine
     }
 
     /// <summary>拼音四线格：按空白分音节，每个音节整体占据一个格子（如 chūn、tiān）。</summary>
-    private static IReadOnlyList<IReadOnlyList<string>> EnumeratePinyinGroups(string text)
+    private static IReadOnlyList<IReadOnlyList<string>> EnumeratePinyinGroups(CharacterSheetSpec spec)
     {
         var groups = new List<IReadOnlyList<string>>();
-        foreach (var syllable in text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
-            groups.Add(new[] { syllable });
+        foreach (var token in spec.Text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (!ContainsCjk(token))
+            {
+                groups.Add(new[] { token });
+                continue;
+            }
+
+            var enumerator = StringInfo.GetTextElementEnumerator(token);
+            while (enumerator.MoveNext())
+            {
+                var element = enumerator.GetTextElement();
+                if (string.IsNullOrWhiteSpace(element) ||
+                    element.Length > 0 && SentencePunctuation.Contains(element[0]))
+                    continue;
+
+                groups.Add(new[]
+                {
+                    spec.PinyinByGlyph is not null &&
+                    spec.PinyinByGlyph.TryGetValue(element, out var pinyin)
+                        ? pinyin
+                        : element
+                });
+            }
+        }
 
         return groups;
+    }
+
+    private static bool ContainsCjk(string text)
+    {
+        return text.Any(character =>
+            character is >= '\u3400' and <= '\u9FFF' ||
+            character is >= '\uF900' and <= '\uFAFF');
     }
 
     /// <summary>按标点切句（竖排帖式：一句一列，句末标点保留在句内）。</summary>

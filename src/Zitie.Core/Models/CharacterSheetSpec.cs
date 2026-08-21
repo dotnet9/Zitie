@@ -8,6 +8,9 @@ public sealed record CharacterSheetSpec
     /// <summary>练习文本，逐个非空白字符生成练习组。</summary>
     public string Text { get; init; } = string.Empty;
 
+    /// <summary>正文区域作为固定空白版式输出，不根据练习文本生成范字或描红字。</summary>
+    public bool BlankContentLayout { get; init; }
+
     public GridKind Grid { get; init; } = GridKind.Mi;
 
     public PracticeMode Mode { get; init; } = PracticeMode.Trace;
@@ -16,6 +19,12 @@ public sealed record CharacterSheetSpec
     ///     每行格数。0 表示按格子大小自动计算；桌面端默认提供 12 / 16 两档。
     /// </summary>
     public int CellsPerLine { get; init; }
+
+    /// <summary>固定版式列数；0 表示由页面宽度或每行格数自动决定。</summary>
+    public int LayoutColumns { get; init; }
+
+    /// <summary>固定版式行数；0 表示由页面高度自动决定。</summary>
+    public int LayoutRows { get; init; }
 
     /// <summary>横排练习行后、竖排练习列后生成的空格子行/列数，范围 0-10；格线保留，格子角色为 Blank。</summary>
     public int BlankCellLineCount { get; init; }

@@ -432,6 +432,61 @@ public class LayoutEngineTests
     }
 
     [Fact]
+    public void Paginate_PinyinGrid_SplitsChineseTextIntoSyllables()
+    {
+        var spec = MakeSpec("春天，花朵", grid: GridKind.Pinyin, mode: PracticeMode.Copy, repeats: 1)
+            with
+            {
+                GridSizeMm = 20,
+                PinyinByGlyph = new Dictionary<string, string>
+                {
+                    ["春"] = "chūn",
+                    ["天"] = "tiān",
+                    ["花"] = "huā",
+                    ["朵"] = "duǒ"
+                }
+            };
+
+        var slots = LayoutEngine.Paginate(spec).SelectMany(page => page.Cells).ToList();
+
+        Assert.Equal(["chūn", "tiān", "huā", "duǒ"], slots.Select(slot => slot.Glyph));
+    }
+
+    [Fact]
+    public void Paginate_BlankContentLayout_CreatesFixedBlankGrid()
+    {
+        var spec = MakeSpec("这段正文不会排进格子", grid: GridKind.Tian, mode: PracticeMode.Copy, repeats: 1)
+            with
+            {
+                BlankContentLayout = true,
+                LayoutColumns = 5,
+                LayoutRows = 4
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(5, page.Columns);
+        Assert.Equal(4, page.Rows);
+        Assert.Equal(20, page.Cells.Count);
+        Assert.All(page.Cells, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
+    public void Paginate_BlankContentLayoutWithoutGrid_CreatesBackgroundOnlyPage()
+    {
+        var spec = MakeSpec("春联正文不参与排版", grid: GridKind.Tian, mode: PracticeMode.Copy, repeats: 1)
+            with { BlankContentLayout = true };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Empty(page.Cells);
+    }
+
+    [Fact]
     public void Paginate_TraceColor_DoesNotChangeLayout()
     {
         // 描红颜色属于渲染外观，不影响排版：两种颜色应产出完全相同的格子

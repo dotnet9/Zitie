@@ -14,6 +14,7 @@ public static class ModulePreviewFactory
         var mode = ParseMode(defaults.Mode);
         var title = Normalize(defaults.Title);
         var vertical = defaults.Vertical == true;
+        var blankContentLayout = defaults.BlankContentLayout == true;
         var requestedPoemHeader = defaults.ShowPoemHeader == true;
         var headerPreset = ParseHeaderPreset(
             defaults.HeaderPreset,
@@ -24,7 +25,7 @@ public static class ModulePreviewFactory
         var showHeaderFields = headerPreset is SheetHeaderPreset.Fields
             or SheetHeaderPreset.TitleAndFields
             or SheetHeaderPreset.Custom;
-        var text = Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
+        var text = blankContentLayout ? string.Empty : Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
         var repeats = Math.Clamp(defaults.Repeats ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
         var traceCount = Math.Clamp(defaults.TraceCount ?? 2, 0, repeats - 1);
         var page = ResolvePageSettings(defaults);
@@ -32,11 +33,14 @@ public static class ModulePreviewFactory
         var spec = new CharacterSheetSpec
         {
             Text = text,
+            BlankContentLayout = blankContentLayout,
             Grid = grid,
             Mode = mode,
             CellsPerLine = vertical
                 ? 0
                 : Math.Clamp(defaults.CellsPerLine ?? 12, 1, 64),
+            LayoutColumns = Math.Clamp(defaults.LayoutColumns ?? 0, 0, 64),
+            LayoutRows = Math.Clamp(defaults.LayoutRows ?? 0, 0, 128),
             BlankCellLineCount = Math.Clamp(defaults.BlankCellLineCount ?? 0, 0, 10),
             RepeatsPerChar = repeats,
             TraceSlotCount = traceCount,

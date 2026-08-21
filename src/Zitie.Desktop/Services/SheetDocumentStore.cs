@@ -78,6 +78,9 @@ public static class SheetDocumentStore
             : name.Trim();
         var defaults = new ModuleDefaults
         {
+            BlankContentLayout = spec.BlankContentLayout,
+            LayoutColumns = spec.LayoutColumns,
+            LayoutRows = spec.LayoutRows,
             Grid = spec.Grid.ToString().ToLowerInvariant(),
             Mode = spec.Mode.ToString().ToLowerInvariant(),
             Repeats = spec.RepeatsPerChar,

@@ -143,6 +143,7 @@
                                         <TextBox Text="{Binding InputText}"
                                                  Classes="editor-input"
                                                  AutomationProperties.Name="练习文本"
+                                                 IsEnabled="{Binding IsContentEditingEnabled}"
                                                  AcceptsReturn="True"
                                                  TextWrapping="Wrap"
                                                  MinHeight="108"
@@ -164,6 +165,7 @@
                                         </Grid>
                                         <Button Classes="content-picker-button"
                                                 Command="{Binding OpenContentPickerCommand}"
+                                                IsEnabled="{Binding IsContentEditingEnabled}"
                                                 AutomationProperties.Name="打开内容资源">
                                             <Grid>
                                                 <Rectangle Stroke="{DynamicResource ZitieAccentDisabledBrush}"

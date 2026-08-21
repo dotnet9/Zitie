@@ -240,7 +240,9 @@ public static class SheetRenderer
             glyphPaint.Color = (cell.Role == CellRole.Model
                 ? ResolveColor(spec.TextColor, theme.ModelGlyphColor)
                 : TraceGlyphColor(spec, theme)).ToSKColor();
-            var fontSize = spec.Grid == GridKind.Pinyin ? size * 0.5f : size * 0.74f;
+            var fontSize = spec.Grid == GridKind.Pinyin
+                ? FitTextSize(spec, cell.Glyph, size * 0.5f, size * 0.86f)
+                : size * 0.74f;
             DrawCenteredGlyph(canvas, spec, cell.Glyph, fontSize,
                 new SKPoint(x + size / 2, y + size / 2), glyphPaint,
                 hollow: spec.TraceIntensity == TraceIntensity.Hollow ||
@@ -398,6 +400,21 @@ public static class SheetRenderer
         using var paint = new SKPaint { Color = color, IsAntialias = true };
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
         canvas.DrawText(text, center.X, baselineY, SKTextAlign.Center, font, paint);
+    }
+
+    private static float FitTextSize(
+        CharacterSheetSpec spec,
+        string text,
+        float preferredSizePt,
+        float maxWidthPt)
+    {
+        if (string.IsNullOrEmpty(text) || maxWidthPt <= 0) return preferredSizePt;
+
+        using var font = CreateFont(spec, text, preferredSizePt);
+        var width = font.MeasureText(text);
+        if (width <= maxWidthPt) return preferredSizePt;
+
+        return Math.Max(5.5f, preferredSizePt * maxWidthPt / Math.Max(1, width));
     }
 
     private static void DrawLeftText(

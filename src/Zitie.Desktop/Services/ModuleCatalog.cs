@@ -60,6 +60,12 @@ public sealed record ModuleDefinition
 
 public sealed record ModuleDefaults
 {
+    public bool? BlankContentLayout { get; set; }
+
+    public int? LayoutColumns { get; set; }
+
+    public int? LayoutRows { get; set; }
+
     public string? Grid { get; set; }
 
     public double? GridSize { get; set; }

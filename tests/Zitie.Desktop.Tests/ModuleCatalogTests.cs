@@ -16,7 +16,24 @@ public sealed class ModuleCatalogTests
         Assert.True(catalog.Modules.Count >= 30);
         var module = Assert.Single(catalog.Modules, item => item.Id == "poem-wuyan-spring-scene");
         Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
+        Assert.True(module.Defaults.BlankContentLayout);
+        Assert.Equal(5, module.Defaults.LayoutColumns);
+        Assert.Equal(4, module.Defaults.LayoutRows);
         Assert.Contains("<svg", module.ReadTextAsset(module.Defaults.BackgroundArtwork));
+    }
+
+    [Fact]
+    public void BuiltInBlankLayoutTemplates_RenderWithoutBodyText()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "spring-couplet-fu");
+
+        Assert.True(module.Defaults.BlankContentLayout);
+        Assert.Null(module.Defaults.Text);
+
+        var preview = ModulePreviewFactory.Create(module);
+        var page = Assert.Single(preview.Pages);
+        Assert.Empty(page.Cells);
     }
 
     [Fact]

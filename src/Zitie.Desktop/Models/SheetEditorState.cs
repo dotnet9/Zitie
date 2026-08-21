@@ -10,11 +10,14 @@ public sealed record SheetEditorState
     public const string DefaultInputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
 
     public string InputText { get; init; } = string.Empty;
+    public bool BlankContentLayout { get; init; }
     public string Title { get; init; } = string.Empty;
     public GridKind Grid { get; init; }
     public PracticeMode Mode { get; init; }
     public int RepeatsPerChar { get; init; } = 5;
     public int CellsPerLine { get; init; }
+    public int LayoutColumns { get; init; }
+    public int LayoutRows { get; init; }
     public int BlankCellLineCount { get; init; }
     public TraceIntensity TraceIntensity { get; init; } = TraceIntensity.Medium;
     public string GridColor { get; init; } = "#B04A3F";
@@ -58,12 +61,15 @@ public sealed record SheetEditorState
         ArgumentNullException.ThrowIfNull(spec);
         return new SheetEditorState
         {
-            InputText = spec.Text,
+            InputText = spec.BlankContentLayout ? string.Empty : spec.Text,
+            BlankContentLayout = spec.BlankContentLayout,
             Title = spec.Title ?? string.Empty,
             Grid = spec.Grid,
             Mode = spec.Mode,
             RepeatsPerChar = spec.RepeatsPerChar,
             CellsPerLine = spec.CellsPerLine,
+            LayoutColumns = spec.LayoutColumns,
+            LayoutRows = spec.LayoutRows,
             BlankCellLineCount = spec.BlankCellLineCount,
             TraceIntensity = spec.TraceIntensity,
             GridColor = string.IsNullOrWhiteSpace(spec.GridColor) ? "#B04A3F" : spec.GridColor!,

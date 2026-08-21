@@ -154,6 +154,57 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         Assert.False(viewModel.IsTemplatePickerOpen);
     }
 
+    [Fact]
+    public void BlankLayoutTemplate_DisablesContentSelectionAndLeavesBodyBlank()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs())
+        {
+            InputText = "已有正文"
+        };
+        var template = Assert.Single(catalog.Modules, module => module.Id == "poem-wuyan-spring-scene");
+
+        viewModel.SwitchTemplate(template);
+
+        Assert.False(viewModel.IsContentEditingEnabled);
+        Assert.Equal(string.Empty, viewModel.InputText);
+        Assert.True(viewModel.Spec.BlankContentLayout);
+        Assert.Equal(20, viewModel.Pages.Single().Cells.Count);
+
+        viewModel.IsContentPickerOpen = true;
+
+        Assert.False(viewModel.IsContentPickerOpen);
+    }
+
+    [Fact]
+    public void SwitchingFromBlankLayoutToPracticeTemplate_ReenablesContent()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var blankTemplate = Assert.Single(catalog.Modules, module => module.Id == "poem-wuyan-spring-scene");
+        var practiceTemplate = Assert.Single(catalog.Modules, module => module.Id == "custom-trace-mi");
+
+        viewModel.SwitchTemplate(blankTemplate);
+        viewModel.SwitchTemplate(practiceTemplate);
+
+        Assert.True(viewModel.IsContentEditingEnabled);
+        Assert.False(viewModel.Spec.BlankContentLayout);
+    }
+
     private sealed class StubNavigationJournal : IRegionNavigationJournal
     {
         public bool CanGoBack => false;

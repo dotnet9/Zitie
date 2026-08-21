@@ -508,8 +508,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public string InputText
     {
         get => _editorState.InputText;
-        set => SetEditorState(_editorState with { InputText = value ?? string.Empty });
+        set => SetEditorState(_editorState with { InputText = IsContentEditingEnabled ? value ?? string.Empty : string.Empty });
     }
+
+    public bool IsContentEditingEnabled => !_editorState.BlankContentLayout;
 
     /// <summary>练习文本字数摘要（如“20 字”），空文本时为空字符串。</summary>
     public string InputTextSummary
@@ -527,6 +529,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void ApplySelectedContent()
     {
+        if (!IsContentEditingEnabled) return;
+
         var entry = ContentSelection.SelectedEntry;
         if (entry is null) return;
 
@@ -555,6 +559,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     private void OpenContentPicker()
     {
+        if (!IsContentEditingEnabled) return;
         if (_isContentPickerOpen) return;
         if (_isTemplatePickerOpen) CloseTemplatePicker(commit: false);
 
@@ -1157,6 +1162,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         var spec = new CharacterSheetSpec
         {
             Text = InputText,
+            BlankContentLayout = _editorState.BlankContentLayout,
             Title = showTitle ? title : null,
             HeaderPreset = headerPreset,
             HeaderTextTemplate = headerPreset == SheetHeaderPreset.Custom &&
@@ -1164,6 +1170,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 ? HeaderTextTemplate.Trim()
                 : null,
             CellsPerLine = Math.Clamp(_editorState.CellsPerLine, 0, 64),
+            LayoutColumns = Math.Clamp(_editorState.LayoutColumns, 0, 64),
+            LayoutRows = Math.Clamp(_editorState.LayoutRows, 0, 128),
             BlankCellLineCount = BlankCellLineCount,
             Grid = (GridKind)GridKindIndex,
             Mode = (PracticeMode)PracticeModeIndex,
@@ -1176,7 +1184,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             GroupByWord = GroupByWord,
             ShowPinyin = ShowPinyin,
             PinyinOnly = PinyinOnly,
-            PinyinByGlyph = ShowPinyin ? _pinyinCatalog.PinyinByGlyph : null,
+            PinyinByGlyph = ShowPinyin || _editorState.Grid == GridKind.Pinyin
+                ? _pinyinCatalog.PinyinByGlyph
+                : null,
             Orientation = _editorState.Orientation,
             ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
                              (headerPreset != SheetHeaderPreset.None && ShowPoemHeader),
@@ -1260,6 +1270,16 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         preservedContent ??= preserveContent ? ContentSnapshot.Capture(_editorState) : null;
 
         var hasHeaderPreset = !string.IsNullOrWhiteSpace(defaults.HeaderPreset);
+
+        var blankContentLayout = defaults.BlankContentLayout == true;
+        SetEditorState(_editorState with
+        {
+            BlankContentLayout = blankContentLayout,
+            LayoutColumns = Math.Clamp(defaults.LayoutColumns ?? 0, 0, 64),
+            LayoutRows = Math.Clamp(defaults.LayoutRows ?? 0, 0, 128)
+        }, nameof(IsContentEditingEnabled));
+        if (blankContentLayout && _isContentPickerOpen)
+            CloseContentPicker(commit: false);
 
         if (defaults.Grid is { Length: > 0 } grid)
             GridKindIndex = grid.ToLowerInvariant() switch
@@ -1404,14 +1424,26 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 _ => HeaderPresetIndex
             };
         if (defaults.HeaderText is { } headerText) HeaderTextTemplate = headerText;
-        if (!preserveContent && defaults.Text is { } text) InputText = text;
+        if (_editorState.BlankContentLayout)
+        {
+            InputText = string.Empty;
+        }
+        else if (!preserveContent && defaults.Text is { } text)
+        {
+            InputText = text;
+        }
 
         // 旧模板用 showPoemHeader 表示诗词题头，升级后统一映射到“诗词题头”预设。
         if (!hasHeaderPreset && ShowPoemHeader)
             HeaderPresetIndex = (int)SheetHeaderPreset.Poem;
 
         if (preserveContent && preservedContent is { } content)
-            RestoreContent(content);
+        {
+            if (_editorState.BlankContentLayout)
+                RestoreHeaderContent(content);
+            else
+                RestoreContent(content);
+        }
     }
 
     private void RefreshTemplateChoices()
@@ -1477,6 +1509,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private void RestoreContent(ContentSnapshot content)
     {
         InputText = content.InputText;
+        RestoreHeaderContent(content);
+    }
+
+    private void RestoreHeaderContent(ContentSnapshot content)
+    {
         Title = content.Title;
         Author = content.Author;
         Dynasty = content.Dynasty;

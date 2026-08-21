@@ -20,6 +20,9 @@ public sealed class SheetDocumentStoreTests
             var spec = new CharacterSheetSpec
             {
                 Text = "春眠不觉晓",
+                BlankContentLayout = true,
+                LayoutColumns = 5,
+                LayoutRows = 4,
                 Grid = GridKind.Nine,
                 Mode = PracticeMode.Copy,
                 GridColor = "#123456",
@@ -44,6 +47,9 @@ public sealed class SheetDocumentStoreTests
             Assert.DoesNotContain("pinyinByGlyph", json, StringComparison.OrdinalIgnoreCase);
             Assert.Equal("poem-wuyan", loaded.ModuleId);
             Assert.Equal(spec.Text, loaded.Spec.Text);
+            Assert.True(loaded.Spec.BlankContentLayout);
+            Assert.Equal(5, loaded.Spec.LayoutColumns);
+            Assert.Equal(4, loaded.Spec.LayoutRows);
             Assert.Equal(spec.GridColor, loaded.Spec.GridColor);
             Assert.Equal(spec.TextColor, loaded.Spec.TextColor);
             Assert.Equal(spec.Page, loaded.Spec.Page);
@@ -64,6 +70,9 @@ public sealed class SheetDocumentStoreTests
             SheetDocumentStore.SaveTemplate(path, new CharacterSheetSpec
             {
                 Text = "一二三",
+                BlankContentLayout = true,
+                LayoutColumns = 3,
+                LayoutRows = 2,
                 GridColor = "#123456",
                 GroupGapMm = 7,
                 BackgroundArtworkSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\" />",
@@ -85,6 +94,9 @@ public sealed class SheetDocumentStoreTests
             var module = deserializer.Deserialize<ModuleDefinition>(moduleText);
             Assert.Equal("我的模板", module.Name);
             Assert.Equal("#123456", module.Defaults.GridColor);
+            Assert.True(module.Defaults.BlankContentLayout);
+            Assert.Equal(3, module.Defaults.LayoutColumns);
+            Assert.Equal(2, module.Defaults.LayoutRows);
             Assert.Equal(7d, module.Defaults.GroupGap);
             Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
             Assert.Equal("a4Portrait", module.Defaults.PageSize);
@@ -103,6 +115,9 @@ public sealed class SheetDocumentStoreTests
         var spec = new CharacterSheetSpec
         {
             Text = "永",
+            BlankContentLayout = true,
+            LayoutColumns = 1,
+            LayoutRows = 1,
             Title = "大字帖",
             Grid = GridKind.HuiGong,
             Mode = PracticeMode.Copy,
@@ -118,7 +133,10 @@ public sealed class SheetDocumentStoreTests
 
         var state = SheetEditorState.FromSpec(spec);
 
-        Assert.Equal(spec.Text, state.InputText);
+        Assert.Equal(string.Empty, state.InputText);
+        Assert.True(state.BlankContentLayout);
+        Assert.Equal(1, state.LayoutColumns);
+        Assert.Equal(1, state.LayoutRows);
         Assert.Equal(spec.Grid, state.Grid);
         Assert.Equal(spec.Mode, state.Mode);
         Assert.Equal(16, state.CellsPerLine);
