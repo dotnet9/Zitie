@@ -1,0 +1,30 @@
+id: "ref-poem-willow-horizontal"
+name: "柳亭春晓 · 五言横排"
+description: "从参考图提炼的柳亭春晓矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6FAF8D"
+  textColor: "#40534A"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 48
+  pageMarginRight: 48
+  title: "春晓"
+  author: "孟浩然"
+  dynasty: "唐"
+  text: "春眠不觉晓处处闻啼鸟夜来风雨声花落知多少"

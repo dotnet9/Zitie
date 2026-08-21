@@ -26,11 +26,11 @@ dotnet run --project src/Zitie.Desktop/Zitie.Desktop.csproj -f net10.0
 
 `%LOCALAPPDATA%\Zitie\modules`
 
-模板统一为 `.zi` 压缩包，包内根目录放 `module.yml`，背景 SVG 等素材放在 `assets/`。内置模板位于仓库根目录 `resources/modules`，用户模板位于 `%LOCALAPPDATA%\Zitie\modules`；保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
+模板采用“源码目录 + 发布包”双形态：调试和仓库内的模板位于 `resources/modules/<模板名>/`，目录内放 `module.yml` 与 `assets/`；发布脚本会把这些目录压缩成 `resources/modules/<模板名>.zi`。运行时优先读取同名目录，只有目录不存在时才解压 `.zi`，之后统一按目录加载。用户模板位于 `%LOCALAPPDATA%\Zitie\modules`，保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
 
 内置资源统一位于仓库根目录 `resources`：
 
-- `resources/modules`：字帖模板 `.zi` 包。
+- `resources/modules`：字帖模板源码目录；发布时由 `scripts/pack_modules.ps1` 生成 `.zi` 包。
 - `resources/texts`：可直接生成字帖的练习文本 Markdown，含语文/英语小学到高中全年级同步拓展内容。
 - `resources/pinyin`：拼音词表 YAML。
 - `resources/textbooks`：2026 教材版本索引，覆盖小学、初中、高中在线教材元数据。

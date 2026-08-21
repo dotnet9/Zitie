@@ -1,0 +1,30 @@
+id: "poem-qiyan-green-mountain-vertical"
+name: "七言古诗竖排 · 云山"
+description: "浅绿云山背景，竖排居右中，适合清淡诗词帖。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 13.5
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#DCEDD7"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#9FC47A"
+  textColor: "#3D5339"
+  pageMarginTop: 76
+  pageMarginBottom: 134
+  pageMarginLeft: 68
+  pageMarginRight: 45
+  title: "村居"
+  author: "高鼎"
+  dynasty: "清"
+  text: "草长莺飞二月天，拂堤杨柳醉春烟。儿童散学归来早，忙趁东风放纸鸢。"

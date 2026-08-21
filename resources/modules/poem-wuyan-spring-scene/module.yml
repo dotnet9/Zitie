@@ -1,0 +1,27 @@
+id: "poem-wuyan-spring-scene"
+name: "五言古诗抄写 · 春山"
+description: "水彩山野背景，五字成行，适合五言古诗整首抄写。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 3
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#EAF7FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7BC9A2"
+  textColor: "#3D4A45"
+  pageMarginTop: 31
+  pageMarginBottom: 116
+  pageMarginLeft: 52
+  pageMarginRight: 52
+  title: "悯农"
+  author: "李绅"
+  dynasty: "唐"
+  text: "锄禾日当午汗滴禾下土谁知盘中餐粒粒皆辛苦"

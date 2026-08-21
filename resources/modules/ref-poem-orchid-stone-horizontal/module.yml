@@ -1,0 +1,30 @@
+id: "ref-poem-orchid-stone-horizontal"
+name: "兰石幽芳 · 五言横排"
+description: "从参考图提炼的兰石幽芳矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7D8580"
+  textColor: "#3F4642"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 48
+  pageMarginRight: 48
+  title: "鹿柴"
+  author: "王维"
+  dynasty: "唐"
+  text: "空山不见人但闻人语响返景入深林复照青苔上"

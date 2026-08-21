@@ -1,0 +1,31 @@
+id: "ref-poem-lotus-pond-vertical"
+name: "荷塘清韵 · 古诗竖排"
+description: "从参考图提炼的荷塘清韵矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 13
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6FAF8D"
+  textColor: "#40534A"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "小池"
+  author: "杨万里"
+  dynasty: "唐"
+  text: "泉眼无声惜细流，树阴照水爱晴柔。小荷才露尖尖角，早有蜻蜓立上头。"

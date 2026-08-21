@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#FAFCF9"/>
+  <rect x="6" y="6" width="198" height="285" fill="none" stroke="#AEB5AF" stroke-width="0.8"/>
+  <rect x="9" y="9" width="192" height="279" fill="none" stroke="#AEB5AF" stroke-width="0.3" opacity=".6"/>
+  <circle cx="9" cy="9" r="1.4" fill="#AEB5AF"/><circle cx="201" cy="9" r="1.4" fill="#AEB5AF"/><circle cx="9" cy="288" r="1.4" fill="#AEB5AF"/><circle cx="201" cy="288" r="1.4" fill="#AEB5AF"/>
+  <path d="M63 62h84q5 8 10 0v126q-5-8-10 0h-84q-5-8-10 0v-126q5 8 10 0z" fill="#FFFFFF" fill-opacity=".8" stroke="#7D8580" stroke-width="0.8"/>
+  <line x1="38" y1="31" x2="88" y2="31" stroke="#7D8580" stroke-width="0.55" opacity="0.7"/>
+  <line x1="122" y1="31" x2="172" y2="31" stroke="#7D8580" stroke-width="0.55" opacity="0.7"/>
+  <path d="M100 31l5-3 5 3-5 3z" fill="#7D8580" opacity=".65"/>
+  <path d="M10 280Q26 244 38 280M20 266q12-8 23 0M27 251q11-8 20 1" fill="none" stroke="#7D8580" stroke-width="1" opacity=".55"/>
+  <path d="M0 255Q30 220 60 248Q92 205 126 251Q161 224 210 261V297H0Z" fill="#E6E8E5" opacity=".24"/>
+  <path d="M0 274Q35 242 72 269Q108 232 146 276Q176 250 210 272V297H0Z" fill="#AEB5AF" opacity=".32"/>
+  <path d="M0 288Q52 266 100 286Q145 267 210 289V297H0Z" fill="#7D8580" opacity=".38"/>
+  
+</svg>

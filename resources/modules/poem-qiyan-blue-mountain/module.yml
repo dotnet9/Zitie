@@ -1,0 +1,27 @@
+id: "poem-qiyan-blue-mountain"
+name: "七言诗抄写 · 青山"
+description: "青山竹影背景，七字一行，适合七言绝句横排临写。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 7
+  gridGap: 0.7
+  groupGap: 3
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#EDF8FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7CBDE4"
+  textColor: "#334B65"
+  pageMarginTop: 39
+  pageMarginBottom: 120
+  pageMarginLeft: 37
+  pageMarginRight: 37
+  title: "山行"
+  author: "杜牧"
+  dynasty: "唐"
+  text: "远上寒山石径斜白云生处有人家停车坐爱枫林晚霜叶红于二月花"

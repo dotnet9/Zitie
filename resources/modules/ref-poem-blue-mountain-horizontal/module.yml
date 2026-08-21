@@ -1,0 +1,30 @@
+id: "ref-poem-blue-mountain-horizontal"
+name: "青山行舟 · 七言横排"
+description: "从参考图提炼的青山行舟矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 7
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6E9FC5"
+  textColor: "#3D5061"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 32
+  pageMarginRight: 32
+  title: "山行"
+  author: "杜牧"
+  dynasty: "唐"
+  text: "远上寒山石径斜白云生处有人家停车坐爱枫林晚霜叶红于二月花"

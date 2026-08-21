@@ -1,0 +1,30 @@
+id: "ref-poem-plum-snow-horizontal"
+name: "梅雪暖笺 · 五言横排"
+description: "从参考图提炼的梅雪暖笺矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6E9FC5"
+  textColor: "#3D5061"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 48
+  pageMarginRight: 48
+  title: "梅花"
+  author: "王安石"
+  dynasty: "唐"
+  text: "墙角数枝梅凌寒独自开遥知不是雪为有暗香来"

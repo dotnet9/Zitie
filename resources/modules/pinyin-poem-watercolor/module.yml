@@ -1,0 +1,28 @@
+id: "pinyin-poem-watercolor"
+name: "古诗带拼音 · 水彩"
+description: "水彩春景背景，田字格上方标注拼音，适合低年级古诗认读临写。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 5
+  gridGap: 1
+  groupGap: 5
+  headerPreset: "poem"
+  showPoemHeader: true
+  showPinyin: true
+  background: "plain"
+  backgroundColor: "#DEF3FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7AC7A7"
+  textColor: "#2F3F37"
+  pageMarginTop: 55
+  pageMarginBottom: 83
+  pageMarginLeft: 47
+  pageMarginRight: 47
+  title: "画"
+  author: "王维"
+  dynasty: "唐"
+  text: "远看山有色近听水无声春去花还在人来鸟不惊"

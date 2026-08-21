@@ -1,0 +1,25 @@
+id: "ref-pinyin-peach-syllable"
+name: "桃花粉 · 拼音四线格"
+description: "清爽桃花粉四线格，适合声母、韵母和带调音节连续书写。"
+category: "拼音"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "pinyin"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 8
+  gridGap: 2.2
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8FA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D98291"
+  textColor: "#68404A"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "拼音书写练习"
+  text: "a o e i u ü ai ei ui ao ou iu ie üe er an en in un ün ang eng ing ong"

@@ -1,0 +1,27 @@
+id: "ref-special-two-column"
+name: "左右对照 · 两列生字"
+description: "参考两列偏旁、生字练习版式，强化左右对照和分组书写。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 4
+  traceCount: 2
+  traceIntensity: "verylight"
+  cellsPerLine: 8
+  gridGap: 0.8
+  groupGap: 8
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F8FCFF"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6FA4C7"
+  textColor: "#344E60"
+  pageMarginTop: 40
+  pageMarginBottom: 30
+  pageMarginLeft: 24
+  pageMarginRight: 24
+  title: "两列生字练习"
+  text: "春冬风雪花飞入姓什国王清水"

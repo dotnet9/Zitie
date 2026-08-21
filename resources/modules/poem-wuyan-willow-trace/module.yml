@@ -1,0 +1,28 @@
+id: "poem-wuyan-willow-trace"
+name: "五言古诗书法 · 柳亭"
+description: "柳枝、远山与亭台背景，格子偏上居中，适合淡色描红。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 3
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#9AD0AF"
+  textColor: "#4B554C"
+  pageMarginTop: 52
+  pageMarginBottom: 140
+  pageMarginLeft: 64
+  pageMarginRight: 64
+  title: "悯农"
+  author: "李绅"
+  dynasty: "唐"
+  text: "锄禾日当午汗滴禾下土谁知盘中餐粒粒皆辛苦"

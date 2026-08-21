@@ -1,0 +1,30 @@
+id: "ref-poem-cloud-crane-horizontal"
+name: "云鹤远山 · 五言横排"
+description: "从参考图提炼的云鹤远山矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6FAF8D"
+  textColor: "#40534A"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 48
+  pageMarginRight: 48
+  title: "登鹳雀楼"
+  author: "王之涣"
+  dynasty: "唐"
+  text: "白日依山尽黄河入海流欲穷千里目更上一层楼"

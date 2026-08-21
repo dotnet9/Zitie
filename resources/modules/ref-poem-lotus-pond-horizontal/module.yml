@@ -1,0 +1,30 @@
+id: "ref-poem-lotus-pond-horizontal"
+name: "荷塘清韵 · 七言横排"
+description: "从参考图提炼的荷塘清韵矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 7
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6FAF8D"
+  textColor: "#40534A"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 32
+  pageMarginRight: 32
+  title: "小池"
+  author: "杨万里"
+  dynasty: "唐"
+  text: "泉眼无声惜细流树阴照水爱晴柔小荷才露尖尖角早有蜻蜓立上头"

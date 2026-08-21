@@ -1,0 +1,26 @@
+id: "ref-english-peach-sentence"
+name: "桃花粉 · 英文句子抄写"
+description: "桃花粉四线三格英文模板，适合短句与段落。"
+category: "英文"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "english"
+  mode: "trace"
+  repeats: 1
+  groupByWord: true
+  cellsPerLine: 20
+  gridGap: 1
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8FA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D98291"
+  textColor: "#68404A"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "English Sentences"
+  text: "Good morning I like reading books We learn and grow every day"

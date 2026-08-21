@@ -1,0 +1,27 @@
+id: "ref-grid-jade-huigong"
+name: "青玉 · 回宫格结构"
+description: "参考缩略图中的回宫格结构版式，使用青玉配色、分组间距和页边装饰。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "huigong"
+  mode: "trace"
+  repeats: 3
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F7FCF8"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#4F9A79"
+  textColor: "#345247"
+  pageMarginTop: 35
+  pageMarginBottom: 25
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "青玉回宫格结构"
+  text: "春风化雨山清水秀勤学善思宁静致远"

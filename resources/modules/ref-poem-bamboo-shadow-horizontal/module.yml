@@ -1,0 +1,30 @@
+id: "ref-poem-bamboo-shadow-horizontal"
+name: "竹影疏风 · 七言横排"
+description: "从参考图提炼的竹影疏风矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 7
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7FAE68"
+  textColor: "#4E5A45"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 32
+  pageMarginRight: 32
+  title: "竹石"
+  author: "郑燮"
+  dynasty: "唐"
+  text: "咬定青山不放松立根原在破岩中千磨万击还坚劲任尔东西南北风"

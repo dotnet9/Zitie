@@ -1,0 +1,31 @@
+id: "ref-poem-bamboo-shadow-vertical"
+name: "竹影疏风 · 古诗竖排"
+description: "从参考图提炼的竹影疏风矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 13
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7FAE68"
+  textColor: "#4E5A45"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "竹石"
+  author: "郑燮"
+  dynasty: "唐"
+  text: "咬定青山不放松，立根原在破岩中。千磨万击还坚劲，任尔东西南北风。"

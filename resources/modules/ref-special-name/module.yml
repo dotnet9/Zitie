@@ -1,0 +1,28 @@
+id: "ref-special-name"
+name: "姓名专项 · 三字练习"
+description: "参考姓名字帖，先分字练习，再进行完整姓名连写。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 6
+  traceCount: 4
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  blankCellLineCount: 1
+  gridGap: 0.7
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8FA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D98CA0"
+  textColor: "#6A414D"
+  pageMarginTop: 38
+  pageMarginBottom: 32
+  pageMarginLeft: 24
+  pageMarginRight: 24
+  title: "姓名书写练习"
+  text: "林欣彤"

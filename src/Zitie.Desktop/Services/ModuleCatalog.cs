@@ -5,7 +5,7 @@ using System.Text;
 namespace Zitie.Desktop.Services;
 
 /// <summary>
-///     模块定义：.zi 模板包内 module.yml 的数据形态。素材从同一个包内的 assets/ 读取。
+///     模块定义：模板目录内 module.yml 的数据形态。素材从同一个目录内的 assets/ 读取。
 /// </summary>
 public sealed record ModuleDefinition
 {
@@ -14,6 +14,9 @@ public sealed record ModuleDefinition
     public string Name { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
+
+    /// <summary>模板库分类；为空时按格型和用途自动推断。</summary>
+    public string? Category { get; set; }
 
     /// <summary>模块处理器类型，决定编辑器形态；首版仅 customText。</summary>
     public string Kind { get; set; } = "customText";
@@ -24,10 +27,10 @@ public sealed record ModuleDefinition
     /// <summary>模块默认参数：grid / mode / repeats / traceCount / title / text。</summary>
     public ModuleDefaults Defaults { get; set; } = new();
 
-    /// <summary>模板包路径，用于诊断与后续导出。</summary>
+    /// <summary>模板目录路径，用于诊断与后续导出。</summary>
     public string? SourcePath { get; set; }
 
-    /// <summary>模板包内资源缓存；键使用 zip 内的规范化相对路径。</summary>
+    /// <summary>模板目录资源缓存；键使用规范化相对路径。</summary>
     public IReadOnlyDictionary<string, byte[]> Assets { get; set; } =
         new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
 
@@ -138,7 +141,8 @@ public sealed record ModuleDefaults
 }
 
 /// <summary>
-///     扫描内置与用户模板目录构建模块目录；用户模板可用相同 Id 覆盖内置模板。
+///     扫描内置与用户模板目录构建模块目录；源码目录直接加载，发布版 .zi 仅在同名目录不存在时解压，
+///     用户模板可用相同 Id 覆盖内置模板。
 /// </summary>
 public sealed class ModuleCatalog
 {
@@ -205,7 +209,14 @@ public sealed class ModuleCatalog
         try
         {
             foreach (var package in Directory.EnumerateFiles(directory, "*.zi", SearchOption.TopDirectoryOnly))
-                LoadModulePackage(package, modules);
+            {
+                var moduleDirectory = Path.Combine(directory, Path.GetFileNameWithoutExtension(package));
+                if (!Directory.Exists(moduleDirectory))
+                    TryExtractModulePackage(package, moduleDirectory);
+            }
+
+            foreach (var moduleDirectory in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly))
+                LoadModuleDirectory(moduleDirectory, modules);
         }
         catch (Exception exception)
         {
@@ -213,67 +224,88 @@ public sealed class ModuleCatalog
         }
     }
 
-    private static void LoadModulePackage(string packagePath, ICollection<ModuleDefinition> modules)
+    private static void TryExtractModulePackage(string packagePath, string moduleDirectory)
+    {
+        var parentDirectory = Path.GetDirectoryName(moduleDirectory);
+        if (string.IsNullOrWhiteSpace(parentDirectory)) return;
+
+        var temporaryDirectory = Path.Combine(
+            parentDirectory,
+            $".{Path.GetFileName(moduleDirectory)}.extracting-{Guid.NewGuid():N}");
+
+        try
+        {
+            ZipFile.ExtractToDirectory(packagePath, temporaryDirectory);
+
+            if (!Directory.Exists(moduleDirectory))
+                Directory.Move(temporaryDirectory, moduleDirectory);
+
+            ZitieLogging.Info($"模板包已解压：{packagePath} -> {moduleDirectory}");
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn($"模板包解压失败，已跳过：{packagePath}", exception);
+        }
+        finally
+        {
+            if (Directory.Exists(temporaryDirectory))
+            {
+                try
+                {
+                    Directory.Delete(temporaryDirectory, recursive: true);
+                }
+                catch (Exception exception)
+                {
+                    ZitieLogging.Warn($"无法清理模板解压临时目录：{temporaryDirectory}", exception);
+                }
+            }
+        }
+    }
+
+    private static void LoadModuleDirectory(string moduleDirectory, ICollection<ModuleDefinition> modules)
     {
         try
         {
-            using var stream = File.OpenRead(packagePath);
-            using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
-            var moduleEntry = archive.Entries.FirstOrDefault(static entry =>
-                string.Equals(
-                    ModuleDefinition.NormalizePackagePath(entry.FullName),
+            var modulePath = Directory
+                .EnumerateFiles(moduleDirectory, "*", SearchOption.TopDirectoryOnly)
+                .FirstOrDefault(path => string.Equals(
+                    Path.GetFileName(path),
                     ModuleFileName,
                     StringComparison.OrdinalIgnoreCase));
-            if (moduleEntry is null)
+            if (modulePath is null)
             {
-                ZitieLogging.Warn($"模板包缺少 {ModuleFileName}，已跳过：{packagePath}");
+                ZitieLogging.Warn($"模板目录缺少 {ModuleFileName}，已跳过：{moduleDirectory}");
                 return;
             }
 
-            var module = YamlResourceSerializer.DeserializeText<ModuleDefinition>(ReadEntryText(moduleEntry));
+            var module = YamlResourceSerializer.DeserializeText<ModuleDefinition>(File.ReadAllText(modulePath));
             if (module is null || string.IsNullOrWhiteSpace(module.Id))
             {
-                ZitieLogging.Warn($"模板包模块缺少 Id，已跳过：{packagePath}");
+                ZitieLogging.Warn($"模板目录模块缺少 Id，已跳过：{moduleDirectory}");
                 return;
             }
 
-            module.SourcePath = packagePath;
-            module.Assets = ReadAssets(archive);
+            module.SourcePath = moduleDirectory;
+            module.Assets = ReadAssets(moduleDirectory, modulePath);
             modules.Add(module);
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn($"模板包解析失败，已跳过：{packagePath}", exception);
+            ZitieLogging.Warn($"模板目录解析失败，已跳过：{moduleDirectory}", exception);
         }
     }
 
-    private static IReadOnlyDictionary<string, byte[]> ReadAssets(ZipArchive archive)
+    private static IReadOnlyDictionary<string, byte[]> ReadAssets(string moduleDirectory, string modulePath)
     {
         var assets = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-        foreach (var entry in archive.Entries)
+        foreach (var path in Directory.EnumerateFiles(moduleDirectory, "*", SearchOption.AllDirectories))
         {
-            var key = ModuleDefinition.NormalizePackagePath(entry.FullName);
-            if (string.IsNullOrWhiteSpace(entry.Name) ||
-                key is null ||
-                string.Equals(key, ModuleFileName, StringComparison.OrdinalIgnoreCase) ||
-                key.EndsWith("/", StringComparison.Ordinal))
-            {
-                continue;
-            }
+            if (string.Equals(path, modulePath, StringComparison.OrdinalIgnoreCase)) continue;
 
-            using var entryStream = entry.Open();
-            using var memory = new MemoryStream();
-            entryStream.CopyTo(memory);
-            assets[key] = memory.ToArray();
+            var key = ModuleDefinition.NormalizePackagePath(Path.GetRelativePath(moduleDirectory, path));
+            if (key is not null) assets[key] = File.ReadAllBytes(path);
         }
 
         return assets;
-    }
-
-    private static string ReadEntryText(ZipArchiveEntry entry)
-    {
-        using var stream = entry.Open();
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        return reader.ReadToEnd();
     }
 }

@@ -1,0 +1,27 @@
+id: "ref-pinyin-peach-words"
+name: "桃花粉 · 词语描红"
+description: "桃花粉词语专项，双格一组并加大组间留白，适合二字词语。"
+category: "拼音"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 2
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 10
+  gridGap: 0.8
+  groupGap: 4.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8FA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D98291"
+  textColor: "#68404A"
+  pageMarginTop: 38
+  pageMarginBottom: 30
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "词语描红练习"
+  text: "春天冬雪大风飞鸟花草山水田园"

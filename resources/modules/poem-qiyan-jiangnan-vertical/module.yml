@@ -1,0 +1,27 @@
+id: "poem-qiyan-jiangnan-vertical"
+name: "七言古诗竖排 · 江南"
+description: "传统竖排题签与江南底景搭配，适合七言绝句竖排练习。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  vertical: true
+  gridSize: 13.8
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D8B88B"
+  textColor: "#3F3A35"
+  pageMarginTop: 76
+  pageMarginBottom: 129
+  pageMarginLeft: 57
+  pageMarginRight: 57
+  title: "山行"
+  author: "杜牧"
+  dynasty: "唐"
+  text: "远上寒山石径斜，白云生处有人家。停车坐爱枫林晚，霜叶红于二月花。"

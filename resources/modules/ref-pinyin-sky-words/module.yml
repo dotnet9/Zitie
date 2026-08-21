@@ -1,0 +1,27 @@
+id: "ref-pinyin-sky-words"
+name: "晴空蓝 · 词语描红"
+description: "晴空蓝词语专项，双格一组并加大组间留白，适合二字词语。"
+category: "拼音"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 2
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 10
+  gridGap: 0.8
+  groupGap: 4.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F6FBFF"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#5DA3D6"
+  textColor: "#31536B"
+  pageMarginTop: 38
+  pageMarginBottom: 30
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "词语描红练习"
+  text: "春天冬雪大风飞鸟花草山水田园"

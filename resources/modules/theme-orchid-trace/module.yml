@@ -1,0 +1,26 @@
+id: "theme-orchid-trace"
+name: "兰香描红 · 米字格"
+description: "兰草花枝背景，淡紫格线，适合温和描红练习。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 4
+  traceCount: 2
+  traceIntensity: "verylight"
+  cellsPerLine: 8
+  blankCellLineCount: 1
+  gridGap: 1
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#B9A2D0"
+  textColor: "#51405C"
+  pageMarginTop: 44
+  pageMarginBottom: 96
+  pageMarginLeft: 44
+  pageMarginRight: 44
+  title: "兰香描红"
+  text: "兰心蕙质清雅从容"

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#FAFCF9"/>
+  <rect x="6" y="6" width="198" height="285" fill="none" stroke="#9BC4DD" stroke-width="0.8"/>
+  <rect x="9" y="9" width="192" height="279" fill="none" stroke="#9BC4DD" stroke-width="0.3" opacity=".6"/>
+  <circle cx="9" cy="9" r="1.4" fill="#9BC4DD"/><circle cx="201" cy="9" r="1.4" fill="#9BC4DD"/><circle cx="9" cy="288" r="1.4" fill="#9BC4DD"/><circle cx="201" cy="288" r="1.4" fill="#9BC4DD"/>
+  <path d="M62 62h86l9 9v108l-9 9h-86l-9-9v-108z" fill="#FFFFFF" fill-opacity=".8" stroke="#6E9FC5" stroke-width="0.8"/>
+  <line x1="38" y1="31" x2="88" y2="31" stroke="#6E9FC5" stroke-width="0.55" opacity="0.7"/>
+  <line x1="122" y1="31" x2="172" y2="31" stroke="#6E9FC5" stroke-width="0.55" opacity="0.7"/>
+  <path d="M100 31l5-3 5 3-5 3z" fill="#6E9FC5" opacity=".65"/>
+  <path d="M0 255Q30 220 60 248Q92 205 126 251Q161 224 210 261V297H0Z" fill="#DDECF4" opacity=".24"/>
+  <path d="M0 274Q35 242 72 269Q108 232 146 276Q176 250 210 272V297H0Z" fill="#9BC4DD" opacity=".32"/>
+  <path d="M0 288Q52 266 100 286Q145 267 210 289V297H0Z" fill="#6E9FC5" opacity=".38"/>
+  
+  <path d="M0 273q30-6 60 0t60 0t60 0t60 0M0 282q28-5 56 0t56 0t56 0t56 0" fill="none" stroke="#9BC4DD" stroke-width="0.7" opacity=".6"/>
+  <path d="M106 269h24l-5 4h-14zM118 269v-11l9 9h-9" fill="#3D5061" opacity=".6"/>
+</svg>

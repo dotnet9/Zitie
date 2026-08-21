@@ -1,0 +1,31 @@
+id: "ref-poem-moon-pine-vertical"
+name: "松月清辉 · 古诗竖排"
+description: "从参考图提炼的松月清辉矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 15
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7FAE68"
+  textColor: "#4E5A45"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "静夜思"
+  author: "李白"
+  dynasty: "唐"
+  text: "床前明月光，疑是地上霜。举头望明月，低头思故乡。"

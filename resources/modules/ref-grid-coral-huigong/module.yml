@@ -1,0 +1,27 @@
+id: "ref-grid-coral-huigong"
+name: "珊瑚 · 回宫格结构"
+description: "参考缩略图中的回宫格结构版式，使用珊瑚配色、分组间距和页边装饰。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "huigong"
+  mode: "trace"
+  repeats: 3
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8F7"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D17C72"
+  textColor: "#67423E"
+  pageMarginTop: 35
+  pageMarginBottom: 25
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "珊瑚回宫格结构"
+  text: "春风化雨山清水秀勤学善思宁静致远"

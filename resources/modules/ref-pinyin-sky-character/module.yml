@@ -1,0 +1,27 @@
+id: "ref-pinyin-sky-character"
+name: "晴空蓝 · 生字带拼音"
+description: "晴空蓝拼音生字帖骨架，范字、描红和空格按组排列。"
+category: "拼音"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 4
+  traceCount: 2
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  gridGap: 0.7
+  groupGap: 3.2
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F6FBFF"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#5DA3D6"
+  textColor: "#31536B"
+  pageMarginTop: 38
+  pageMarginBottom: 30
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "生字拼音练习"
+  text: "春冬风雪花飞入姓什么国王青草清水"

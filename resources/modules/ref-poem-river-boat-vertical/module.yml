@@ -1,0 +1,31 @@
+id: "ref-poem-river-boat-vertical"
+name: "烟波孤舟 · 古诗竖排"
+description: "从参考图提炼的烟波孤舟矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 13
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6E9FC5"
+  textColor: "#3D5061"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "早发白帝城"
+  author: "李白"
+  dynasty: "唐"
+  text: "朝辞白帝彩云间，千里江陵一日还。两岸猿声啼不住，轻舟已过万重山。"

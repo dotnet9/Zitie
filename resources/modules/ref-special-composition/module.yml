@@ -1,0 +1,27 @@
+id: "ref-special-composition"
+name: "橙线作文纸 · 400 格"
+description: "参考作文纸截图的橙色边框与密集方格，适合打印后书写。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  groupByWord: true
+  pinyinOnly: true
+  cellsPerLine: 20
+  gridGap: 0
+  groupGap: 0
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFFCF8"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#DF8A52"
+  textColor: "#7A4D31"
+  pageMarginTop: 36
+  pageMarginBottom: 24
+  pageMarginLeft: 18
+  pageMarginRight: 18
+  title: "作文纸"
+  text: "格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格"

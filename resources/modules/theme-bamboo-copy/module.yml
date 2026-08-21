@@ -1,0 +1,24 @@
+id: "theme-bamboo-copy"
+name: "竹影临摹 · 田字格"
+description: "竹叶留白背景，版心偏中，适合成语、生字和短句临摹。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 8
+  gridGap: 1
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F7FBF2"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#8CC47A"
+  textColor: "#344A34"
+  pageMarginTop: 49
+  pageMarginBottom: 75
+  pageMarginLeft: 43
+  pageMarginRight: 43
+  title: "竹影练字"
+  text: "胸有成竹虚怀若谷清风入怀节节高升"

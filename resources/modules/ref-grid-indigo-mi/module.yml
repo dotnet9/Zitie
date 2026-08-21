@@ -1,0 +1,27 @@
+id: "ref-grid-indigo-mi"
+name: "靛青 · 米字格描红"
+description: "参考缩略图中的米字格描红版式，使用靛青配色、分组间距和页边装饰。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 5
+  traceCount: 2
+  traceIntensity: "verylight"
+  cellsPerLine: 10
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F7FAFD"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#557FA5"
+  textColor: "#354B60"
+  pageMarginTop: 35
+  pageMarginBottom: 25
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "靛青米字格描红"
+  text: "春风化雨山清水秀勤学善思宁静致远"

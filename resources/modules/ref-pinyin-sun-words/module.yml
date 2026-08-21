@@ -1,0 +1,27 @@
+id: "ref-pinyin-sun-words"
+name: "暖阳橙 · 词语描红"
+description: "暖阳橙词语专项，双格一组并加大组间留白，适合二字词语。"
+category: "拼音"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 2
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 10
+  gridGap: 0.8
+  groupGap: 4.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFFBF5"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D8904C"
+  textColor: "#6A4B31"
+  pageMarginTop: 38
+  pageMarginBottom: 30
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "词语描红练习"
+  text: "春天冬雪大风飞鸟花草山水田园"

@@ -1,0 +1,30 @@
+id: "ref-poem-autumn-hill-horizontal"
+name: "秋山晚照 · 七言横排"
+description: "从参考图提炼的秋山晚照矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 7
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7D8580"
+  textColor: "#3F4642"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 32
+  pageMarginRight: 32
+  title: "枫桥夜泊"
+  author: "张继"
+  dynasty: "唐"
+  text: "月落乌啼霜满天江枫渔火对愁眠姑苏城外寒山寺夜半钟声到客船"

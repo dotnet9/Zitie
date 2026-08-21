@@ -1,0 +1,28 @@
+id: "ref-special-scroll-vertical"
+name: "江南题签 · 古诗竖排"
+description: "中央题签与江南远景组合，保留传统右起竖排留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  vertical: true
+  gridSize: 14
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#C6AA7A"
+  textColor: "#4A4035"
+  pageMarginTop: 53
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "山行"
+  author: "杜牧"
+  dynasty: "唐"
+  text: "远上寒山石径斜，白云生处有人家。停车坐爱枫林晚，霜叶红于二月花。"

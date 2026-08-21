@@ -1,0 +1,13 @@
+id: "mengxue-trace"
+name: "蒙学描红 · 米字格"
+description: "三字经 / 百家姓 / 千字文 / 弟子规描红练字，内容来自 resources/texts 目录蒙学库。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "trace"
+  repeats: 3
+  traceCount: 1
+  groupByWord: false
+  title: "蒙学描红"
+  text: "人之初，性本善。性相近，习相远。"

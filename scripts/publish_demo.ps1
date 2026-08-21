@@ -8,6 +8,8 @@ $ErrorActionPreference = "Stop"
 
 $repositoryRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 $projectPath = Join-Path $repositoryRoot "src\Zitie.Desktop\Zitie.Desktop.csproj"
+$moduleSourcePath = Join-Path $repositoryRoot "resources\modules"
+$modulePackScript = Join-Path $PSScriptRoot "pack_modules.ps1"
 $publishRoot = Join-Path $repositoryRoot "artifacts\publish"
 $outputPath = Join-Path $publishRoot "$RuntimeIdentifier\Zitie.Desktop"
 $targetFramework = if ($RuntimeIdentifier -like "win-*") { "net10.0-windows" } else { "net10.0" }
@@ -62,5 +64,9 @@ Write-Host "Publishing Zitie.Desktop for $RuntimeIdentifier..."
 if ($LASTEXITCODE -ne 0) {
     throw "Zitie.Desktop publish failed for $RuntimeIdentifier with exit code $LASTEXITCODE."
 }
+
+& $modulePackScript `
+    -SourceDirectory $moduleSourcePath `
+    -OutputDirectory (Join-Path $resolvedOutputPath "resources\modules")
 
 Write-Host "Published Zitie.Desktop to $resolvedOutputPath"

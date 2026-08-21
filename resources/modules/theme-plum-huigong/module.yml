@@ -1,0 +1,25 @@
+id: "theme-plum-huigong"
+name: "梅枝临摹 · 回宫格"
+description: "梅枝暖色背景，回宫格适合观察字形中宫。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "huigong"
+  mode: "copy"
+  repeats: 3
+  cellsPerLine: 9
+  blankCellLineCount: 1
+  gridGap: 1
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8F5"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#DF9B91"
+  textColor: "#533D36"
+  pageMarginTop: 52
+  pageMarginBottom: 92
+  pageMarginLeft: 45
+  pageMarginRight: 45
+  title: "梅枝临摹"
+  text: "梅香傲雪暗香浮动"

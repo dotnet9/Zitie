@@ -1,0 +1,26 @@
+id: "ref-english-sky-words"
+name: "晴空蓝 · 英文单词书写"
+description: "晴空蓝四线三格英文模板，适合小学单词分组。"
+category: "英文"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "english"
+  mode: "trace"
+  repeats: 1
+  groupByWord: true
+  cellsPerLine: 16
+  gridGap: 1
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F6FBFF"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#5DA3D6"
+  textColor: "#31536B"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "English Words"
+  text: "name class date book ruler pencil school teacher friend family"

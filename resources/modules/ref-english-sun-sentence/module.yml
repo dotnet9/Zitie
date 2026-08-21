@@ -1,0 +1,26 @@
+id: "ref-english-sun-sentence"
+name: "暖阳橙 · 英文句子抄写"
+description: "暖阳橙四线三格英文模板，适合短句与段落。"
+category: "英文"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "english"
+  mode: "trace"
+  repeats: 1
+  groupByWord: true
+  cellsPerLine: 20
+  gridGap: 1
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFFBF5"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D8904C"
+  textColor: "#6A4B31"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "English Sentences"
+  text: "Good morning I like reading books We learn and grow every day"

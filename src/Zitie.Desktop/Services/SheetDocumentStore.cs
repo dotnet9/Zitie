@@ -15,7 +15,7 @@ public sealed record SheetDocument
     public CharacterSheetSpec Spec { get; init; } = new();
 }
 
-/// <summary>字帖文档使用 JSON，用户模板使用 .zi 压缩包（内含 module.yml 与素材）。</summary>
+/// <summary>字帖文档使用 JSON，用户模板导出为 .zi 压缩包（内含 module.yml 与素材）。</summary>
 public static class SheetDocumentStore
 {
     public static void Save(string path, CharacterSheetSpec spec, string? moduleId = null)

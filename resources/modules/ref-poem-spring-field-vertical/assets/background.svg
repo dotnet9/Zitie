@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#FAFCF9"/>
+  <rect x="6" y="6" width="198" height="285" fill="none" stroke="#B5CFA4" stroke-width="0.8"/>
+  <rect x="9" y="9" width="192" height="279" fill="none" stroke="#B5CFA4" stroke-width="0.3" opacity=".6"/>
+  <circle cx="9" cy="9" r="1.4" fill="#B5CFA4"/><circle cx="201" cy="9" r="1.4" fill="#B5CFA4"/><circle cx="9" cy="288" r="1.4" fill="#B5CFA4"/><circle cx="201" cy="288" r="1.4" fill="#B5CFA4"/>
+  <path d="M53 74q0-12 12-12h80q12 0 12 12v114h-104z" fill="#FFFFFF" fill-opacity=".8" stroke="#7FAE68" stroke-width="0.8"/>
+  <path d="M57 76q0-10 10-10h76q10 0 10 10" fill="none" stroke="#7FAE68" stroke-width="0.35" opacity=".65"/>
+  <line x1="38" y1="31" x2="88" y2="31" stroke="#7FAE68" stroke-width="0.55" opacity="0.7"/>
+  <line x1="122" y1="31" x2="172" y2="31" stroke="#7FAE68" stroke-width="0.55" opacity="0.7"/>
+  <path d="M100 31l5-3 5 3-5 3z" fill="#7FAE68" opacity=".65"/>
+  <path d="M24 25q4-4 8 0q4-4 8 0M44 33q3-3 6 0q3-3 6 0" fill="none" stroke="#4E5A45" stroke-width="0.75" stroke-linecap="round" opacity=".7"/>
+  <path d="M0 236Q45 222 90 239T180 236T240 245V297H0Z" fill="#E5EFDC" opacity=".45"/>
+  <path d="M0 266Q45 242 97 273Q148 247 210 268V297H0Z" fill="#7FAE68" opacity=".24"/>
+  <path d="M210 9Q183 22 176 45Q171 59 154 73M192 19q-10 12-23 17M183 41q-12 7-19 20" fill="none" stroke="#695348" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+  <circle cx="159" cy="25" r="3" fill="#D98C72" opacity=".75"/><circle cx="159" cy="25" r="1" fill="#FFF4EA"/><circle cx="171" cy="37" r="3" fill="#D98C72" opacity=".75"/><circle cx="171" cy="37" r="1" fill="#FFF4EA"/><circle cx="182" cy="22" r="3" fill="#D98C72" opacity=".75"/><circle cx="182" cy="22" r="1" fill="#FFF4EA"/><circle cx="191" cy="48" r="3" fill="#D98C72" opacity=".75"/><circle cx="191" cy="48" r="1" fill="#FFF4EA"/><circle cx="176" cy="59" r="3" fill="#D98C72" opacity=".75"/><circle cx="176" cy="59" r="1" fill="#FFF4EA"/>
+</svg>

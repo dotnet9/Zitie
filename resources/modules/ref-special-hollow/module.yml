@@ -1,0 +1,27 @@
+id: "ref-special-hollow"
+name: "宣纸双钩 · 大字填墨"
+description: "大格空心双钩字，暖色宣纸和棕金双框适合毛笔填墨。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "mi"
+  mode: "copy"
+  repeats: 1
+  hollowGlyph: true
+  cellsPerLine: 4
+  gridSize: 38
+  gridGap: 3
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "ricepaper"
+  backgroundColor: "#FBF6EA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#A9854F"
+  textColor: "#4F4030"
+  pageMarginTop: 48
+  pageMarginBottom: 54
+  pageMarginLeft: 34
+  pageMarginRight: 34
+  title: "双钩填墨"
+  text: "永和九年"

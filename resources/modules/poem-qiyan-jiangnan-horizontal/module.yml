@@ -1,0 +1,26 @@
+id: "poem-qiyan-jiangnan-horizontal"
+name: "七言古诗横排 · 江南"
+description: "江南村舍与米色纸框背景，七字一行，留出底部山水。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  cellsPerLine: 7
+  gridGap: 0.8
+  groupGap: 3
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D8B88B"
+  textColor: "#4E4032"
+  pageMarginTop: 57
+  pageMarginBottom: 122
+  pageMarginLeft: 47
+  pageMarginRight: 47
+  title: "赠汪伦"
+  author: "李白"
+  dynasty: "唐"
+  text: "李白乘舟将欲行忽闻岸上踏歌声桃花潭水深千尺不及汪伦送我情"

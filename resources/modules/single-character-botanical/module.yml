@@ -1,0 +1,26 @@
+id: "single-character-botanical"
+name: "每字专项 · 草木边框"
+description: "草木装饰边框，单字大格加多格反复练习，适合生字专项。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 6
+  traceCount: 4
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  blankCellLineCount: 1
+  gridGap: 0.8
+  groupGap: 4
+  headerPreset: "none"
+  background: "plain"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#E7C6A8"
+  textColor: "#7A4B34"
+  pageMarginTop: 74
+  pageMarginBottom: 68
+  pageMarginLeft: 47
+  pageMarginRight: 47
+  title: "每字专项"
+  text: "林"

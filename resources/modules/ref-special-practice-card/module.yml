@@ -1,0 +1,28 @@
+id: "ref-special-practice-card"
+name: "每日打卡 · 分区练习"
+description: "参考每日练习卡，将范字、描红、临写按行分区，便于重复打卡。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "nine"
+  mode: "trace"
+  repeats: 4
+  traceCount: 2
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  blankCellLineCount: 1
+  gridGap: 0.8
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FAFCF7"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#89AF6C"
+  textColor: "#415636"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "每日练字打卡"
+  text: "天地玄黄日月山川春夏秋冬"

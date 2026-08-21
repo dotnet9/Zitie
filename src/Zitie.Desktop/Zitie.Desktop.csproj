@@ -40,10 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\resources\modules\*.zi"
-          Link="resources\modules\%(Filename)%(Extension)"
+    <None Include="..\..\resources\modules\**\*"
+          Link="resources\modules\%(RecursiveDir)%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
-          CopyToPublishDirectory="PreserveNewest" />
+          CopyToPublishDirectory="Never" />
   </ItemGroup>
 
   <ItemGroup>

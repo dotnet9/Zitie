@@ -86,6 +86,7 @@ public static class ModulePreviewFactory
         PracticeMode mode,
         bool vertical)
     {
+        if (!string.IsNullOrWhiteSpace(module.Category)) return module.Category.Trim();
         if (!IsBuiltIn(module)) return "自定义";
         if (grid == GridKind.English) return "英文";
         if (grid == GridKind.Pinyin) return "拼音";

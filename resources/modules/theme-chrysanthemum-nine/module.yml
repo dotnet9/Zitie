@@ -1,0 +1,26 @@
+id: "theme-chrysanthemum-nine"
+name: "菊韵练字 · 九宫格"
+description: "菊花淡金背景，九宫格帮助孩子把握结构比例。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "nine"
+  mode: "trace"
+  repeats: 3
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 9
+  blankCellLineCount: 1
+  gridGap: 1
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D9B25F"
+  textColor: "#5A4A2E"
+  pageMarginTop: 49
+  pageMarginBottom: 90
+  pageMarginLeft: 37
+  pageMarginRight: 37
+  title: "菊韵练字"
+  text: "采菊东篱悠然见山"

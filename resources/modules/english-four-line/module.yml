@@ -1,0 +1,12 @@
+id: "english-four-line"
+name: "英文单词抄写 · 四线三格"
+description: "英文四线三格抄写小学常用单词与句子，单词来自 resources/texts 目录英文库，可自行替换。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "english"
+  mode: "copy"
+  repeats: 1
+  groupByWord: true
+  title: "English Practice"
+  text: "cat dog pig cow sheep horse duck bird fish bee ant fox"

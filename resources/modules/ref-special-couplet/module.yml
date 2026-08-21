@@ -1,0 +1,28 @@
+id: "ref-special-couplet"
+name: "朱砂春联 · 对联描红"
+description: "参考春联截图提炼的横批、左右联和中心福字构图。"
+category: "主题"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 17
+  gridGap: 1.2
+  groupGap: 8
+  headerPreset: "none"
+  background: "plain"
+  backgroundColor: "#FFF9F6"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#E77E68"
+  textColor: "#8B3D32"
+  pageMarginTop: 53
+  pageMarginBottom: 70
+  pageMarginLeft: 63
+  pageMarginRight: 63
+  title: "春联"
+  text: "一帆风顺年年好，万事如意步步高。"

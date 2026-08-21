@@ -1,0 +1,27 @@
+id: "ref-grid-jade-tian"
+name: "青玉 · 田字格临摹"
+description: "参考缩略图中的田字格临摹版式，使用青玉配色、分组间距和页边装饰。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 4
+  traceCount: 0
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  gridGap: 0.8
+  groupGap: 3.5
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#F7FCF8"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#4F9A79"
+  textColor: "#345247"
+  pageMarginTop: 35
+  pageMarginBottom: 25
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "青玉田字格临摹"
+  text: "春风化雨山清水秀勤学善思宁静致远"

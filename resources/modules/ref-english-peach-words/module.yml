@@ -1,0 +1,26 @@
+id: "ref-english-peach-words"
+name: "桃花粉 · 英文单词书写"
+description: "桃花粉四线三格英文模板，适合小学单词分组。"
+category: "英文"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "english"
+  mode: "trace"
+  repeats: 1
+  groupByWord: true
+  cellsPerLine: 16
+  gridGap: 1
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFF8FA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D98291"
+  textColor: "#68404A"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 20
+  pageMarginRight: 20
+  title: "English Words"
+  text: "name class date book ruler pencil school teacher friend family"

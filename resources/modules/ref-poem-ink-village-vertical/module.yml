@@ -1,0 +1,31 @@
+id: "ref-poem-ink-village-vertical"
+name: "水墨江村 · 古诗竖排"
+description: "从参考图提炼的水墨江村矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 15
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7D8580"
+  textColor: "#3F4642"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "江雪"
+  author: "柳宗元"
+  dynasty: "唐"
+  text: "千山鸟飞绝，万径人踪灭。孤舟蓑笠翁，独钓寒江雪。"

@@ -1,0 +1,29 @@
+id: "ref-special-ruled"
+name: "青绿横线 · 汉字抄写"
+description: "宽松横线与浅方格组合，适合句子、段落和课文抄写。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  groupByWord: true
+  pinyinOnly: true
+  cellsPerLine: 14
+  gridGap: 0.8
+  groupGap: 1.5
+  headerPreset: "titleAndFields"
+  background: "letter"
+  backgroundColor: "#FAFEFC"
+  backgroundLineColor: "#A7D8C5"
+  backgroundLineSpacing: 11
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#75B99E"
+  textColor: "#355A4C"
+  pageMarginTop: 38
+  pageMarginBottom: 28
+  pageMarginLeft: 22
+  pageMarginRight: 22
+  title: "课文抄写"
+  text: "格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格格"

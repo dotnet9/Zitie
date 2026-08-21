@@ -1,0 +1,31 @@
+id: "ref-poem-plum-snow-vertical"
+name: "梅雪暖笺 · 古诗竖排"
+description: "从参考图提炼的梅雪暖笺矢量主题，右起竖排并保留山水留白。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  vertical: true
+  gridSize: 15
+  gridGap: 0.8
+  groupGap: 3.2
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6E9FC5"
+  textColor: "#3D5061"
+  pageMarginTop: 49
+  pageMarginBottom: 104
+  pageMarginLeft: 55
+  pageMarginRight: 55
+  title: "梅花"
+  author: "王安石"
+  dynasty: "唐"
+  text: "墙角数枝梅，凌寒独自开。遥知不是雪，为有暗香来。"

@@ -1,0 +1,27 @@
+id: "ref-special-mengxue"
+name: "蒙学卷轴 · 千字文"
+description: "宣纸卷轴式版心，适合三字经、千字文和弟子规描红。"
+category: "蒙学"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 3
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 12
+  gridGap: 0.8
+  groupGap: 4
+  headerPreset: "titleAndFields"
+  background: "ricepaper"
+  backgroundColor: "#FBF6EA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#B48A56"
+  textColor: "#554332"
+  pageMarginTop: 44
+  pageMarginBottom: 40
+  pageMarginLeft: 28
+  pageMarginRight: 28
+  title: "蒙学描红"
+  text: "天地玄黄宇宙洪荒日月盈昃辰宿列张寒来暑往秋收冬藏"

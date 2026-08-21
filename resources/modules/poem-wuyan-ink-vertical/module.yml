@@ -1,0 +1,27 @@
+id: "poem-wuyan-ink-vertical"
+name: "五言古诗竖排 · 水墨"
+description: "黑白水墨山景，竖排小版心，适合淡雅诗词临写。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "plain"
+  mode: "copy"
+  repeats: 1
+  vertical: true
+  gridSize: 14
+  gridGap: 0.8
+  groupGap: 3
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#C8CDD0"
+  textColor: "#333333"
+  pageMarginTop: 80
+  pageMarginBottom: 132
+  pageMarginLeft: 60
+  pageMarginRight: 60
+  title: "古朗月行"
+  author: "李白"
+  dynasty: "唐"
+  text: "小时不识月，呼作白玉盘。又疑瑶台镜，飞在青云端。"

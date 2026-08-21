@@ -1,0 +1,30 @@
+id: "ref-poem-spring-field-horizontal"
+name: "春野新绿 · 五言横排"
+description: "从参考图提炼的春野新绿矢量主题，中央版心配合古诗整行练习。"
+category: "诗词"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 5
+  gridGap: 0.8
+  groupGap: 2.6
+  headerPreset: "poem"
+  showPoemHeader: true
+  background: "plain"
+  backgroundColor: "#FAFCF9"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7FAE68"
+  textColor: "#4E5A45"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 48
+  pageMarginRight: 48
+  title: "悯农"
+  author: "李绅"
+  dynasty: "唐"
+  text: "锄禾日当午汗滴禾下土谁知盘中餐粒粒皆辛苦"

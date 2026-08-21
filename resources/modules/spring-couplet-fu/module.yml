@@ -1,0 +1,26 @@
+id: "spring-couplet-fu"
+name: "春联描红 · 福字"
+description: "春联式红线布局，适合新年祝福字和短句描红。"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  cellsPerLine: 4
+  gridSize: 14
+  gridGap: 1.2
+  groupGap: 4
+  headerPreset: "none"
+  background: "plain"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#FF9B82"
+  textColor: "#8A4A3A"
+  pageMarginTop: 43
+  pageMarginBottom: 190
+  pageMarginLeft: 74
+  pageMarginRight: 74
+  title: "春联"
+  text: "五福临门"

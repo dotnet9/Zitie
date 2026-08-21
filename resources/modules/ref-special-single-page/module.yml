@@ -1,0 +1,27 @@
+id: "ref-special-single-page"
+name: "草木标本 · 每字一页"
+description: "单个大字居中，外围保留读音、结构和多次临写区域。"
+category: "基础"
+kind: "customText"
+enabled: true
+defaults:
+  grid: "tian"
+  mode: "copy"
+  repeats: 1
+  hollowGlyph: false
+  cellsPerLine: 1
+  gridSize: 46
+  gridGap: 0
+  groupGap: 3
+  headerPreset: "titleAndFields"
+  background: "plain"
+  backgroundColor: "#FFFCF8"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#D8A77D"
+  textColor: "#65432F"
+  pageMarginTop: 70
+  pageMarginBottom: 118
+  pageMarginLeft: 78
+  pageMarginRight: 78
+  title: "每字专项"
+  text: "林"
