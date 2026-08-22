@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 264" width="200mm" height="264mm" font-family="LXGW WenKai, Kaiti SC, KaiTi, serif">
+  <!-- 春联字帖模板 · 无格线 · 紧贴图形零留白 -->
+  <defs>
+    <!-- 描红字（居中） -->
+    <g id="z" fill="#E3A294" text-anchor="middle" dominant-baseline="central"/>
+  </defs>
+
+  <!-- ============ 横批（128×32，顶部居中） ============ -->
+  <g transform="translate(36,0)">
+    <rect x="0" y="0" width="128" height="32" fill="none" stroke="#C0554A" stroke-width="1.2"/>
+    <rect x="1.6" y="1.6" width="124.8" height="28.8" fill="none" stroke="#EFD9D2" stroke-width="0.4"/>
+    <text x="16"  y="17" font-size="26" fill="#E3A294" text-anchor="middle" dominant-baseline="central">辞</text>
+    <text x="48"  y="17" font-size="26" fill="#E3A294" text-anchor="middle" dominant-baseline="central">旧</text>
+    <text x="80"  y="17" font-size="26" fill="#E3A294" text-anchor="middle" dominant-baseline="central">迎</text>
+    <text x="112" y="17" font-size="26" fill="#E3A294" text-anchor="middle" dominant-baseline="central">新</text>
+  </g>
+
+  <!-- ============ 上联（右柱 32×224） ============ -->
+  <g transform="translate(0,40)">
+    <rect x="0" y="0" width="32" height="224" fill="none" stroke="#C0554A" stroke-width="1.2"/>
+    <rect x="1.6" y="1.6" width="28.8" height="220.8" fill="none" stroke="#EFD9D2" stroke-width="0.4"/>
+    <text x="16" y="17"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">春</text>
+    <text x="16" y="49"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">回</text>
+    <text x="16" y="81"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">大</text>
+    <text x="16" y="113" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">地</text>
+    <text x="16" y="145" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">风</text>
+    <text x="16" y="177" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">光</text>
+    <text x="16" y="209" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">好</text>
+  </g>
+
+  <!-- ============ 福字斗方（菱形 64×64 旋转 45°，居中） ============ -->
+  <g transform="translate(100,152)">
+    <rect x="-32" y="-32" width="64" height="64" fill="none" stroke="#C0554A" stroke-width="1.2" transform="rotate(45)"/>
+    <rect x="-29" y="-29" width="58" height="58" fill="none" stroke="#EFD9D2" stroke-width="0.5" transform="rotate(45)"/>
+    <text x="0" y="2" font-size="44" font-weight="700" fill="#E3A294" text-anchor="middle" dominant-baseline="central">福</text>
+  </g>
+
+  <!-- ============ 下联（左柱 32×224） ============ -->
+  <g transform="translate(168,40)">
+    <rect x="0" y="0" width="32" height="224" fill="none" stroke="#C0554A" stroke-width="1.2"/>
+    <rect x="1.6" y="1.6" width="28.8" height="220.8" fill="none" stroke="#EFD9D2" stroke-width="0.4"/>
+    <text x="16" y="17"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">福</text>
+    <text x="16" y="49"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">满</text>
+    <text x="16" y="81"  font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">人</text>
+    <text x="16" y="113" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">间</text>
+    <text x="16" y="145" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">喜</text>
+    <text x="16" y="177" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">事</text>
+    <text x="16" y="209" font-size="24" fill="#E3A294" text-anchor="middle" dominant-baseline="central">多</text>
+  </g>
+</svg>
