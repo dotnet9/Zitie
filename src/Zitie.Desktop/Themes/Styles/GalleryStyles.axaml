@@ -27,7 +27,7 @@
     <Style Selector="Button.gallery-action">
         <Setter Property="Height" Value="34" />
         <Setter Property="Padding" Value="14,0" />
-        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -42,10 +42,10 @@
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
     <Style Selector="TextBox.gallery-search">
-        <Setter Property="MinWidth" Value="300" />
+        <Setter Property="MinWidth" Value="240" />
         <Setter Property="Height" Value="36" />
         <Setter Property="Padding" Value="4,0,12,0" />
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="6" />
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderStrongBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -82,7 +82,8 @@
     <Style Selector="Button.gallery-chip">
         <Setter Property="Height" Value="30" />
         <Setter Property="Padding" Value="13,0" />
-        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Margin" Value="0,0,6,6" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
@@ -104,7 +105,8 @@
     <Style Selector="ToggleButton.gallery-chip">
         <Setter Property="Height" Value="30" />
         <Setter Property="Padding" Value="13,0" />
-        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Margin" Value="0,0,6,6" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
@@ -132,7 +134,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="{DynamicResource ZitiePanelBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -147,7 +149,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
     </Style>
     <Style Selector="Border.card-shadow-layer">
-        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BoxShadow" Value="{StaticResource ZitieCardShadow}" />
     </Style>
@@ -156,11 +158,12 @@
     </Style>
     <Style Selector="Border.module-thumb">
         <Setter Property="Height" Value="190" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Background" Value="{DynamicResource ZitieThumbnailBrush}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Background" Value="White" />
         <Setter Property="BorderBrush" Value="{DynamicResource ZitieThumbnailBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="10" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="ClipToBounds" Value="True" />
     </Style>
     <Style Selector="Border.module-tag">
         <Setter Property="HorizontalAlignment" Value="Left" />
@@ -201,7 +204,7 @@
     <Style Selector="Border.card-overlay">
         <Setter Property="Opacity" Value="0" />
         <Setter Property="Background" Value="{DynamicResource ZitieOverlayBrush}" />
-        <Setter Property="CornerRadius" Value="13" />
+        <Setter Property="CornerRadius" Value="8" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="ZIndex" Value="3" />

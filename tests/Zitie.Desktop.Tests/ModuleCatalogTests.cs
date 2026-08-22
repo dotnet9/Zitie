@@ -1,7 +1,5 @@
-using System.IO.Compression;
-using System.Text;
-using System.Xml.Linq;
 using Xunit;
+using Zitie.Core.Models;
 using Zitie.Desktop.Services;
 
 namespace Zitie.Desktop.Tests;
@@ -9,99 +7,103 @@ namespace Zitie.Desktop.Tests;
 public sealed class ModuleCatalogTests
 {
     [Fact]
-    public void BuiltInCatalog_LoadsZiTemplatePackagesWithArtwork()
+    public void BuiltInCatalog_LoadsNqezStyleTemplatesWithImages()
     {
         var catalog = new ModuleCatalog();
 
-        Assert.True(catalog.Modules.Count >= 30);
-        var module = Assert.Single(catalog.Modules, item => item.Id == "poem-wuyan-spring-scene");
-        Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
-        Assert.True(module.Defaults.BlankContentLayout);
-        Assert.Equal(5, module.Defaults.LayoutColumns);
-        Assert.Equal(4, module.Defaults.LayoutRows);
-        Assert.Contains("<svg", module.ReadTextAsset(module.Defaults.BackgroundArtwork));
+        Assert.Equal(223, catalog.Modules.Count);
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-945");
+        Assert.Equal("加宽拼音格帖", module.Name);
+        Assert.Equal("945", module.SourceTemplateId);
+        Assert.Contains("汉字", module.Categories);
+        Assert.Contains("拼音", module.Categories);
+        Assert.DoesNotContain("高级VIP", module.Categories);
+        Assert.True(File.Exists(module.PreviewImagePath));
+        Assert.False(module.Defaults.BlankContentLayout);
+        Assert.True(module.Defaults.ShowPinyin);
     }
 
     [Fact]
-    public void BuiltInBlankLayoutTemplates_RenderWithoutBodyText()
+    public void BuiltInCatalog_MapsVipTagToRegularCategoriesOnly()
     {
         var catalog = new ModuleCatalog();
-        var module = Assert.Single(catalog.Modules, item => item.Id == "spring-couplet-fu");
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-6380");
+
+        Assert.Contains("试卷", module.Categories);
+        Assert.DoesNotContain("高级VIP", module.Categories);
+        Assert.True(module.Defaults.BlankContentLayout);
+        Assert.Equal("a4Landscape", module.Defaults.PageSize);
+    }
+
+    [Fact]
+    public void BuiltInBlankLayoutTemplates_RenderBlankPracticeCells()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-960");
 
         Assert.True(module.Defaults.BlankContentLayout);
         Assert.Null(module.Defaults.Text);
 
         var preview = ModulePreviewFactory.Create(module);
         var page = Assert.Single(preview.Pages);
-        Assert.Empty(page.Cells);
+        Assert.NotEmpty(page.Cells);
+        Assert.All(page.Cells, cell => Assert.Equal(CellRole.Blank, cell.Role));
     }
 
     [Fact]
-    public void BuiltInArtworkTemplates_HaveReadableSvgAssets()
+    public void BuiltInFillTemplates_InferEditablePracticeDefaults()
     {
         var catalog = new ModuleCatalog();
-        var modules = catalog.Modules
-            .Where(module => !string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork))
-            .ToArray();
+        var english = Assert.Single(catalog.Modules, item => item.Id == "nqez-1013");
+        var preview = ModulePreviewFactory.Create(english);
 
-        Assert.True(modules.Length >= 10);
-        foreach (var module in modules)
-        {
-            var svg = module.ReadTextAsset(module.Defaults.BackgroundArtwork);
-            Assert.False(string.IsNullOrWhiteSpace(svg));
-            XDocument.Parse(svg);
-            Assert.NotEmpty(ModulePreviewFactory.Create(module).Pages);
-        }
+        Assert.Contains("英文", english.Categories);
+        Assert.Equal(GridKind.English, preview.Spec.Grid);
+        Assert.False(preview.Spec.BlankContentLayout);
+        Assert.NotEmpty(preview.Spec.Text);
     }
 
     [Fact]
-    public void Reload_LoadsOnlyZiPackagesAndCachesAssetsInMemory()
+    public void Reload_LoadsOnlyStyleCatalogItems()
     {
-        var builtInDirectory = CreateTempDirectory();
-        var userDirectory = CreateTempDirectory();
+        var styleDirectory = CreateTempDirectory();
+        var imageDirectory = Path.Combine(styleDirectory, "images");
+        Directory.CreateDirectory(imageDirectory);
         try
         {
-            File.WriteAllText(Path.Combine(builtInDirectory, "loose.yml"), """
+            File.WriteAllText(Path.Combine(styleDirectory, "loose.yml"), """
                 id: "loose"
                 name: "散落配置"
-                description: "不应被加载"
                 """);
-            WritePackage(Path.Combine(builtInDirectory, "packaged.zi"), """
-                id: "packaged"
-                name: "模板包"
-                description: "应该被加载"
-                defaults:
-                  backgroundArtwork: "assets/background.svg"
-                """, "<svg xmlns=\"http://www.w3.org/2000/svg\" />");
+            File.WriteAllText(Path.Combine(styleDirectory, "styles.json"), """
+                {
+                  "sourceUrl": "test",
+                  "retrievedDate": "2026-08-22",
+                  "itemCount": 1,
+                  "items": [
+                    {
+                      "id": "1",
+                      "title": "英文单词练习",
+                      "imageFileName": "missing.png",
+                      "url": "test",
+                      "tags": [4]
+                    }
+                  ]
+                }
+                """);
 
-            var catalog = new ModuleCatalog(builtInDirectory, userDirectory);
+            var catalog = new ModuleCatalog(styleDirectory, imageDirectory);
             var module = Assert.Single(catalog.Modules);
 
-            Assert.Equal("packaged", module.Id);
-            Assert.Equal("<svg xmlns=\"http://www.w3.org/2000/svg\" />", module.ReadTextAsset("assets/background.svg"));
+            Assert.Equal("nqez-1", module.Id);
+            Assert.Equal("英文单词练习", module.Name);
+            Assert.Contains("英文", module.Categories);
             Assert.Null(catalog.Find("loose"));
         }
         finally
         {
-            Directory.Delete(builtInDirectory, recursive: true);
-            Directory.Delete(userDirectory, recursive: true);
+            Directory.Delete(styleDirectory, recursive: true);
         }
-    }
-
-    private static void WritePackage(string path, string moduleText, string svg)
-    {
-        using var stream = File.Create(path);
-        using var archive = new ZipArchive(stream, ZipArchiveMode.Create);
-        WriteTextEntry(archive, "module.yml", moduleText);
-        WriteTextEntry(archive, "assets/background.svg", svg);
-    }
-
-    private static void WriteTextEntry(ZipArchive archive, string path, string text)
-    {
-        var entry = archive.CreateEntry(path);
-        using var stream = entry.Open();
-        using var writer = new StreamWriter(stream, new UTF8Encoding(false));
-        writer.Write(text);
     }
 
     private static string CreateTempDirectory()

@@ -9,7 +9,7 @@ public class ModuleGalleryViewModel : BindableBase
 {
     private static readonly string[] PreferredCategories =
     [
-        "全部", "基础", "诗词", "蒙学", "拼音", "英文", "主题", "自定义"
+        "汉字", "拼音", "数字", "英文", "有笔顺", "组词", "书法", "生字", "脱格", "文章", "试卷", "测试卡", "名字", "封面"
     ];
 
     public const double MinimumGalleryZoom = 0.8;
@@ -21,7 +21,7 @@ public class ModuleGalleryViewModel : BindableBase
     private readonly ISystemDialogs _dialogs;
     private readonly DelegateCommand<ModuleDefinition> _openCommand;
     private string _searchText = string.Empty;
-    private string _selectedCategory = "全部";
+    private string _selectedCategory = string.Empty;
     private double _galleryZoom = DefaultGalleryZoom;
 
     public ModuleGalleryViewModel(
@@ -32,7 +32,7 @@ public class ModuleGalleryViewModel : BindableBase
         _regionManager = regionManager;
         _catalog = catalog;
         _dialogs = dialogs;
-        TemplateDirectory = catalog.UserDirectory;
+        TemplateDirectory = catalog.ImageDirectory;
         OpenTemplateDirectoryCommand = new DelegateCommand(OpenTemplateDirectory);
 
         _openCommand = new DelegateCommand<ModuleDefinition>(
@@ -62,11 +62,11 @@ public class ModuleGalleryViewModel : BindableBase
         get
         {
             var counts = Modules
-                .GroupBy(module => module.CategoryText, StringComparer.CurrentCultureIgnoreCase)
+                .SelectMany(module => module.Module.Categories)
+                .GroupBy(category => category, StringComparer.CurrentCultureIgnoreCase)
                 .ToDictionary(group => group.Key, group => group.Count(), StringComparer.CurrentCultureIgnoreCase);
             var parts = new List<string> { $"{Modules.Count} 个模板" };
             parts.AddRange(PreferredCategories
-                .Skip(1)
                 .Where(counts.ContainsKey)
                 .Select(category => $"{category} {counts[category]}"));
             return string.Join(" · ", parts);
@@ -107,7 +107,7 @@ public class ModuleGalleryViewModel : BindableBase
         get => _selectedCategory;
         set
         {
-            if (SetProperty(ref _selectedCategory, string.IsNullOrWhiteSpace(value) ? "全部" : value))
+            if (SetProperty(ref _selectedCategory, value?.Trim() ?? string.Empty))
                 ApplyFilter();
         }
     }
@@ -136,11 +136,11 @@ public class ModuleGalleryViewModel : BindableBase
         foreach (var module in Modules)
             module.CardZoom = GalleryZoom;
         var categories = Modules
-            .Select(module => module.CategoryText)
+            .SelectMany(module => module.Module.Categories)
             .Distinct(StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
         var categoryNames = PreferredCategories
-            .Where(category => category == "全部" || categories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
+            .Where(category => categories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
             .Concat(categories
                 .Where(category => !PreferredCategories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
                 .OrderBy(category => category, StringComparer.CurrentCultureIgnoreCase))
@@ -163,17 +163,21 @@ public class ModuleGalleryViewModel : BindableBase
         {
             Directory.CreateDirectory(TemplateDirectory);
             _dialogs.OpenFolder(TemplateDirectory);
-            ZitieLogging.Info($"已打开用户模板目录：{TemplateDirectory}");
+            ZitieLogging.Info($"已打开示例图目录：{TemplateDirectory}");
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn($"打开用户模板目录失败：{TemplateDirectory}", exception);
+            ZitieLogging.Warn($"打开示例图目录失败：{TemplateDirectory}", exception);
         }
     }
 
     private void SelectCategory(string category)
     {
-        if (!string.IsNullOrWhiteSpace(category)) SelectedCategory = category;
+        if (string.IsNullOrWhiteSpace(category)) return;
+
+        SelectedCategory = string.Equals(category, SelectedCategory, StringComparison.CurrentCultureIgnoreCase)
+            ? string.Empty
+            : category;
     }
 
     private void ApplyFilter()
@@ -182,12 +186,13 @@ public class ModuleGalleryViewModel : BindableBase
         var category = SelectedCategory;
 
         FilteredModules = Modules
-            .Where(module => string.Equals(category, "全部", StringComparison.CurrentCultureIgnoreCase) ||
-                             string.Equals(module.CategoryText, category, StringComparison.CurrentCultureIgnoreCase))
+            .Where(module => category.Length == 0 ||
+                             module.Module.Categories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
             .Where(module => keyword.Length == 0 ||
                              module.Module.Name.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
                              module.Module.Description.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                             module.CategoryText.Contains(keyword, StringComparison.CurrentCultureIgnoreCase))
+                             module.Module.Categories.Any(moduleCategory =>
+                                 moduleCategory.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)))
             .ToList();
 
         foreach (var choice in CategoryChoices)

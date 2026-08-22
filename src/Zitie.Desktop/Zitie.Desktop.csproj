@@ -40,8 +40,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\resources\modules\*.zi"
-          Link="resources\modules\%(Filename)%(Extension)"
+    <None Include="..\..\resources\module-styles\styles.json"
+          Link="resources\module-styles\styles.json"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\docs\modules\*.*"
+          Link="resources\module-styles\images\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"
           CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

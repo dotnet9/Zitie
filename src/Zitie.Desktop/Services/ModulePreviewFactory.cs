@@ -90,23 +90,11 @@ public static class ModulePreviewFactory
         PracticeMode mode,
         bool vertical)
     {
-        if (!IsBuiltIn(module)) return "自定义";
+        if (module.Categories.Count > 0) return module.Categories[0];
         if (grid == GridKind.English) return "英文";
         if (grid == GridKind.Pinyin) return "拼音";
-        if (module.Id.Contains("mengxue", StringComparison.OrdinalIgnoreCase)) return "蒙学";
-        if (!string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork)) return "主题";
-        if (vertical || module.Id.Contains("poem", StringComparison.OrdinalIgnoreCase)) return "诗词";
-        return "基础";
-    }
-
-    private static bool IsBuiltIn(ModuleDefinition module)
-    {
-        if (string.IsNullOrWhiteSpace(module.SourcePath)) return true;
-
-        var sourcePath = Path.GetFullPath(module.SourcePath);
-        var builtInDirectory = Path.GetFullPath(ResourcePaths.Modules)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        return sourcePath.StartsWith(builtInDirectory, StringComparison.OrdinalIgnoreCase);
+        if (vertical) return "书法";
+        return "汉字";
     }
 
     private static GridKind ParseGrid(string? value)

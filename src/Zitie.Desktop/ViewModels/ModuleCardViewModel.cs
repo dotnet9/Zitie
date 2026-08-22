@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Avalonia.Media.Imaging;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
 using Zitie.Desktop.Services;
@@ -11,9 +12,9 @@ namespace Zitie.Desktop.ViewModels;
 /// </summary>
 public sealed class ModuleCardViewModel : BindableBase
 {
-    private const double BaseCardWidth = 260;
-    private const double BaseCardHeight = 282;
-    private const double BaseThumbHeight = 158;
+    private const double BaseCardWidth = 244;
+    private const double BaseCardHeight = 334;
+    private const double BaseThumbHeight = 226;
     private const double BasePreviewZoom = 0.22;
 
     private double _cardZoom;
@@ -23,6 +24,7 @@ public sealed class ModuleCardViewModel : BindableBase
         Module = module;
         OpenCommand = openCommand;
         Preview = ModulePreviewFactory.Create(module);
+        PreviewImage = LoadPreviewImage(module.PreviewImagePath);
         _cardZoom = 1;
     }
 
@@ -33,6 +35,10 @@ public sealed class ModuleCardViewModel : BindableBase
     public CharacterSheetSpec PreviewSpec => Preview.Spec;
 
     public IReadOnlyList<SheetPage> PreviewPages => Preview.Pages;
+
+    public Bitmap? PreviewImage { get; }
+
+    public bool HasPreviewImage => PreviewImage is not null;
 
     public double CardZoom
     {
@@ -57,22 +63,25 @@ public sealed class ModuleCardViewModel : BindableBase
 
     public double PreviewZoom => Math.Round(BasePreviewZoom * CardZoom, 3, MidpointRounding.AwayFromZero);
 
-    public string CategoryText => Preview.Category;
+    public string CategoryText => Module.Categories.FirstOrDefault() ?? Preview.Category;
 
     public string StatusText => Module.Enabled
-        ? $"{(IsBuiltIn ? "内置" : "自定义")} · {GridText}"
+        ? $"示例模板 · {GridText}"
         : "即将上线";
 
-    private bool IsBuiltIn
+    private static Bitmap? LoadPreviewImage(string? path)
     {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(Module.SourcePath)) return true;
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
 
-            var sourcePath = Path.GetFullPath(Module.SourcePath);
-            var builtInDirectory = Path.GetFullPath(ResourcePaths.Modules)
-                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
-            return sourcePath.StartsWith(builtInDirectory, StringComparison.OrdinalIgnoreCase);
+        try
+        {
+            using var stream = File.OpenRead(path);
+            return new Bitmap(stream);
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn($"模板示例图加载失败：{path}", exception);
+            return null;
         }
     }
 

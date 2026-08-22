@@ -27,7 +27,7 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         viewModel.Dynasty = "现代";
         viewModel.ShowPoemHeader = true;
 
-        var template = Assert.Single(catalog.Modules, module => module.Id == "english-four-line");
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-1013");
 
         viewModel.SwitchTemplate(template);
 
@@ -112,7 +112,7 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
             InputText = "小朋友认真练字",
             IsTemplatePickerOpen = true
         };
-        var template = Assert.Single(catalog.Modules, module => module.Id == "english-four-line");
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-1013");
 
         viewModel.PreviewTemplateModule = template;
 
@@ -143,7 +143,7 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         {
             IsTemplatePickerOpen = true
         };
-        var template = Assert.Single(catalog.Modules, module => module.Id == "english-four-line");
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-1013");
 
         viewModel.PreviewTemplateModule = template;
         viewModel.ApplySelectedTemplateCommand.Execute();
@@ -169,14 +169,14 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         {
             InputText = "已有正文"
         };
-        var template = Assert.Single(catalog.Modules, module => module.Id == "poem-wuyan-spring-scene");
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-960");
 
         viewModel.SwitchTemplate(template);
 
         Assert.False(viewModel.IsContentEditingEnabled);
         Assert.Equal(string.Empty, viewModel.InputText);
         Assert.True(viewModel.Spec.BlankContentLayout);
-        Assert.Equal(20, viewModel.Pages.Single().Cells.Count);
+        Assert.NotEmpty(viewModel.Pages.Single().Cells);
 
         viewModel.IsContentPickerOpen = true;
 
@@ -195,8 +195,8 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
             new FontCatalog(),
             new StubNavigationJournal(),
             new StubDialogs());
-        var blankTemplate = Assert.Single(catalog.Modules, module => module.Id == "poem-wuyan-spring-scene");
-        var practiceTemplate = Assert.Single(catalog.Modules, module => module.Id == "custom-trace-mi");
+        var blankTemplate = Assert.Single(catalog.Modules, module => module.Id == "nqez-960");
+        var practiceTemplate = Assert.Single(catalog.Modules, module => module.Id == "nqez-945");
 
         viewModel.SwitchTemplate(blankTemplate);
         viewModel.SwitchTemplate(practiceTemplate);

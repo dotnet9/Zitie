@@ -12,7 +12,7 @@ Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖
 - 内容资源覆盖小学一年级到高中三年级，独立抽屉支持按学科、版本、年级、学期、单元筛选、关键词高亮搜索和最近使用。
 - 模板库支持关键词搜索、分类筛选、模板块缩放、Ctrl+滚轮缩放和刷新用户模板目录。
 - 软件字号可用 12-30 的滑块按设备显示效果调整，并保存到本机设置。
-- `.zitie.json` 文档保存/打开，`.zi` 模板包保存、分享和加载。
+- `.zitie.json` 文档保存/打开，内置模板由 223 个样式示例图驱动。
 
 ## 使用
 
@@ -22,15 +22,12 @@ dotnet run --project src/Zitie.Desktop/Zitie.Desktop.csproj -f net10.0
 
 在模板页选择一个模板进入编辑器。编辑器顶部命令栏提供打开、保存、另存、保存模板、导出和打印；左侧属性面板修改版式，右侧预览会实时更新。
 
-用户模板目录位于：
-
-`%LOCALAPPDATA%\Zitie\modules`
-
-模板统一为 `.zi` 压缩包，包内根目录放 `module.yml`，背景 SVG 等素材放在 `assets/`。内置模板位于仓库根目录 `resources/modules`，用户模板位于 `%LOCALAPPDATA%\Zitie\modules`；保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
+内置模板清单位于 `resources/module-styles/styles.json`，示例图位于仓库根目录 `docs/modules`。桌面工程会把这些图片链接到输出目录 `resources/module-styles/images`，模板库按示例图标题和标签推断可编辑版式。
 
 内置资源统一位于仓库根目录 `resources`：
 
-- `resources/modules`：字帖模板 `.zi` 包。
+- `resources/module-styles`：223 个样式模板元数据。
+- `docs/modules`：样式模板示例图。
 - `resources/texts`：可直接生成字帖的练习文本 Markdown，含语文/英语小学到高中全年级同步拓展内容。
 - `resources/pinyin`：拼音词表 YAML。
 - `resources/textbooks`：2026 教材版本索引，覆盖小学、初中、高中在线教材元数据。

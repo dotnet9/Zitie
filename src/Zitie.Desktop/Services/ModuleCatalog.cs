@@ -1,11 +1,10 @@
-using System.IO;
-using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 
 namespace Zitie.Desktop.Services;
 
 /// <summary>
-///     模块定义：.zi 模板包内 module.yml 的数据形态。素材从同一个包内的 assets/ 读取。
+///     模板定义：内置模板由 NQEZ 样式示例图与本地推断规则生成。
 /// </summary>
 public sealed record ModuleDefinition
 {
@@ -15,8 +14,8 @@ public sealed record ModuleDefinition
 
     public string Description { get; set; } = string.Empty;
 
-    /// <summary>模块处理器类型，决定编辑器形态；首版仅 customText。</summary>
-    public string Kind { get; set; } = "customText";
+    /// <summary>模块处理器类型，决定编辑器形态；当前使用标题/标签推断的 styleTemplate。</summary>
+    public string Kind { get; set; } = "styleTemplate";
 
     /// <summary>是否可用；false 时卡片显示“即将上线”。</summary>
     public bool Enabled { get; set; } = true;
@@ -24,10 +23,22 @@ public sealed record ModuleDefinition
     /// <summary>模块默认参数：grid / mode / repeats / traceCount / title / text。</summary>
     public ModuleDefaults Defaults { get; set; } = new();
 
-    /// <summary>模板包路径，用于诊断与后续导出。</summary>
+    /// <summary>模板来源路径，用于诊断。</summary>
     public string? SourcePath { get; set; }
 
-    /// <summary>模板包内资源缓存；键使用 zip 内的规范化相对路径。</summary>
+    /// <summary>原始 NQEZ 样式 ID。</summary>
+    public string SourceTemplateId { get; set; } = string.Empty;
+
+    /// <summary>展示顺序，保持网页列表顺序。</summary>
+    public int DisplayOrder { get; set; }
+
+    /// <summary>按网页标签映射后的分类；不包含“高级VIP”。</summary>
+    public IReadOnlyList<string> Categories { get; set; } = Array.Empty<string>();
+
+    /// <summary>模板卡片使用的本地示例图。</summary>
+    public string PreviewImagePath { get; set; } = string.Empty;
+
+    /// <summary>模板包内资源缓存；新内置模板不使用，仅保留给保存模板流程序列化。</summary>
     public IReadOnlyDictionary<string, byte[]> Assets { get; set; } =
         new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
 
@@ -144,45 +155,70 @@ public sealed record ModuleDefaults
 }
 
 /// <summary>
-///     扫描内置与用户模板目录构建模块目录；用户模板可用相同 Id 覆盖内置模板。
+///     从 styles.json 加载 223 个内置样式模板。旧 .zi 内置模板不再参与目录构建。
 /// </summary>
 public sealed class ModuleCatalog
 {
-    private const string ModuleFileName = "module.yml";
+    private const string StyleCatalogFileName = "styles.json";
+
+    public static readonly IReadOnlyList<string> StyleCategoryOrder =
+    [
+        "汉字", "拼音", "数字", "英文", "有笔顺", "组词", "书法", "生字", "脱格", "文章", "试卷", "测试卡", "名字", "封面"
+    ];
+
+    private static readonly IReadOnlyDictionary<int, string> TagNames = new Dictionary<int, string>
+    {
+        [1] = "汉字",
+        [2] = "拼音",
+        [3] = "数字",
+        [4] = "英文",
+        [5] = "有笔顺",
+        [6] = "组词",
+        [7] = "书法",
+        [8] = "生字",
+        [9] = "脱格",
+        [10] = "文章",
+        [11] = "试卷",
+        [12] = "测试卡",
+        [13] = "高级VIP",
+        [14] = "名字",
+        [15] = "封面"
+    };
 
     public ModuleCatalog()
-        : this(ResourcePaths.Modules, ResolveDefaultUserDirectory())
+        : this(ResourcePaths.ModuleStyles, ResourcePaths.ModuleStyleImages)
     {
     }
 
-    public ModuleCatalog(string builtInDirectory, string userDirectory)
+    public ModuleCatalog(string styleDirectory)
+        : this(styleDirectory, Path.Combine(styleDirectory, "images"))
     {
-        BuiltInDirectory = builtInDirectory;
-        UserDirectory = userDirectory;
+    }
 
+    public ModuleCatalog(string styleDirectory, string imageDirectory)
+    {
+        StyleDirectory = styleDirectory;
+        ImageDirectory = imageDirectory;
         Reload();
     }
 
-    public string BuiltInDirectory { get; }
+    public string StyleDirectory { get; }
 
-    public string UserDirectory { get; }
+    public string ImageDirectory { get; }
+
+    public string BuiltInDirectory => StyleDirectory;
+
+    public string UserDirectory => ImageDirectory;
 
     public IReadOnlyList<ModuleDefinition> Modules { get; private set; } = Array.Empty<ModuleDefinition>();
 
     public void Reload()
     {
-        var modules = new List<ModuleDefinition>();
-        LoadDirectory(BuiltInDirectory, modules);
-        LoadDirectory(UserDirectory, modules);
-
-        Modules = modules
-            .GroupBy(module => module.Id, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.Last())
-            .OrderBy(module => module.Enabled ? 0 : 1)
-            .ThenBy(module => module.Name, StringComparer.CurrentCulture)
+        Modules = LoadStyleModules()
+            .OrderBy(module => module.DisplayOrder)
             .ToList();
 
-        ZitieLogging.Info($"模块目录加载完成：{Modules.Count} 个模块（内置：{BuiltInDirectory}；用户：{UserDirectory}）");
+        ZitieLogging.Info($"样式模板目录加载完成：{Modules.Count} 个模板（{StyleDirectory}）");
     }
 
     public ModuleDefinition? Find(string? id)
@@ -195,91 +231,344 @@ public sealed class ModuleCatalog
                 StringComparison.OrdinalIgnoreCase));
     }
 
-    private static string ResolveDefaultUserDirectory()
+    private IReadOnlyList<ModuleDefinition> LoadStyleModules()
     {
-        var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        if (string.IsNullOrWhiteSpace(localApplicationData))
-            localApplicationData = AppContext.BaseDirectory;
-
-        return Path.Combine(localApplicationData, "Zitie", "modules");
-    }
-
-    private static void LoadDirectory(string directory, ICollection<ModuleDefinition> modules)
-    {
-        if (!Directory.Exists(directory)) return;
+        var catalogPath = Path.Combine(StyleDirectory, StyleCatalogFileName);
+        if (!File.Exists(catalogPath))
+        {
+            ZitieLogging.Warn($"样式模板清单不存在，已跳过：{catalogPath}");
+            return Array.Empty<ModuleDefinition>();
+        }
 
         try
         {
-            foreach (var package in Directory.EnumerateFiles(directory, "*.zi", SearchOption.TopDirectoryOnly))
-                LoadModulePackage(package, modules);
+            using var stream = File.OpenRead(catalogPath);
+            using var document = JsonDocument.Parse(stream);
+            if (!document.RootElement.TryGetProperty("items", out var items) ||
+                items.ValueKind != JsonValueKind.Array)
+            {
+                ZitieLogging.Warn($"样式模板清单缺少 items 数组：{catalogPath}");
+                return Array.Empty<ModuleDefinition>();
+            }
+
+            var modules = new List<ModuleDefinition>(items.GetArrayLength());
+            var order = 0;
+            foreach (var item in items.EnumerateArray())
+            {
+                var module = ReadStyleModule(item, catalogPath, order);
+                if (module is not null)
+                    modules.Add(module);
+                order++;
+            }
+
+            return modules;
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn($"无法扫描模板目录，已跳过：{directory}", exception);
+            ZitieLogging.Warn($"样式模板清单解析失败，已跳过：{catalogPath}", exception);
+            return Array.Empty<ModuleDefinition>();
         }
     }
 
-    private static void LoadModulePackage(string packagePath, ICollection<ModuleDefinition> modules)
+    private ModuleDefinition? ReadStyleModule(JsonElement item, string catalogPath, int order)
     {
-        try
+        var sourceId = RequiredString(item, "id");
+        var title = RequiredString(item, "title");
+        var imageFileName = RequiredString(item, "imageFileName");
+        if (string.IsNullOrWhiteSpace(sourceId) ||
+            string.IsNullOrWhiteSpace(title) ||
+            string.IsNullOrWhiteSpace(imageFileName))
         {
-            using var stream = File.OpenRead(packagePath);
-            using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
-            var moduleEntry = archive.Entries.FirstOrDefault(static entry =>
-                string.Equals(
-                    ModuleDefinition.NormalizePackagePath(entry.FullName),
-                    ModuleFileName,
-                    StringComparison.OrdinalIgnoreCase));
-            if (moduleEntry is null)
-            {
-                ZitieLogging.Warn($"模板包缺少 {ModuleFileName}，已跳过：{packagePath}");
-                return;
-            }
-
-            var module = YamlResourceSerializer.DeserializeText<ModuleDefinition>(ReadEntryText(moduleEntry));
-            if (module is null || string.IsNullOrWhiteSpace(module.Id))
-            {
-                ZitieLogging.Warn($"模板包模块缺少 Id，已跳过：{packagePath}");
-                return;
-            }
-
-            module.SourcePath = packagePath;
-            module.Assets = ReadAssets(archive);
-            modules.Add(module);
+            ZitieLogging.Warn($"样式模板条目缺少必要字段，已跳过：{catalogPath} #{order + 1}");
+            return null;
         }
-        catch (Exception exception)
+
+        var tags = ReadTags(item);
+        var categories = ResolveCategories(tags);
+        var previewPath = Path.Combine(ImageDirectory, imageFileName);
+        var description = categories.Count == 0
+            ? "按示例图生成的字帖模板"
+            : $"按示例图生成 · {string.Join(" / ", categories)}";
+
+        return new ModuleDefinition
         {
-            ZitieLogging.Warn($"模板包解析失败，已跳过：{packagePath}", exception);
-        }
+            Id = $"nqez-{sourceId}",
+            SourceTemplateId = sourceId,
+            Name = title,
+            Description = description,
+            Kind = "styleTemplate",
+            Enabled = true,
+            SourcePath = catalogPath,
+            DisplayOrder = order,
+            Categories = categories,
+            PreviewImagePath = previewPath,
+            Defaults = CreateDefaults(title, tags)
+        };
     }
 
-    private static IReadOnlyDictionary<string, byte[]> ReadAssets(ZipArchive archive)
+    private static IReadOnlyList<string> ResolveCategories(IReadOnlySet<int> tags)
     {
-        var assets = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-        foreach (var entry in archive.Entries)
-        {
-            var key = ModuleDefinition.NormalizePackagePath(entry.FullName);
-            if (string.IsNullOrWhiteSpace(entry.Name) ||
-                key is null ||
-                string.Equals(key, ModuleFileName, StringComparison.OrdinalIgnoreCase) ||
-                key.EndsWith("/", StringComparison.Ordinal))
-            {
-                continue;
-            }
+        var categories = StyleCategoryOrder
+            .Where(category => tags.Any(tag =>
+                TagNames.TryGetValue(tag, out var tagName) &&
+                string.Equals(tagName, category, StringComparison.Ordinal)))
+            .ToArray();
 
-            using var entryStream = entry.Open();
-            using var memory = new MemoryStream();
-            entryStream.CopyTo(memory);
-            assets[key] = memory.ToArray();
-        }
-
-        return assets;
+        return categories.Length == 0 ? ["汉字"] : categories;
     }
 
-    private static string ReadEntryText(ZipArchiveEntry entry)
+    private static ModuleDefaults CreateDefaults(string title, IReadOnlySet<int> tags)
     {
-        using var stream = entry.Open();
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        return reader.ReadToEnd();
+        var blankLayout = IsBlankLayout(title, tags);
+        var grid = ResolveGrid(title, tags, blankLayout);
+        var vertical = IsVerticalLayout(title, tags);
+        var groupByWord = !blankLayout && ShouldGroupByWord(title, tags);
+        var mode = ResolveMode(title, tags, blankLayout);
+        var traceCount = ResolveTraceCount(title, mode, blankLayout);
+        var (columns, rows) = ResolveBlankLayout(title, tags, blankLayout, vertical);
+        var showPinyin = !blankLayout && ShouldShowPinyin(title, tags);
+        var pinyinOnly = !blankLayout && showPinyin && ContainsAny(title, "看拼音写", "拼音测试", "注音练习");
+        var poemHeader = !blankLayout && ContainsAny(title, "古诗", "诗词");
+
+        return new ModuleDefaults
+        {
+            BlankContentLayout = blankLayout,
+            LayoutColumns = columns,
+            LayoutRows = rows,
+            Grid = grid,
+            GridSize = ResolveGridSize(title, tags, grid, blankLayout),
+            GridGap = ContainsAny(title, "带间距") ? 2.5 : 1.5,
+            GroupGap = groupByWord || vertical ? 2.5 : 2,
+            HollowGlyph = ContainsAny(title, "空心", "双钩"),
+            Mode = mode,
+            GroupByWord = groupByWord,
+            ShowPinyin = showPinyin,
+            PinyinOnly = pinyinOnly,
+            Vertical = vertical,
+            ShowPoemHeader = poemHeader,
+            FrameBorder = blankLayout || tags.Contains(7) || tags.Contains(15),
+            Background = ResolveBackground(title, tags),
+            Repeats = ResolveRepeats(title, tags, groupByWord),
+            TraceCount = traceCount,
+            Title = title,
+            TraceIntensity = traceCount == 0 ? "white" : "light",
+            CellsPerLine = ResolveCellsPerLine(title, tags, grid, groupByWord, blankLayout),
+            BlankCellLineCount = ContainsAny(title, "脱格", "横线") ? 1 : 0,
+            GridColor = ResolveGridColor(title, tags),
+            TextColor = "#1A1A1A",
+            PageSize = ResolvePageSize(title),
+            PageMargin = ResolvePageMargin(title, tags, blankLayout),
+            FontFamily = ResolveFontFamily(title, tags),
+            HeaderPreset = ResolveHeaderPreset(title, tags, blankLayout, poemHeader),
+            HeaderText = "姓名_班级---年_月_日",
+            Text = blankLayout ? null : ResolveSampleText(title, tags)
+        };
+    }
+
+    private static bool IsBlankLayout(string title, IReadOnlySet<int> tags)
+    {
+        if (tags.Contains(11) || tags.Contains(12) || tags.Contains(15)) return true;
+        return ContainsAny(title,
+            "作文格", "运算纸", "练习题", "试卷", "测试", "检测", "测评", "测试卡",
+            "封面", "课程目录", "目录", "打卡", "记录卡", "生成表格", "表格",
+            "课前试写", "学前学后", "幼小衔接", "找书写错误", "纠错", "连一连", "补齐");
+    }
+
+    private static string ResolveGrid(string title, IReadOnlySet<int> tags, bool blankLayout)
+    {
+        if (tags.Contains(4) || ContainsAny(title, "英文", "英语", "单词", "短语")) return "english";
+        if (ContainsAny(title, "九宫")) return "nine";
+        if (ContainsAny(title, "回宫")) return "huigong";
+        if (ContainsAny(title, "田格", "田字")) return "tian";
+        if (ContainsAny(title, "方格", "作文格", "横线", "脱格", "文章", "表格")) return "plain";
+        if (tags.Contains(2) && !tags.Contains(1) && !tags.Contains(6)) return "pinyin";
+        if (tags.Contains(3) && blankLayout) return "plain";
+        return "mi";
+    }
+
+    private static bool IsVerticalLayout(string title, IReadOnlySet<int> tags)
+    {
+        if (ContainsAny(title, "横排", "A4横", "A3横")) return false;
+        return ContainsAny(title, "竖排", "竖式") ||
+               tags.Contains(7) && ContainsAny(title, "古诗", "诗词", "书法", "春联");
+    }
+
+    private static bool ShouldGroupByWord(string title, IReadOnlySet<int> tags)
+    {
+        return tags.Contains(6) ||
+               tags.Contains(10) ||
+               ContainsAny(title, "组词", "词语", "成语", "单词", "短语", "句子", "文章", "听写", "HSK");
+    }
+
+    private static string ResolveMode(string title, IReadOnlySet<int> tags, bool blankLayout)
+    {
+        if (blankLayout ||
+            ContainsAny(title, "临写", "抄写", "听写", "脱格", "横线", "测试", "试卷"))
+            return "copy";
+
+        return "trace";
+    }
+
+    private static int ResolveTraceCount(string title, string mode, bool blankLayout)
+    {
+        if (blankLayout || mode == "copy") return 0;
+        if (ContainsAny(title, "描红", "描写", "描临", "描字")) return 3;
+        return 2;
+    }
+
+    private static (int? Columns, int? Rows) ResolveBlankLayout(
+        string title,
+        IReadOnlySet<int> tags,
+        bool blankLayout,
+        bool vertical)
+    {
+        if (!blankLayout) return (null, null);
+        if (tags.Contains(15) || ContainsAny(title, "封面")) return (null, null);
+        if (ContainsAny(title, "作文格", "文章3行")) return (20, 20);
+        if (ContainsAny(title, "横线", "脱格")) return (1, 24);
+        if (tags.Contains(11)) return (12, 18);
+        if (tags.Contains(12)) return (8, 12);
+        if (tags.Contains(3)) return (10, 16);
+        return vertical ? (8, 16) : (12, 16);
+    }
+
+    private static bool ShouldShowPinyin(string title, IReadOnlySet<int> tags)
+    {
+        return tags.Contains(2) || ContainsAny(title, "拼音", "注音");
+    }
+
+    private static double ResolveGridSize(string title, IReadOnlySet<int> tags, string grid, bool blankLayout)
+    {
+        if (ContainsAny(title, "8mm", "8毫米")) return 8;
+        if (ContainsAny(title, "10mm", "10毫米")) return 10;
+        if (ContainsAny(title, "加大")) return 18;
+        if (ContainsAny(title, "加宽")) return 16;
+        if (grid == "english") return 9;
+        if (grid == "pinyin") return 11;
+        if (blankLayout) return 10;
+        if (tags.Contains(7)) return 18;
+        return 14;
+    }
+
+    private static int ResolveRepeats(string title, IReadOnlySet<int> tags, bool groupByWord)
+    {
+        if (groupByWord) return 1;
+        if (tags.Contains(3)) return 8;
+        if (ContainsAny(title, "单字", "每字一页")) return 8;
+        if (ContainsAny(title, "两列", "2列", "双列")) return 4;
+        return 5;
+    }
+
+    private static int? ResolveCellsPerLine(
+        string title,
+        IReadOnlySet<int> tags,
+        string grid,
+        bool groupByWord,
+        bool blankLayout)
+    {
+        if (blankLayout) return null;
+        if (grid == "english") return 24;
+        if (grid == "pinyin") return 12;
+        if (ContainsAny(title, "两列", "2列", "双列")) return 10;
+        if (groupByWord) return tags.Contains(10) ? 16 : 12;
+        if (tags.Contains(7)) return 10;
+        return 15;
+    }
+
+    private static string ResolveBackground(string title, IReadOnlySet<int> tags)
+    {
+        if (ContainsAny(title, "春联", "红纸")) return "redgrid";
+        if (tags.Contains(7) || ContainsAny(title, "书法", "古诗", "宣纸")) return "ricepaper";
+        if (tags.Contains(4) || ContainsAny(title, "英文", "英语")) return "letter";
+        return "plain";
+    }
+
+    private static string ResolveGridColor(string title, IReadOnlySet<int> tags)
+    {
+        if (tags.Contains(4)) return "#778A99";
+        if (tags.Contains(7)) return "#B04A3F";
+        if (ContainsAny(title, "横线", "脱格")) return "#9BA7B0";
+        return "#29A86C";
+    }
+
+    private static string ResolvePageSize(string title)
+    {
+        if (ContainsAny(title, "A4横", "A3横")) return "a4Landscape";
+        if (ContainsAny(title, "A3")) return "a3Portrait";
+        return "a4Portrait";
+    }
+
+    private static double ResolvePageMargin(string title, IReadOnlySet<int> tags, bool blankLayout)
+    {
+        if (tags.Contains(15)) return 20;
+        if (blankLayout) return 10;
+        if (tags.Contains(7)) return 16;
+        if (ContainsAny(title, "加大", "加宽")) return 12;
+        return 14;
+    }
+
+    private static string? ResolveFontFamily(string title, IReadOnlySet<int> tags)
+    {
+        if (tags.Contains(4)) return "Arial";
+        if (tags.Contains(7)) return "KaiTi";
+        return null;
+    }
+
+    private static string ResolveHeaderPreset(
+        string title,
+        IReadOnlySet<int> tags,
+        bool blankLayout,
+        bool poemHeader)
+    {
+        if (tags.Contains(15) || ContainsAny(title, "封面")) return "none";
+        if (poemHeader) return "poem";
+        if (blankLayout && ContainsAny(title, "作文格", "横线", "运算纸")) return "fields";
+        return "titleAndFields";
+    }
+
+    private static string ResolveSampleText(string title, IReadOnlySet<int> tags)
+    {
+        if (tags.Contains(4) || ContainsAny(title, "英文", "英语", "单词"))
+            return ContainsAny(title, "句子")
+                ? "This is my school. I like reading books."
+                : "cat dog pig cow sheep";
+        if (tags.Contains(3) || ContainsAny(title, "数字"))
+            return "1 2 3 4 5 6 7 8 9 0";
+        if (tags.Contains(14) || ContainsAny(title, "姓名", "名字"))
+            return "王小明";
+        if (ContainsAny(title, "拼音") && !tags.Contains(1))
+            return "bā bō mī fū dā";
+        if (tags.Contains(7) || ContainsAny(title, "古诗", "诗词", "书法"))
+            return "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
+        if (tags.Contains(10) || ContainsAny(title, "文章"))
+            return "春天来了，小草发芽，花儿开放。";
+        if (tags.Contains(6) || ContainsAny(title, "组词", "词语", "成语"))
+            return "春天 花朵 朋友 竹林";
+        return "春风化雨";
+    }
+
+    private static string RequiredString(JsonElement item, string propertyName)
+    {
+        return item.TryGetProperty(propertyName, out var value) &&
+               value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? string.Empty
+            : string.Empty;
+    }
+
+    private static IReadOnlySet<int> ReadTags(JsonElement item)
+    {
+        if (!item.TryGetProperty("tags", out var tags) ||
+            tags.ValueKind != JsonValueKind.Array)
+            return new HashSet<int>();
+
+        return tags.EnumerateArray()
+            .Where(static tag => tag.ValueKind == JsonValueKind.Number && tag.TryGetInt32(out _))
+            .Select(static tag => tag.GetInt32())
+            .ToHashSet();
+    }
+
+    private static bool ContainsAny(string text, params string[] terms)
+    {
+        return terms.Any(term => text.Contains(term, StringComparison.CurrentCultureIgnoreCase));
     }
 }

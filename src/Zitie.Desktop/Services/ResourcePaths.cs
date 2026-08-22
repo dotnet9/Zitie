@@ -5,7 +5,9 @@ internal static class ResourcePaths
 {
     public static string Root { get; } = Path.Combine(AppContext.BaseDirectory, "resources");
 
-    public static string Modules { get; } = Path.Combine(Root, "modules");
+    public static string ModuleStyles { get; } = Path.Combine(Root, "module-styles");
+
+    public static string ModuleStyleImages { get; } = Path.Combine(ModuleStyles, "images");
 
     public static string Texts { get; } = Path.Combine(Root, "texts");
 
