@@ -532,6 +532,47 @@ public class LayoutEngineTests
         Assert.Empty(page.Cells);
     }
 
+    [Theory]
+    [InlineData(PracticeLayoutKind.BracketWordRows)]
+    [InlineData(PracticeLayoutKind.BracketWordColumns)]
+    [InlineData(PracticeLayoutKind.BracketGridWords)]
+    [InlineData(PracticeLayoutKind.BracketPinyinColumns)]
+    public void Paginate_PracticeLayout_FillsWholeTemplatePage(PracticeLayoutKind layout)
+    {
+        var spec = MakeSpec("花 石 队", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = layout,
+                Grid = layout == PracticeLayoutKind.BracketGridWords ? GridKind.Plain : GridKind.None,
+                ShowHeaderFields = false
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.Equal(["花", "石", "队"], page.Cells.Take(3).Select(cell => cell.Glyph));
+        Assert.Contains(page.Cells, cell => cell.GroupIndex < 0);
+    }
+
+    [Fact]
+    public void Paginate_PracticeLayout_OverflowPagesAreAlsoFilled()
+    {
+        var text = string.Join(' ', Enumerable.Range(0, 80).Select(index => $"词{index}"));
+        var spec = MakeSpec(text, mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = PracticeLayoutKind.BracketGridWords,
+                Grid = GridKind.Plain,
+                ShowHeaderFields = false
+            };
+
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.True(pages.Count > 1);
+        Assert.All(pages, page => Assert.Equal(page.Columns * page.Rows, page.Cells.Count));
+        Assert.Contains(pages[^1].Cells, cell => cell.GroupIndex < 0);
+    }
+
     [Fact]
     public void Paginate_TraceColor_DoesNotChangeLayout()
     {

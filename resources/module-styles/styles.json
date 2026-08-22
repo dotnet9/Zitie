@@ -22,7 +22,18 @@
         1,
         6,
         9
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "bracketWordRows",
+        "grid": "none",
+        "frameBorder": true,
+        "title": "组词括号练习",
+        "headerPreset": "titleAndFields",
+        "gridColor": "#00A968",
+        "textColor": "#1A1A1A",
+        "fillContentAreaWithBlankCells": true,
+        "text": "神州 中华 山川 黄河 长江 长城 海峡 民族 奋发 节日 春节 花灯 先人"
+      }
     },
     {
       "id": "949",
@@ -33,7 +44,18 @@
         1,
         6,
         9
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "bracketWordColumns",
+        "grid": "none",
+        "frameBorder": true,
+        "title": "括号组词训练",
+        "headerPreset": "titleAndFields",
+        "gridColor": "#8FA8B3",
+        "textColor": "#1A1A1A",
+        "fillContentAreaWithBlankCells": true,
+        "text": "花 石 队 铜 欢 杨 枫 松 木 水 化 金 丛 深 竹 熊 朋 友 汉 语 拼 音 教 程 帮 助 会 员 权 益 页 头 标 题"
+      }
     },
     {
       "id": "950",
@@ -137,7 +159,18 @@
         1,
         6,
         9
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "bracketGridWords",
+        "grid": "plain",
+        "frameBorder": true,
+        "title": "组词方格括号",
+        "headerPreset": "titleAndFields",
+        "gridColor": "#8FA8B3",
+        "textColor": "#1A1A1A",
+        "fillContentAreaWithBlankCells": true,
+        "text": "花园 石桥 队旗 铜号 欢笑 杨树 树叶 枫树 松柏 木棉 水杉 化石 金桂 写字 丛林 深处 竹林 熊猫 朋友 四季 迷路 温暖 爱心 也许"
+      }
     },
     {
       "id": "1004",
@@ -1961,11 +1994,23 @@
     {
       "id": "43174",
       "title": "括号组词练习",
-      "imageFileName": "括号组词练习.png",
+      "imageFileName": "括号组词练习-43174.png",
       "url": "diyszmb",
       "tags": [
         6
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "bracketPinyinColumns",
+        "grid": "none",
+        "showPinyin": true,
+        "frameBorder": false,
+        "title": "括号组词练习",
+        "headerPreset": "titleAndFields",
+        "gridColor": "#00A968",
+        "textColor": "#1A1A1A",
+        "fillContentAreaWithBlankCells": true,
+        "text": "坡 球 招 呼 飘 扬 读 热 闹 粗 壮 洁 麦 湿 润 笛 狂 功 罚 互 碰 黄 急 庭 相 未 寒 经 斜 枫 霜 挑 深 落 朗 晶"
+      }
     },
     {
       "id": "43313",

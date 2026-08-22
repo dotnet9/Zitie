@@ -71,6 +71,8 @@ public sealed record ModuleDefinition
 
 public sealed record ModuleDefaults
 {
+    public string? PracticeLayout { get; set; }
+
     public bool? BlankContentLayout { get; set; }
 
     public bool? FillContentAreaWithBlankCells { get; set; }
@@ -292,6 +294,9 @@ public sealed class ModuleCatalog
             ? "按示例图生成的字帖模板"
             : $"按示例图生成 · {string.Join(" / ", categories)}";
 
+        var defaults = CreateDefaults(title, tags);
+        ApplyDefaultOverrides(defaults, ReadDefaultOverrides(item, catalogPath, order));
+
         return new ModuleDefinition
         {
             Id = $"nqez-{sourceId}",
@@ -304,7 +309,7 @@ public sealed class ModuleCatalog
             DisplayOrder = order,
             Categories = categories,
             PreviewImagePath = previewPath,
-            Defaults = CreateDefaults(title, tags)
+            Defaults = defaults
         };
     }
 
@@ -562,6 +567,72 @@ public sealed class ModuleCatalog
                value.ValueKind == JsonValueKind.String
             ? value.GetString() ?? string.Empty
             : string.Empty;
+    }
+
+    private static ModuleDefaults? ReadDefaultOverrides(JsonElement item, string catalogPath, int order)
+    {
+        if (!item.TryGetProperty("defaults", out var defaults) ||
+            defaults.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
+            return null;
+
+        try
+        {
+            return defaults.Deserialize(ZitieJsonContext.Default.ModuleDefaults);
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn($"样式模板默认值覆盖解析失败，已跳过：{catalogPath} #{order + 1}", exception);
+            return null;
+        }
+    }
+
+    private static void ApplyDefaultOverrides(ModuleDefaults target, ModuleDefaults? overrides)
+    {
+        if (overrides is null) return;
+
+        target.BlankContentLayout = overrides.BlankContentLayout ?? target.BlankContentLayout;
+        target.PracticeLayout = overrides.PracticeLayout ?? target.PracticeLayout;
+        target.FillContentAreaWithBlankCells = overrides.FillContentAreaWithBlankCells ?? target.FillContentAreaWithBlankCells;
+        target.LayoutColumns = overrides.LayoutColumns ?? target.LayoutColumns;
+        target.LayoutRows = overrides.LayoutRows ?? target.LayoutRows;
+        target.Grid = overrides.Grid ?? target.Grid;
+        target.GridSize = overrides.GridSize ?? target.GridSize;
+        target.GridGap = overrides.GridGap ?? target.GridGap;
+        target.GroupGap = overrides.GroupGap ?? target.GroupGap;
+        target.HollowGlyph = overrides.HollowGlyph ?? target.HollowGlyph;
+        target.Mode = overrides.Mode ?? target.Mode;
+        target.GroupByWord = overrides.GroupByWord ?? target.GroupByWord;
+        target.ShowPinyin = overrides.ShowPinyin ?? target.ShowPinyin;
+        target.PinyinOnly = overrides.PinyinOnly ?? target.PinyinOnly;
+        target.Vertical = overrides.Vertical ?? target.Vertical;
+        target.ShowPoemHeader = overrides.ShowPoemHeader ?? target.ShowPoemHeader;
+        target.FrameBorder = overrides.FrameBorder ?? target.FrameBorder;
+        target.Background = overrides.Background ?? target.Background;
+        target.BackgroundColor = overrides.BackgroundColor ?? target.BackgroundColor;
+        target.BackgroundLineColor = overrides.BackgroundLineColor ?? target.BackgroundLineColor;
+        target.BackgroundLineSpacing = overrides.BackgroundLineSpacing ?? target.BackgroundLineSpacing;
+        target.BackgroundArtwork = overrides.BackgroundArtwork ?? target.BackgroundArtwork;
+        target.Author = overrides.Author ?? target.Author;
+        target.Dynasty = overrides.Dynasty ?? target.Dynasty;
+        target.Repeats = overrides.Repeats ?? target.Repeats;
+        target.TraceCount = overrides.TraceCount ?? target.TraceCount;
+        target.Title = overrides.Title ?? target.Title;
+        target.TraceColor = overrides.TraceColor ?? target.TraceColor;
+        target.TraceIntensity = overrides.TraceIntensity ?? target.TraceIntensity;
+        target.CellsPerLine = overrides.CellsPerLine ?? target.CellsPerLine;
+        target.BlankCellLineCount = overrides.BlankCellLineCount ?? target.BlankCellLineCount;
+        target.GridColor = overrides.GridColor ?? target.GridColor;
+        target.TextColor = overrides.TextColor ?? target.TextColor;
+        target.PageSize = overrides.PageSize ?? target.PageSize;
+        target.PageMargin = overrides.PageMargin ?? target.PageMargin;
+        target.PageMarginTop = overrides.PageMarginTop ?? target.PageMarginTop;
+        target.PageMarginBottom = overrides.PageMarginBottom ?? target.PageMarginBottom;
+        target.PageMarginLeft = overrides.PageMarginLeft ?? target.PageMarginLeft;
+        target.PageMarginRight = overrides.PageMarginRight ?? target.PageMarginRight;
+        target.FontFamily = overrides.FontFamily ?? target.FontFamily;
+        target.HeaderPreset = overrides.HeaderPreset ?? target.HeaderPreset;
+        target.HeaderText = overrides.HeaderText ?? target.HeaderText;
+        target.Text = overrides.Text ?? target.Text;
     }
 
     private static IReadOnlySet<int> ReadTags(JsonElement item)

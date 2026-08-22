@@ -10,6 +10,7 @@ public static class ModulePreviewFactory
     {
         var defaults = module.Defaults;
 
+        var practiceLayout = PracticeLayoutKindParser.Parse(defaults.PracticeLayout);
         var grid = ParseGrid(defaults.Grid);
         var mode = ParseMode(defaults.Mode);
         var title = Normalize(defaults.Title);
@@ -33,6 +34,7 @@ public static class ModulePreviewFactory
         var spec = new CharacterSheetSpec
         {
             Text = text,
+            PracticeLayout = practiceLayout,
             BlankContentLayout = blankContentLayout,
             FillContentAreaWithBlankCells = defaults.FillContentAreaWithBlankCells == true,
             Grid = grid,
@@ -102,6 +104,7 @@ public static class ModulePreviewFactory
     {
         return value?.ToLowerInvariant() switch
         {
+            "none" => GridKind.None,
             "tian" => GridKind.Tian,
             "huigong" => GridKind.HuiGong,
             "plain" => GridKind.Plain,

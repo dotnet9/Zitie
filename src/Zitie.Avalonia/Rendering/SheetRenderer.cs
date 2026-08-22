@@ -24,6 +24,12 @@ public static class SheetRenderer
     {
         DrawBackground(canvas, spec);
         DrawBackgroundArtwork(canvas, spec);
+        if (PracticeLayoutRendererRegistry.TryGet(spec.PracticeLayout, out var practiceLayoutRenderer))
+        {
+            practiceLayoutRenderer.Render(canvas, spec, page, theme);
+            return;
+        }
+
         if (spec.FrameBorder) DrawFrame(canvas, spec, theme);
         DrawHeader(canvas, spec, page, theme);
         DrawCells(canvas, spec, page, theme);
@@ -285,6 +291,8 @@ public static class SheetRenderer
         SKPaint solidPaint,
         SKPaint dashPaint)
     {
+        if (kind == GridKind.None) return;
+
         canvas.DrawRect(x, y, size, size, solidPaint);
 
         switch (kind)

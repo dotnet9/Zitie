@@ -87,6 +87,7 @@ public sealed class ModuleCardViewModel : BindableBase
 
     private string GridText => PreviewSpec.Grid switch
     {
+        GridKind.None => "无格线",
         GridKind.Tian => "田字格",
         GridKind.HuiGong => "回宫格",
         GridKind.Nine => "九宫格",

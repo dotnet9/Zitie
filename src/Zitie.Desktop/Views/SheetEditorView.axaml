@@ -201,21 +201,23 @@
                                         <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
                                                   SelectedIndex="{Binding HeaderPresetIndex}"
                                                   AutomationProperties.Name="页头样式"
+                                                  IsEnabled="{Binding IsStandardPracticeLayout}"
                                                   Classes="editor-input" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="朝代" Classes="editor-label" />
-                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="唐" />
+                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="唐" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="作者" Classes="editor-label" />
-                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="李白" />
+                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="李白" />
                                     </StackPanel>
                                 </Grid>
                                 <CheckBox Content="题头显示作者（朝代 · 作者）"
                                           Classes="editor-check"
+                                          IsEnabled="{Binding IsStandardPracticeLayout}"
                                           IsChecked="{Binding ShowPoemHeader}" />
                             </StackPanel>
                         </ScrollViewer>
@@ -246,10 +248,11 @@
                                                        Value="{Binding PageMarginMm}" />
                                     </StackPanel>
                                 </Grid>
-                                <Border Classes="editor-field">
+                                <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
                                         <TextBlock Text="格子类型" Classes="editor-label" />
                                         <ComboBox SelectedIndex="{Binding GridKindIndex}" Classes="editor-input" AutomationProperties.Name="格子类型">
+                                            <ComboBoxItem Content="无格线" />
                                             <ComboBoxItem Content="米字格" />
                                             <ComboBoxItem Content="田字格" />
                                             <ComboBoxItem Content="回宫格" />
@@ -260,7 +263,7 @@
                                         </ComboBox>
                                     </StackPanel>
                                 </Border>
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="每行格数" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding CellsPerLineChoices}" SelectedIndex="{Binding CellsPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行格数" />
@@ -270,7 +273,7 @@
                                         <ComboBox ItemsSource="{Binding BlankCellLineChoices}" SelectedItem="{Binding BlankCellLineCount}" Classes="editor-input" AutomationProperties.Name="{Binding BlankCellLineLabel}" />
                                     </StackPanel>
                                 </Grid>
-                                <Border Classes="editor-field">
+                                <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
                                         <TextBlock Text="格子大小" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -285,8 +288,8 @@
                                         </Grid>
                                     </StackPanel>
                                 </Border>
-                                <CheckBox Content="按词分组（词内字符连续，不拆行）" Classes="editor-check" IsChecked="{Binding GroupByWord}" />
-                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）" Classes="editor-check" IsChecked="{Binding IsVertical}" />
+                                <CheckBox Content="按词分组（词内字符连续，不拆行）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding GroupByWord}" />
+                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding IsVertical}" />
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
@@ -302,7 +305,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Classes="editor-tab-body">
+                            <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="练习模式" Classes="editor-label" />
@@ -411,7 +414,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Classes="editor-tab-body">
+                            <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
                                 <CheckBox Content="标注拼音" Classes="editor-check" IsChecked="{Binding ShowPinyin}" />
                                 <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
                                           Classes="editor-check"
@@ -454,16 +457,30 @@
                                                IncreaseCommand="{Binding NextPageCommand}"
                                                DecreaseToolTip="上一页"
                                                IncreaseToolTip="下一页" />
-                        <controls:ZitieStepper Grid.Column="2"
-                                               ValueText="{Binding Zoom, StringFormat={}{0:P0}}"
-                                               AutomationProperties.Name="画布缩放"
-                                               ValueWidth="44"
-                                               DecreaseIconData="M5 12h14"
-                                               IncreaseIconData="M12 5v14 M5 12h14"
-                                               DecreaseCommand="{Binding ZoomOutCommand}"
-                                               IncreaseCommand="{Binding ZoomInCommand}"
-                                               DecreaseToolTip="缩小画布"
-                                               IncreaseToolTip="放大画布" />
+                        <Grid Grid.Column="2"
+                              ColumnDefinitions="Auto,Auto,Auto"
+                              ColumnSpacing="8"
+                              VerticalAlignment="Center">
+                            <TextBlock Text="缩放"
+                                       Classes="gallery-count"
+                                       VerticalAlignment="Center" />
+                            <Slider Grid.Column="1"
+                                    Width="{StaticResource ZitieStageZoomSliderWidth}"
+                                    Classes="gallery-zoom"
+                                    AutomationProperties.Name="画布缩放"
+                                    ToolTip.Tip="缩放画布大小"
+                                    Minimum="0.3"
+                                    Maximum="2"
+                                    TickFrequency="0.05"
+                                    IsSnapToTickEnabled="True"
+                                    Value="{Binding Zoom}" />
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Zoom, StringFormat={}{0:P0}}"
+                                       Classes="gallery-count"
+                                       MinWidth="{StaticResource ZitieStageZoomValueWidth}"
+                                       TextAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

@@ -76,6 +76,54 @@ public sealed class ModuleCatalogTests
     }
 
     [Fact]
+    public void ModuleSearch_SplitsBracketGroupWords()
+    {
+        var catalog = new ModuleCatalog();
+
+        Assert.Equal(["括号", "组词"], ModuleSearch.ParseTerms("括号组词"));
+
+        var matches = catalog.Modules
+            .Where(module => ModuleSearch.Matches(module, "括号组词"))
+            .Select(module => module.Id)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToArray();
+
+        Assert.Equal(["nqez-1002", "nqez-43174", "nqez-948", "nqez-949"], matches);
+    }
+
+    [Fact]
+    public void BracketGroupTemplates_UseDistinctExampleImages()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-43174");
+
+        Assert.EndsWith("括号组词练习-43174.png", module.PreviewImagePath);
+        Assert.True(File.Exists(module.PreviewImagePath));
+    }
+
+    [Fact]
+    public void BracketGroupTemplates_DistinguishGridAndNonGridLayouts()
+    {
+        var catalog = new ModuleCatalog();
+
+        var gridTemplate = ModulePreviewFactory.Create(Assert.Single(catalog.Modules, item => item.Id == "nqez-1002"));
+        var nonGridTemplates = new[] { "nqez-948", "nqez-949", "nqez-43174" }
+            .Select(id => ModulePreviewFactory.Create(Assert.Single(catalog.Modules, item => item.Id == id)))
+            .ToArray();
+
+        Assert.Equal(GridKind.Plain, gridTemplate.Spec.Grid);
+        Assert.Equal(PracticeLayoutKind.BracketGridWords, gridTemplate.Spec.PracticeLayout);
+        Assert.All(nonGridTemplates, preview => Assert.Equal(GridKind.None, preview.Spec.Grid));
+        Assert.Equal(
+            [
+                PracticeLayoutKind.BracketWordRows,
+                PracticeLayoutKind.BracketWordColumns,
+                PracticeLayoutKind.BracketPinyinColumns
+            ],
+            nonGridTemplates.Select(preview => preview.Spec.PracticeLayout));
+    }
+
+    [Fact]
     public void Reload_LoadsOnlyStyleCatalogItems()
     {
         var styleDirectory = CreateTempDirectory();

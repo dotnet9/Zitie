@@ -207,6 +207,28 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         Assert.False(viewModel.Spec.BlankContentLayout);
     }
 
+    [Fact]
+    public void SpecialPracticeTemplate_DisablesStandardLayoutOptions()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-948");
+
+        viewModel.SwitchTemplate(template);
+
+        Assert.True(viewModel.IsSpecialPracticeLayout);
+        Assert.False(viewModel.IsStandardPracticeLayout);
+        Assert.False(viewModel.IsPoemHeaderFieldsEnabled);
+        Assert.Equal(PracticeLayoutKind.BracketWordRows, viewModel.Spec.PracticeLayout);
+    }
+
     private sealed class StubNavigationJournal : IRegionNavigationJournal
     {
         public bool CanGoBack => false;

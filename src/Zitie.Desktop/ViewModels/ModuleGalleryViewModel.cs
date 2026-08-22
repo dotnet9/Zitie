@@ -1,11 +1,16 @@
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
+using Avalonia.Threading;
 using Zitie.Desktop.Services;
 
 namespace Zitie.Desktop.ViewModels;
 
-public class ModuleGalleryViewModel : BindableBase
+public class ModuleGalleryViewModel : BindableBase, IDisposable
 {
     private static readonly string[] PreferredCategories =
     [
@@ -20,9 +25,14 @@ public class ModuleGalleryViewModel : BindableBase
     private readonly ModuleCatalog _catalog;
     private readonly ISystemDialogs _dialogs;
     private readonly DelegateCommand<ModuleDefinition> _openCommand;
+    private readonly Subject<string> _searchTextChanges = new();
+    private readonly CompositeDisposable _subscriptions = new();
+    private int _loadRevision;
     private string _searchText = string.Empty;
     private string _selectedCategory = string.Empty;
+    private string _loadingMessage = "正在加载模板...";
     private double _galleryZoom = DefaultGalleryZoom;
+    private bool _isLoading = true;
 
     public ModuleGalleryViewModel(
         IRegionManager regionManager,
@@ -38,8 +48,11 @@ public class ModuleGalleryViewModel : BindableBase
         _openCommand = new DelegateCommand<ModuleDefinition>(
             OpenModule,
             module => module is { Enabled: true });
-        RefreshCommand = new DelegateCommand(Refresh);
-        RebuildModuleCards();
+        RefreshCommand = new DelegateCommand(
+            () => _ = LoadModuleCardsAsync(reloadCatalog: true),
+            () => !IsLoading);
+        ConfigureSearchDebounce();
+        QueueInitialLoad();
     }
 
     public IReadOnlyList<ModuleCardViewModel> Modules { get; private set; } = Array.Empty<ModuleCardViewModel>();
@@ -57,10 +70,29 @@ public class ModuleGalleryViewModel : BindableBase
 
     public int FilteredModuleCount => FilteredModules.Count;
 
+    public bool IsLoading
+    {
+        get => _isLoading;
+        private set
+        {
+            if (!SetProperty(ref _isLoading, value)) return;
+            RefreshCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(nameof(IsEmpty));
+        }
+    }
+
+    public string LoadingMessage
+    {
+        get => _loadingMessage;
+        private set => SetProperty(ref _loadingMessage, value);
+    }
+
     public string CatalogSummary
     {
         get
         {
+            if (IsLoading && Modules.Count == 0) return "正在加载模板...";
+
             var counts = Modules
                 .SelectMany(module => module.Module.Categories)
                 .GroupBy(category => category, StringComparer.CurrentCultureIgnoreCase)
@@ -73,7 +105,7 @@ public class ModuleGalleryViewModel : BindableBase
         }
     }
 
-    public bool IsEmpty => FilteredModules.Count == 0;
+    public bool IsEmpty => !IsLoading && FilteredModules.Count == 0;
 
     public double MinimumZoom => MinimumGalleryZoom;
 
@@ -97,8 +129,9 @@ public class ModuleGalleryViewModel : BindableBase
         get => _searchText;
         set
         {
-            if (SetProperty(ref _searchText, value ?? string.Empty))
-                ApplyFilter();
+            var normalized = value?.Trim() ?? string.Empty;
+            if (SetProperty(ref _searchText, normalized))
+                _searchTextChanges.OnNext(normalized);
         }
     }
 
@@ -121,18 +154,58 @@ public class ModuleGalleryViewModel : BindableBase
             new NavigationParameters { { "moduleId", module.Id } });
     }
 
-    private void Refresh()
+    private void QueueInitialLoad()
     {
-        _catalog.Reload();
-        RebuildModuleCards();
-        ZitieLogging.Info("模板页已刷新");
+        Dispatcher.UIThread.Post(() => _ = LoadModuleCardsAsync(reloadCatalog: false), DispatcherPriority.Background);
     }
 
-    private void RebuildModuleCards()
+    private void ConfigureSearchDebounce()
     {
-        Modules = _catalog.Modules
-            .Select(module => new ModuleCardViewModel(module, _openCommand))
-            .ToList();
+        var subscription = _searchTextChanges
+            .Throttle(TimeSpan.FromMilliseconds(250), TaskPoolScheduler.Default)
+            .DistinctUntilChanged(StringComparer.CurrentCultureIgnoreCase)
+            .Subscribe(_ => Dispatcher.UIThread.Post(ApplyFilter, DispatcherPriority.Background));
+        _subscriptions.Add(subscription);
+    }
+
+    private async Task LoadModuleCardsAsync(bool reloadCatalog)
+    {
+        var revision = Interlocked.Increment(ref _loadRevision);
+        LoadingMessage = reloadCatalog ? "正在刷新模板..." : "正在加载模板...";
+        IsLoading = true;
+
+        try
+        {
+            var cards = await Task.Run(() =>
+            {
+                if (reloadCatalog) _catalog.Reload();
+                return _catalog.Modules
+                    .Select(module => new ModuleCardViewModel(module, _openCommand))
+                    .ToList();
+            });
+
+            if (revision != _loadRevision) return;
+
+            ApplyModuleCards(cards);
+            if (reloadCatalog)
+            {
+                ZitieLogging.Info("模板页已刷新");
+            }
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn("模板卡片加载失败", exception);
+        }
+        finally
+        {
+            if (revision == _loadRevision)
+                IsLoading = false;
+        }
+    }
+
+    private void ApplyModuleCards(IReadOnlyList<ModuleCardViewModel> modules)
+    {
+        Modules = modules;
         foreach (var module in Modules)
             module.CardZoom = GalleryZoom;
         var categories = Modules
@@ -188,11 +261,7 @@ public class ModuleGalleryViewModel : BindableBase
         FilteredModules = Modules
             .Where(module => category.Length == 0 ||
                              module.Module.Categories.Contains(category, StringComparer.CurrentCultureIgnoreCase))
-            .Where(module => keyword.Length == 0 ||
-                             module.Module.Name.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                             module.Module.Description.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                             module.Module.Categories.Any(moduleCategory =>
-                                 moduleCategory.Contains(keyword, StringComparison.CurrentCultureIgnoreCase)))
+            .Where(module => ModuleSearch.Matches(module.Module, keyword))
             .ToList();
 
         foreach (var choice in CategoryChoices)
@@ -207,5 +276,11 @@ public class ModuleGalleryViewModel : BindableBase
     public void AdjustZoom(double delta)
     {
         GalleryZoom += delta;
+    }
+
+    public void Dispose()
+    {
+        _subscriptions.Dispose();
+        _searchTextChanges.Dispose();
     }
 }

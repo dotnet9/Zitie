@@ -1,4 +1,5 @@
 using System.IO;
+using hyjiacan.py4n;
 
 namespace Zitie.Desktop.Services;
 
@@ -23,6 +24,11 @@ public sealed record PinyinCategory
 /// </summary>
 public sealed class PinyinCatalog
 {
+    private static readonly PinyinFormat MarkedToneFormat =
+        PinyinFormat.WITH_TONE_MARK |
+        PinyinFormat.LOWERCASE |
+        PinyinFormat.WITH_U_UNICODE;
+
     public PinyinCatalog()
     {
         var directory = ResourcePaths.Pinyin;
@@ -56,6 +62,8 @@ public sealed class PinyinCatalog
                     ZitieLogging.Warn($"拼音词表解析失败，已跳过：{file}", exception);
                 }
 
+        AddBuiltInPinyin(map);
+
         Categories = categories;
         PinyinByGlyph = map;
         ZitieLogging.Info($"拼音词表加载完成：{categories.Sum(c => c.Words.Count)} 词 / {map.Count} 字（{directory}）");
@@ -72,5 +80,36 @@ public sealed class PinyinCatalog
         var syllables = pinyin.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var index = word.IndexOf(ch);
         return index >= 0 && index < syllables.Length ? syllables[index] : pinyin;
+    }
+
+    private static void AddBuiltInPinyin(Dictionary<string, string> map)
+    {
+        AddBuiltInPinyinRange(map, '\u3400', '\u4DBF');
+        AddBuiltInPinyinRange(map, '\u4E00', '\u9FFF');
+        AddBuiltInPinyinRange(map, '\uF900', '\uFAFF');
+    }
+
+    private static void AddBuiltInPinyinRange(Dictionary<string, string> map, char start, char end)
+    {
+        for (var codePoint = start; codePoint <= end; codePoint++)
+        {
+            var hanzi = (char)codePoint;
+            var glyph = hanzi.ToString();
+            if (map.ContainsKey(glyph)) continue;
+
+            string? pinyin = null;
+            try
+            {
+                if (PinyinUtil.IsHanzi(hanzi))
+                    pinyin = Pinyin4Net.GetFirstPinyin(hanzi, MarkedToneFormat);
+            }
+            catch (IndexOutOfRangeException)
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(pinyin))
+                map[glyph] = pinyin;
+        }
     }
 }

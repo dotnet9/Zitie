@@ -10,6 +10,7 @@ public sealed record SheetEditorState
     public const string DefaultInputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
 
     public string InputText { get; init; } = string.Empty;
+    public PracticeLayoutKind PracticeLayout { get; init; }
     public bool BlankContentLayout { get; init; }
     public bool FillContentAreaWithBlankCells { get; init; }
     public string Title { get; init; } = string.Empty;
@@ -53,6 +54,7 @@ public sealed record SheetEditorState
         return new SheetEditorState
         {
             InputText = DefaultInputText,
+            Grid = GridKind.Mi,
             FontFamilyName = fontFamilyName
         };
     }
@@ -63,6 +65,7 @@ public sealed record SheetEditorState
         return new SheetEditorState
         {
             InputText = spec.BlankContentLayout ? string.Empty : spec.Text,
+            PracticeLayout = spec.PracticeLayout,
             BlankContentLayout = spec.BlankContentLayout,
             FillContentAreaWithBlankCells = spec.FillContentAreaWithBlankCells,
             Title = spec.Title ?? string.Empty,

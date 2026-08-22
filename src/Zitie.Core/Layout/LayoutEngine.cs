@@ -38,6 +38,9 @@ public static class LayoutEngine
 
     public static IReadOnlyList<SheetPage> Paginate(CharacterSheetSpec spec)
     {
+        if (PracticeLayoutEngineRegistry.TryGet(spec.PracticeLayout, out var practiceLayoutEngine))
+            return practiceLayoutEngine.Paginate(spec);
+
         var pages = new List<SheetPage>();
         var vertical = spec.Orientation == SheetOrientation.Vertical;
         var pinyinGrid = spec.Grid == GridKind.Pinyin;

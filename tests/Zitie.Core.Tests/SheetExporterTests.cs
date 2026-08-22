@@ -82,6 +82,251 @@ public sealed class SheetExporterTests
     }
 
     [Fact]
+    public void ExportPng_PracticeLayoutDrawsVisibleBlankSlots()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "花",
+                PracticeLayout = PracticeLayoutKind.BracketWordColumns,
+                Grid = GridKind.None,
+                GridColor = "#29A86C"
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "bracket-layout.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            var inkPixels = 0;
+            for (var y = (int)(bitmap.Height * 0.55); y < (int)(bitmap.Height * 0.75); y++)
+            for (var x = (int)(bitmap.Width * 0.08); x < (int)(bitmap.Width * 0.92); x++)
+            {
+                var pixel = bitmap.GetPixel(x, y);
+                if (pixel.Red < 245 || pixel.Green < 245 || pixel.Blue < 245)
+                    inkPixels++;
+            }
+
+            Assert.True(inkPixels > 80);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ExportPng_BracketPracticeLayoutUsesTemplateChromeColor()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "神州 中华 山川",
+                PracticeLayout = PracticeLayoutKind.BracketWordRows,
+                Grid = GridKind.None,
+                GridColor = "#00A968",
+                TextColor = "#111111",
+                Title = "组词括号练习",
+                ShowHeaderFields = true,
+                FrameBorder = true
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "bracket-word-rows.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            Assert.True(CountPixels(bitmap, 0.34, 0.08, 0.66, 0.17, IsTemplateGreen) > 30);
+            Assert.True(CountPixels(bitmap, 0.06, 0.18, 0.30, 0.35, IsTemplateGreen) > 20);
+            Assert.True(CountPixels(bitmap, 0.08, 0.18, 0.26, 0.35, IsDarkInk) > 20);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ExportPng_BracketWordColumnsDrawsVerticalWordGuides()
+    {
+        const double dpi = 96;
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "花",
+                PracticeLayout = PracticeLayoutKind.BracketWordColumns,
+                Grid = GridKind.None,
+                GridColor = "#8FA8B3",
+                TextColor = "#111111",
+                Title = "组词训练",
+                ShowHeaderFields = true,
+                FrameBorder = true
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var page = pages[0];
+            var firstCell = page.Cells[0];
+            var path = Path.Combine(directory, "bracket-word-columns.png");
+
+            SheetExporter.ExportPng(path, spec, page, pages.Count, dpi);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            var itemWidth = spec.Page.UsableWidthMm / Math.Max(1, page.Columns);
+            var wordWidth = Math.Min(11, itemWidth * 0.24);
+            var blankX = firstCell.XMm + wordWidth + 1.5;
+            var blankWidth = Math.Max(18, itemWidth - wordWidth - 5);
+            var centerY = firstCell.YMm + firstCell.SizeMm / 2;
+            var edgeInset = Math.Min(blankWidth * 0.22, Math.Clamp(firstCell.SizeMm * 0.28, 1.8, 3.2));
+            var guideXs = new[]
+            {
+                blankX + edgeInset,
+                blankX + blankWidth / 2,
+                blankX + blankWidth - edgeInset
+            };
+            foreach (var guideX in guideXs)
+            {
+                var pixels = CountPixelsMm(
+                    bitmap,
+                    dpi,
+                    guideX - 0.45,
+                    centerY - firstCell.SizeMm * 0.36,
+                    guideX + 0.45,
+                    centerY + firstCell.SizeMm * 0.36,
+                    IsGuideInk);
+                Assert.True(pixels > 8);
+            }
+
+            var oldQuarterGuidePixels =
+                CountPixelsMm(
+                    bitmap,
+                    dpi,
+                    blankX + blankWidth * 0.25 - 0.45,
+                    centerY - firstCell.SizeMm * 0.30,
+                    blankX + blankWidth * 0.25 + 0.45,
+                    centerY + firstCell.SizeMm * 0.30,
+                    IsGuideInk) +
+                CountPixelsMm(
+                    bitmap,
+                    dpi,
+                    blankX + blankWidth * 0.75 - 0.45,
+                    centerY - firstCell.SizeMm * 0.30,
+                    blankX + blankWidth * 0.75 + 0.45,
+                    centerY + firstCell.SizeMm * 0.30,
+                    IsGuideInk);
+            Assert.True(oldQuarterGuidePixels < 8);
+
+            var horizontalPixels =
+                CountPixelsMm(
+                    bitmap,
+                    dpi,
+                    blankX + blankWidth * 0.34,
+                    centerY - 0.35,
+                    blankX + blankWidth * 0.46,
+                    centerY + 0.35,
+                    IsGuideInk) +
+                CountPixelsMm(
+                    bitmap,
+                    dpi,
+                    blankX + blankWidth * 0.54,
+                    centerY - 0.35,
+                    blankX + blankWidth * 0.66,
+                    centerY + 0.35,
+                    IsGuideInk);
+            Assert.True(horizontalPixels < 10);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ExportPng_BracketPinyinColumnsDrawsPinyinCellAndRaisedPinyinBlank()
+    {
+        const double dpi = 144;
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "坡",
+                PracticeLayout = PracticeLayoutKind.BracketPinyinColumns,
+                Grid = GridKind.None,
+                GridColor = "#00A968",
+                TextColor = "#111111",
+                Title = "括号组词练习",
+                ShowHeaderFields = true,
+                ShowPinyin = true,
+                PinyinByGlyph = new Dictionary<string, string> { ["坡"] = "pō" }
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var page = pages[0];
+            var firstCell = page.Cells[0];
+            var path = Path.Combine(directory, "bracket-pinyin-columns.png");
+
+            SheetExporter.ExportPng(path, spec, page, pages.Count, dpi);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            var itemWidth = spec.Page.UsableWidthMm / Math.Max(1, page.Columns);
+            var boxX = firstCell.XMm + 2;
+            var boxY = firstCell.YMm + 1;
+            const double boxWidth = 10;
+            const double boxHeight = 17;
+            const double pinyinHeight = boxHeight * 0.32;
+            var pinyinPixels = CountPixelsMm(
+                bitmap,
+                dpi,
+                boxX + 1,
+                boxY + 0.4,
+                boxX + boxWidth - 1,
+                boxY + pinyinHeight - 0.2,
+                IsTextInk);
+            Assert.True(pinyinPixels > 20);
+
+            var pinyinGuidePixels =
+                CountPinyinGuideLinePixels(bitmap, dpi, boxX, boxY + pinyinHeight / 3, boxWidth, IsGuideInk) +
+                CountPinyinGuideLinePixels(bitmap, dpi, boxX, boxY + pinyinHeight * 2 / 3, boxWidth, IsGuideInk);
+            Assert.True(pinyinGuidePixels > 12);
+
+            var glyphPixels = CountPixelsMm(
+                bitmap,
+                dpi,
+                boxX + 1,
+                boxY + pinyinHeight + 0.8,
+                boxX + boxWidth - 1,
+                boxY + boxHeight - 0.8,
+                IsDarkInk);
+            Assert.True(glyphPixels > 40);
+
+            var blankX = boxX + boxWidth + 1.5;
+            var blankWidth = Math.Max(15, itemWidth - boxWidth - 5.5);
+            var topBlankCenterY = boxY + pinyinHeight * 0.55;
+            var pinyinBracketPixels = CountPixelsMm(
+                bitmap,
+                dpi,
+                blankX,
+                topBlankCenterY - 2.4,
+                blankX + blankWidth,
+                topBlankCenterY + 2.4,
+                IsTemplateGreen);
+            Assert.True(pinyinBracketPixels > 20);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ExportPdf_WritesPdfForEveryPage()
     {
         var directory = CreateTempDirectory();
@@ -125,5 +370,104 @@ public sealed class SheetExporterTests
         var directory = Path.Combine(Path.GetTempPath(), "zitie-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         return directory;
+    }
+
+    private static int CountPixels(
+        SKBitmap bitmap,
+        double leftRatio,
+        double topRatio,
+        double rightRatio,
+        double bottomRatio,
+        Func<SKColor, bool> predicate)
+    {
+        var count = 0;
+        var left = Math.Clamp((int)(bitmap.Width * leftRatio), 0, bitmap.Width);
+        var top = Math.Clamp((int)(bitmap.Height * topRatio), 0, bitmap.Height);
+        var right = Math.Clamp((int)(bitmap.Width * rightRatio), left, bitmap.Width);
+        var bottom = Math.Clamp((int)(bitmap.Height * bottomRatio), top, bitmap.Height);
+        for (var y = top; y < bottom; y++)
+        for (var x = left; x < right; x++)
+            if (predicate(bitmap.GetPixel(x, y)))
+                count++;
+
+        return count;
+    }
+
+    private static int CountPinyinGuideLinePixels(
+        SKBitmap bitmap,
+        double dpi,
+        double boxX,
+        double lineY,
+        double boxWidth,
+        Func<SKColor, bool> predicate)
+    {
+        return CountPixelsMm(
+                   bitmap,
+                   dpi,
+                   boxX + 0.3,
+                   lineY - 0.25,
+                   boxX + 2.4,
+                   lineY + 0.25,
+                   predicate) +
+               CountPixelsMm(
+                   bitmap,
+                   dpi,
+                   boxX + boxWidth - 2.4,
+                   lineY - 0.25,
+                   boxX + boxWidth - 0.3,
+                   lineY + 0.25,
+                   predicate);
+    }
+
+    private static bool IsTemplateGreen(SKColor pixel)
+    {
+        return pixel.Green > 110 &&
+               pixel.Red < 90 &&
+               pixel.Blue < 140;
+    }
+
+    private static bool IsDarkInk(SKColor pixel)
+    {
+        return pixel.Red < 80 &&
+               pixel.Green < 80 &&
+               pixel.Blue < 80;
+    }
+
+    private static bool IsTextInk(SKColor pixel)
+    {
+        return pixel.Red < 185 &&
+               pixel.Green < 185 &&
+               pixel.Blue < 185;
+    }
+
+    private static int CountPixelsMm(
+        SKBitmap bitmap,
+        double dpi,
+        double leftMm,
+        double topMm,
+        double rightMm,
+        double bottomMm,
+        Func<SKColor, bool> predicate)
+    {
+        var pxPerMm = dpi / 25.4;
+        var count = 0;
+        var left = Math.Clamp((int)Math.Floor(leftMm * pxPerMm), 0, bitmap.Width);
+        var top = Math.Clamp((int)Math.Floor(topMm * pxPerMm), 0, bitmap.Height);
+        var right = Math.Clamp((int)Math.Ceiling(rightMm * pxPerMm), left, bitmap.Width);
+        var bottom = Math.Clamp((int)Math.Ceiling(bottomMm * pxPerMm), top, bitmap.Height);
+        for (var y = top; y < bottom; y++)
+        for (var x = left; x < right; x++)
+            if (predicate(bitmap.GetPixel(x, y)))
+                count++;
+
+        return count;
+    }
+
+    private static bool IsGuideInk(SKColor pixel)
+    {
+        return pixel.Red < 238 &&
+               pixel.Green < 242 &&
+               pixel.Blue < 246 &&
+               pixel.Blue >= pixel.Red;
     }
 }

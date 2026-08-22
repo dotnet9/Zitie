@@ -3,6 +3,9 @@ namespace Zitie.Core.Models;
 /// <summary>练习格类型。</summary>
 public enum GridKind
 {
+    /// <summary>无格线：用于括号填词、横线练习等非方格模板。</summary>
+    None,
+
     /// <summary>米字格：外框 + 十字 + 对角虚线。</summary>
     Mi,
 

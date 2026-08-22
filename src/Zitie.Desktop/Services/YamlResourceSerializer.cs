@@ -69,6 +69,7 @@ internal static class YamlResourceSerializer
 
         return new ModuleDefaults
         {
+            PracticeLayout = GetOptionalString(map, "practiceLayout"),
             BlankContentLayout = GetBoolean(map, "blankContentLayout"),
             FillContentAreaWithBlankCells = GetBoolean(map, "fillContentAreaWithBlankCells"),
             LayoutColumns = GetInt32(map, "layoutColumns"),
@@ -176,6 +177,7 @@ internal static class YamlResourceSerializer
         lines.Add("defaults:");
 
         var defaults = module.Defaults;
+        Add(lines, 2, "practiceLayout", defaults.PracticeLayout);
         Add(lines, 2, "blankContentLayout", defaults.BlankContentLayout);
         Add(lines, 2, "fillContentAreaWithBlankCells", defaults.FillContentAreaWithBlankCells);
         Add(lines, 2, "layoutColumns", defaults.LayoutColumns);

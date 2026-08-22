@@ -1,4 +1,8 @@
 using System.Runtime.CompilerServices;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Prism.Commands;
@@ -16,7 +20,7 @@ namespace Zitie.Desktop.ViewModels;
 /// <summary>
 ///     字帖编辑页：左侧配置驱动 <see cref="Rebuild" /> 重新排版，右侧预览消费同一份结果。
 /// </summary>
-public class SheetEditorViewModel : BindableBase, INavigationAware
+public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 {
     public const double MinimumZoom = 0.3;
     public const double MaximumZoom = 2;
@@ -27,6 +31,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     private readonly FontCatalog _fontCatalog;
     private readonly IRegionNavigationJournal _journal;
     private readonly ISystemDialogs _dialogs;
+    private readonly Subject<string> _templateSearchTextChanges = new();
+    private readonly CompositeDisposable _subscriptions = new();
 
     private SheetEditorState _editorState = SheetEditorState.CreateDefault();
     private FontOption? _selectedSheetFont;
@@ -111,7 +117,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         };
         OpenTemplatePickerCommand = new DelegateCommand(OpenTemplatePicker);
         CloseTemplatePickerCommand = new DelegateCommand(() => CloseTemplatePicker(commit: false));
-        ResetTemplateSearchCommand = new DelegateCommand(() => TemplateSearchText = string.Empty);
+        ResetTemplateSearchCommand = new DelegateCommand(ResetTemplateSearch);
         ApplySelectedTemplateCommand = new DelegateCommand(
             ApplySelectedTemplate,
             () => PreviewTemplateModule is not null);
@@ -123,6 +129,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
                 () => AdjustZoom(0.1),
                 () => Zoom < 2)
             .ObservesProperty(() => Zoom);
+        ConfigureTemplateSearchDebounce();
     }
 
     private async Task OpenDocumentAsync()
@@ -319,7 +326,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         set
         {
             if (!SetProperty(ref _templateSearchText, value?.Trim() ?? string.Empty)) return;
-            ApplyTemplateFilter();
+            _templateSearchTextChanges.OnNext(_templateSearchText);
         }
     }
 
@@ -423,6 +430,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
 
     public bool IsPoemHeader => HeaderPresetIndex != (int)SheetHeaderPreset.None &&
                                 (HeaderPresetIndex == (int)SheetHeaderPreset.Poem || ShowPoemHeader);
+
+    public bool IsStandardPracticeLayout => _editorState.PracticeLayout == PracticeLayoutKind.Standard;
+
+    public bool IsSpecialPracticeLayout => !IsStandardPracticeLayout;
+
+    public bool IsPoemHeaderFieldsEnabled => IsStandardPracticeLayout && IsPoemHeader;
 
     public bool IsTraceMode => PracticeModeIndex == (int)PracticeMode.Trace;
 
@@ -721,7 +734,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     public int GridKindIndex
     {
         get => (int)_editorState.Grid;
-        set => SetEditorState(_editorState with { Grid = (GridKind)Math.Clamp(value, 0, 6) });
+        set => SetEditorState(_editorState with { Grid = (GridKind)Math.Clamp(value, 0, 7) });
     }
 
     public int PracticeModeIndex
@@ -1116,8 +1129,23 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         if (_editorState == state) return false;
 
+        var previous = _editorState;
         _editorState = state;
         RaisePropertyChanged(propertyName);
+        if (previous.PracticeLayout != state.PracticeLayout)
+        {
+            RaisePropertyChanged(nameof(IsStandardPracticeLayout));
+            RaisePropertyChanged(nameof(IsSpecialPracticeLayout));
+        }
+
+        if (previous.PracticeLayout != state.PracticeLayout ||
+            previous.HeaderPreset != state.HeaderPreset ||
+            previous.ShowPoemHeader != state.ShowPoemHeader)
+        {
+            RaisePropertyChanged(nameof(IsPoemHeader));
+            RaisePropertyChanged(nameof(IsPoemHeaderFieldsEnabled));
+        }
+
         RequestRebuild();
         return true;
     }
@@ -1162,6 +1190,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         var spec = new CharacterSheetSpec
         {
             Text = InputText,
+            PracticeLayout = _editorState.PracticeLayout,
             BlankContentLayout = _editorState.BlankContentLayout,
             FillContentAreaWithBlankCells = _editorState.FillContentAreaWithBlankCells,
             Title = showTitle ? title : null,
@@ -1275,6 +1304,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         var blankContentLayout = defaults.BlankContentLayout == true;
         SetEditorState(_editorState with
         {
+            PracticeLayout = PracticeLayoutKindParser.Parse(defaults.PracticeLayout),
             BlankContentLayout = blankContentLayout,
             FillContentAreaWithBlankCells = defaults.FillContentAreaWithBlankCells == true,
             LayoutColumns = Math.Clamp(defaults.LayoutColumns ?? 0, 0, 64),
@@ -1286,13 +1316,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         if (defaults.Grid is { Length: > 0 } grid)
             GridKindIndex = grid.ToLowerInvariant() switch
             {
-                "mi" => 0,
-                "tian" => 1,
-                "huigong" => 2,
-                "plain" => 3,
-                "english" => 4,
-                "nine" => 5,
-                "pinyin" => 6,
+                "none" => 0,
+                "mi" => 1,
+                "tian" => 2,
+                "huigong" => 3,
+                "plain" => 4,
+                "english" => 5,
+                "nine" => 6,
+                "pinyin" => 7,
                 _ => GridKindIndex
             };
 
@@ -1461,14 +1492,26 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
             SetCurrentModule(current);
     }
 
+    private void ConfigureTemplateSearchDebounce()
+    {
+        var subscription = _templateSearchTextChanges
+            .Throttle(TimeSpan.FromMilliseconds(250), TaskPoolScheduler.Default)
+            .DistinctUntilChanged(StringComparer.CurrentCultureIgnoreCase)
+            .Subscribe(_ => Dispatcher.UIThread.Post(ApplyTemplateFilter, DispatcherPriority.Background));
+        _subscriptions.Add(subscription);
+    }
+
+    private void ResetTemplateSearch()
+    {
+        TemplateSearchText = string.Empty;
+        ApplyTemplateFilter();
+    }
+
     private void ApplyTemplateFilter()
     {
         var keyword = TemplateSearchText.Trim();
         var filtered = TemplateChoices
-            .Where(module => keyword.Length == 0 ||
-                             module.Name.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                             module.Description.Contains(keyword, StringComparison.CurrentCultureIgnoreCase) ||
-                             module.Id.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+            .Where(module => ModuleSearch.Matches(module, keyword))
             .ToArray();
         FilteredTemplateChoices = filtered;
 
@@ -1617,6 +1660,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
     {
         if (_isContentPickerOpen) CloseContentPicker(commit: false);
         if (_isTemplatePickerOpen) CloseTemplatePicker(commit: false);
+    }
+
+    public void Dispose()
+    {
+        _subscriptions.Dispose();
+        _templateSearchTextChanges.Dispose();
     }
 
     private sealed record EditorPreviewSnapshot(

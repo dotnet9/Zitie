@@ -8,6 +8,9 @@ public sealed record CharacterSheetSpec
     /// <summary>练习文本，逐个非空白字符生成练习组。</summary>
     public string Text { get; init; } = string.Empty;
 
+    /// <summary>特殊题型版式；Standard 使用普通字帖排版。</summary>
+    public PracticeLayoutKind PracticeLayout { get; init; }
+
     /// <summary>正文区域作为固定空白版式输出，不根据练习文本生成范字或描红字。</summary>
     public bool BlankContentLayout { get; init; }
 
