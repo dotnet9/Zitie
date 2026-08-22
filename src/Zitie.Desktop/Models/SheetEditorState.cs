@@ -34,6 +34,7 @@ public sealed record SheetEditorState
     public bool GroupByWord { get; init; }
     public bool ShowPinyin { get; init; }
     public bool PinyinOnly { get; init; }
+    public bool ShowStrokeOrder { get; init; }
     public SheetOrientation Orientation { get; init; }
     public bool ShowPoemHeader { get; init; }
     public bool FrameBorder { get; init; }
@@ -89,6 +90,7 @@ public sealed record SheetEditorState
             GroupByWord = spec.GroupByWord,
             ShowPinyin = spec.ShowPinyin,
             PinyinOnly = spec.PinyinOnly,
+            ShowStrokeOrder = spec.ShowStrokeOrder,
             Orientation = spec.Orientation,
             ShowPoemHeader = spec.ShowPoemHeader,
             FrameBorder = spec.FrameBorder,

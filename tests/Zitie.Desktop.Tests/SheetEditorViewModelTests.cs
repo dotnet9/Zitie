@@ -229,6 +229,99 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         Assert.Equal(PracticeLayoutKind.BracketWordRows, viewModel.Spec.PracticeLayout);
     }
 
+    [Fact]
+    public void CharacterWordsPoemTemplate_ResetsPreviousPaperBackground()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-951");
+        viewModel.BackgroundIndex = (int)SheetBackground.RicePaper;
+        viewModel.InputText = "春冬风雪花";
+
+        viewModel.SwitchTemplate(template);
+
+        Assert.Equal(SheetBackground.Plain, viewModel.Spec.Background);
+        Assert.Equal("#FFFFFF", viewModel.Spec.BackgroundColor);
+        Assert.Equal(PracticeLayoutKind.CharacterWordsPoem, viewModel.Spec.PracticeLayout);
+        Assert.NotNull(viewModel.Spec.StrokeOrderByGlyph);
+        Assert.True(viewModel.Spec.StrokeOrderByGlyph!.ContainsKey("春"));
+    }
+
+    [Fact]
+    public void CharacterWordsPoemTemplate_KeepsResourceTitleAndTitleStrokeOrders()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-951");
+
+        viewModel.SwitchTemplate(template);
+        viewModel.InputText = string.Empty;
+        viewModel.Title = "爱莲说";
+        viewModel.Dynasty = "宋";
+        viewModel.Author = "周敦颐";
+
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-character-words-poem-{Guid.NewGuid():N}.zitie.json");
+        try
+        {
+            viewModel.SaveDocumentTo(path);
+
+            Assert.Equal("爱莲说", viewModel.Spec.Title);
+            Assert.NotNull(viewModel.Spec.StrokeOrderByGlyph);
+            Assert.True(viewModel.Spec.StrokeOrderByGlyph!.ContainsKey("爱"));
+            Assert.True(viewModel.Spec.StrokeOrderByGlyph.ContainsKey("春"));
+        }
+        finally
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void StrokeOrderTemplate_LoadsStrokeOrdersForInputText()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-19279");
+
+        viewModel.SwitchTemplate(template);
+        viewModel.InputText = "春";
+
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-stroke-order-{Guid.NewGuid():N}.zitie.json");
+        try
+        {
+            viewModel.SaveDocumentTo(path);
+
+            Assert.True(viewModel.Spec.ShowStrokeOrder);
+            Assert.NotNull(viewModel.Spec.StrokeOrderByGlyph);
+            Assert.True(viewModel.Spec.StrokeOrderByGlyph!.ContainsKey("春"));
+        }
+        finally
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+    }
+
     private sealed class StubNavigationJournal : IRegionNavigationJournal
     {
         public bool CanGoBack => false;

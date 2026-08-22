@@ -74,6 +74,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\resources\strokes\*.*"
+          Link="resources\strokes\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\resources\textbooks\*.yml"
           Link="resources\textbooks\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest"

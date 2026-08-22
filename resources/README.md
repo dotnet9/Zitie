@@ -5,6 +5,7 @@
 - `modules/`：字帖模板 `.zi` 包；包内根目录放 `module.yml`，背景 SVG 等素材放在 `assets/`。
 - `texts/`：可直接生成字帖的练习文本，语文和英语已覆盖小学一年级到高中三年级。
 - `pinyin/`：拼音词表 YAML。
+- `strokes/`：离线汉字笔顺路径，运行时用于“有笔顺”模板和专用生字模板。
 - `textbooks/`：教材版本索引与教材资源元数据 YAML。
 
 `textbooks/textbook-editions-2026.yml` 来自国家中小学智慧教育平台当前在线电子教材资源快照，仅作为教材版本索引使用。

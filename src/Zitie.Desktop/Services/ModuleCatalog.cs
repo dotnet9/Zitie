@@ -99,6 +99,8 @@ public sealed record ModuleDefaults
 
     public bool? PinyinOnly { get; set; }
 
+    public bool? ShowStrokeOrder { get; set; }
+
     public bool? Vertical { get; set; }
 
     public bool? ShowPoemHeader { get; set; }
@@ -332,11 +334,13 @@ public sealed class ModuleCatalog
         var fillBlankCells = !blankLayout && !IsPoetryLike(title);
         var groupByWord = !blankLayout && ShouldGroupByWord(title, tags);
         var mode = ResolveMode(title, tags, blankLayout);
-        var traceCount = ResolveTraceCount(title, mode, blankLayout);
         var (columns, rows) = ResolveBlankLayout(title, tags, blankLayout, vertical);
         var showPinyin = !blankLayout && ShouldShowPinyin(title, tags);
+        var showStrokeOrder = !blankLayout && ShouldShowStrokeOrder(title, tags);
         var pinyinOnly = !blankLayout && showPinyin && ContainsAny(title, "看拼音写", "拼音测试", "注音练习");
         var poemHeader = !blankLayout && ContainsAny(title, "古诗", "诗词");
+        var repeats = ResolveRepeats(title, tags, groupByWord, showStrokeOrder);
+        var traceCount = ResolveTraceCount(title, mode, blankLayout, repeats, showStrokeOrder);
 
         return new ModuleDefaults
         {
@@ -353,15 +357,16 @@ public sealed class ModuleCatalog
             GroupByWord = groupByWord,
             ShowPinyin = showPinyin,
             PinyinOnly = pinyinOnly,
+            ShowStrokeOrder = showStrokeOrder,
             Vertical = vertical,
             ShowPoemHeader = poemHeader,
             FrameBorder = blankLayout || tags.Contains(7) || tags.Contains(15),
             Background = ResolveBackground(title, tags),
-            Repeats = ResolveRepeats(title, tags, groupByWord),
+            Repeats = repeats,
             TraceCount = traceCount,
             Title = title,
             TraceIntensity = traceCount == 0 ? "white" : "light",
-            CellsPerLine = ResolveCellsPerLine(title, tags, grid, groupByWord, blankLayout),
+            CellsPerLine = ResolveCellsPerLine(title, tags, grid, groupByWord, blankLayout, showStrokeOrder),
             BlankCellLineCount = ContainsAny(title, "脱格", "横线") ? 1 : 0,
             GridColor = ResolveGridColor(title, tags),
             TextColor = "#1A1A1A",
@@ -423,9 +428,15 @@ public sealed class ModuleCatalog
         return "trace";
     }
 
-    private static int ResolveTraceCount(string title, string mode, bool blankLayout)
+    private static int ResolveTraceCount(
+        string title,
+        string mode,
+        bool blankLayout,
+        int repeats,
+        bool showStrokeOrder)
     {
         if (blankLayout || mode == "copy") return 0;
+        if (showStrokeOrder) return Math.Max(0, repeats - 1);
         if (ContainsAny(title, "描红", "描写", "描临", "描字")) return 3;
         return 2;
     }
@@ -451,6 +462,11 @@ public sealed class ModuleCatalog
         return tags.Contains(2) || ContainsAny(title, "拼音", "注音");
     }
 
+    private static bool ShouldShowStrokeOrder(string title, IReadOnlySet<int> tags)
+    {
+        return tags.Contains(5) || ContainsAny(title, "笔顺", "书写顺序");
+    }
+
     private static double ResolveGridSize(string title, IReadOnlySet<int> tags, string grid, bool blankLayout)
     {
         if (ContainsAny(title, "8mm", "8毫米")) return 8;
@@ -464,10 +480,15 @@ public sealed class ModuleCatalog
         return 14;
     }
 
-    private static int ResolveRepeats(string title, IReadOnlySet<int> tags, bool groupByWord)
+    private static int ResolveRepeats(
+        string title,
+        IReadOnlySet<int> tags,
+        bool groupByWord,
+        bool showStrokeOrder)
     {
         if (groupByWord) return 1;
         if (tags.Contains(3)) return 8;
+        if (showStrokeOrder) return 8;
         if (ContainsAny(title, "单字", "每字一页")) return 8;
         if (ContainsAny(title, "两列", "2列", "双列")) return 4;
         return 5;
@@ -478,11 +499,13 @@ public sealed class ModuleCatalog
         IReadOnlySet<int> tags,
         string grid,
         bool groupByWord,
-        bool blankLayout)
+        bool blankLayout,
+        bool showStrokeOrder)
     {
         if (blankLayout) return null;
         if (grid == "english") return 24;
         if (grid == "pinyin") return 12;
+        if (showStrokeOrder && !groupByWord) return 8;
         if (ContainsAny(title, "两列", "2列", "双列")) return 10;
         if (groupByWord) return tags.Contains(10) ? 16 : 12;
         if (tags.Contains(7)) return 10;
@@ -604,6 +627,7 @@ public sealed class ModuleCatalog
         target.GroupByWord = overrides.GroupByWord ?? target.GroupByWord;
         target.ShowPinyin = overrides.ShowPinyin ?? target.ShowPinyin;
         target.PinyinOnly = overrides.PinyinOnly ?? target.PinyinOnly;
+        target.ShowStrokeOrder = overrides.ShowStrokeOrder ?? target.ShowStrokeOrder;
         target.Vertical = overrides.Vertical ?? target.Vertical;
         target.ShowPoemHeader = overrides.ShowPoemHeader ?? target.ShowPoemHeader;
         target.FrameBorder = overrides.FrameBorder ?? target.FrameBorder;

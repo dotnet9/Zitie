@@ -16,5 +16,8 @@ public enum PracticeLayoutKind
     BracketGridWords,
 
     /// <summary>拼音/生字小格加两行括号组词空位。</summary>
-    BracketPinyinColumns
+    BracketPinyinColumns,
+
+    /// <summary>同步生字、组词训练和同步古诗三段组合版式。</summary>
+    CharacterWordsPoem
 }

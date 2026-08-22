@@ -10,7 +10,8 @@ internal static class PracticeLayoutRendererRegistry
             new BracketWordRowsRenderer(),
             new BracketWordColumnsRenderer(),
             new BracketGridWordsRenderer(),
-            new BracketPinyinColumnsRenderer()
+            new BracketPinyinColumnsRenderer(),
+            new CharacterWordsPoemRenderer()
         }.ToDictionary(static renderer => renderer.Kind);
 
     public static bool TryGet(PracticeLayoutKind kind, out IPracticeLayoutRenderer renderer)

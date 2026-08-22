@@ -124,6 +124,39 @@ public sealed class ModuleCatalogTests
     }
 
     [Fact]
+    public void CharacterWordsPoemTemplate_UsesDedicatedLayout()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-951");
+        var preview = ModulePreviewFactory.Create(module);
+
+        Assert.Equal("生字组词古诗", module.Name);
+        Assert.Equal(PracticeLayoutKind.CharacterWordsPoem, preview.Spec.PracticeLayout);
+        Assert.Equal(GridKind.None, preview.Spec.Grid);
+        Assert.Equal("#84CC9B", preview.Spec.GridColor);
+        Assert.Equal("#514E51", preview.Spec.TextColor);
+        Assert.Equal("#FED9D3", preview.Spec.TraceColor);
+        Assert.Contains("远上寒山石径斜", preview.Spec.Text);
+        Assert.False(preview.Spec.ShowHeaderFields);
+    }
+
+    [Fact]
+    public void BuiltInStrokeOrderTemplates_EnableStrokeOrderDefaults()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-19279");
+        var preview = ModulePreviewFactory.Create(module);
+
+        Assert.Equal("汉字笔顺练习", module.Name);
+        Assert.Contains("有笔顺", module.Categories);
+        Assert.True(module.Defaults.ShowStrokeOrder);
+        Assert.True(preview.Spec.ShowStrokeOrder);
+        Assert.Equal(8, preview.Spec.RepeatsPerChar);
+        Assert.Equal(7, preview.Spec.TraceSlotCount);
+        Assert.Equal(8, preview.Spec.CellsPerLine);
+    }
+
+    [Fact]
     public void Reload_LoadsOnlyStyleCatalogItems()
     {
         var styleDirectory = CreateTempDirectory();

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Zitie.Core.Models;
 
 /// <summary>
@@ -108,6 +110,9 @@ public sealed record CharacterSheetSpec
     /// <summary>只显示拼音不显示范字，用于“看拼音写词语”。</summary>
     public bool PinyinOnly { get; init; }
 
+    /// <summary>显示汉字分步笔顺；实际路径由运行时笔顺库填充。</summary>
+    public bool ShowStrokeOrder { get; init; }
+
     /// <summary>
      ///     描红字颜色（十六进制，如 "#DF9C93"）；null 时用渲染主题默认色。
      ///     浅色适合打印后手描，深色适合屏幕直接临摹。
@@ -130,7 +135,12 @@ public sealed record CharacterSheetSpec
     public bool HollowGlyph { get; init; }
 
     /// <summary>字符 → 拼音（带声调），缺失时该格不标注。</summary>
+    [JsonIgnore]
     public IReadOnlyDictionary<string, string>? PinyinByGlyph { get; init; }
+
+    /// <summary>字符 → SVG 笔画路径序列；运行时缓存，不写入用户文档。</summary>
+    [JsonIgnore]
+    public IReadOnlyDictionary<string, CharacterStrokeOrder>? StrokeOrderByGlyph { get; init; }
 
     public PageSettings Page { get; init; } = PageSettings.A4;
 }

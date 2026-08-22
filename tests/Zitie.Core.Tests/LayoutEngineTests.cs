@@ -537,6 +537,7 @@ public class LayoutEngineTests
     [InlineData(PracticeLayoutKind.BracketWordColumns)]
     [InlineData(PracticeLayoutKind.BracketGridWords)]
     [InlineData(PracticeLayoutKind.BracketPinyinColumns)]
+    [InlineData(PracticeLayoutKind.CharacterWordsPoem)]
     public void Paginate_PracticeLayout_FillsWholeTemplatePage(PracticeLayoutKind layout)
     {
         var spec = MakeSpec("花 石 队", mode: PracticeMode.Copy, repeats: 1, title: null)

@@ -29,6 +29,7 @@ public sealed class SheetDocumentStoreTests
                 GridColor = "#123456",
                 TextColor = "#654321",
                 FontFamilyName = "Test Font",
+                ShowStrokeOrder = true,
                 Page = new PageSettings
                 {
                     WidthMm = 297,
@@ -38,7 +39,11 @@ public sealed class SheetDocumentStoreTests
                     MarginLeftMm = 18,
                     MarginRightMm = 18
                 },
-                PinyinByGlyph = new Dictionary<string, string> { ["春"] = "chun1" }
+                PinyinByGlyph = new Dictionary<string, string> { ["春"] = "chun1" },
+                StrokeOrderByGlyph = new Dictionary<string, CharacterStrokeOrder>
+                {
+                    ["春"] = new(["M 0 0 L 10 0 L 10 10 Z"])
+                }
             };
 
             SheetDocumentStore.Save(path, spec, "poem-wuyan");
@@ -46,6 +51,7 @@ public sealed class SheetDocumentStoreTests
             var loaded = SheetDocumentStore.Load(path);
 
             Assert.DoesNotContain("pinyinByGlyph", json, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("strokeOrderByGlyph", json, StringComparison.OrdinalIgnoreCase);
             Assert.Equal("poem-wuyan", loaded.ModuleId);
             Assert.Equal(spec.Text, loaded.Spec.Text);
             Assert.True(loaded.Spec.BlankContentLayout);
@@ -54,8 +60,10 @@ public sealed class SheetDocumentStoreTests
             Assert.Equal(4, loaded.Spec.LayoutRows);
             Assert.Equal(spec.GridColor, loaded.Spec.GridColor);
             Assert.Equal(spec.TextColor, loaded.Spec.TextColor);
+            Assert.True(loaded.Spec.ShowStrokeOrder);
             Assert.Equal(spec.Page, loaded.Spec.Page);
             Assert.Null(loaded.Spec.PinyinByGlyph);
+            Assert.Null(loaded.Spec.StrokeOrderByGlyph);
         }
         finally
         {
@@ -78,6 +86,7 @@ public sealed class SheetDocumentStoreTests
                 LayoutRows = 2,
                 GridColor = "#123456",
                 GroupGapMm = 7,
+                ShowStrokeOrder = true,
                 BackgroundArtworkSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1 1\" />",
                 Page = PageSettings.A4 with { MarginTopMm = 22 }
             }, "我的模板");
@@ -102,6 +111,7 @@ public sealed class SheetDocumentStoreTests
             Assert.Equal(3, module.Defaults.LayoutColumns);
             Assert.Equal(2, module.Defaults.LayoutRows);
             Assert.Equal(7d, module.Defaults.GroupGap);
+            Assert.True(module.Defaults.ShowStrokeOrder);
             Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
             Assert.Equal("a4Portrait", module.Defaults.PageSize);
             Assert.Equal(22d, module.Defaults.PageMargin);

@@ -75,7 +75,22 @@
         1,
         5,
         8
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "characterWordsPoem",
+        "grid": "none",
+        "frameBorder": false,
+        "title": "生字组词古诗",
+        "headerPreset": "none",
+        "background": "plain",
+        "backgroundColor": "#FFFFFF",
+        "gridColor": "#84CC9B",
+        "textColor": "#514E51",
+        "traceColor": "#FED9D3",
+        "traceIntensity": "light",
+        "showPinyin": true,
+        "text": "春 冬 风 雪 花 春天 春风 冬天 秋冬 大风 刮风 下雪 雪花 开花 花生 远上寒山石径斜，白云生处有人家。 停车坐爱枫林晚，霜叶红于二月花。"
+      }
     },
     {
       "id": "953",

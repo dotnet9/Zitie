@@ -327,6 +327,99 @@ public sealed class SheetExporterTests
     }
 
     [Fact]
+    public void ExportPng_CharacterWordsPoemDrawsThreeTemplateSections()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "春 冬 风 雪 花 春天 春风 冬天 秋冬 大风 刮风 下雪 雪花 开花 花生 远上寒山石径斜，白云生处有人家。 停车坐爱枫林晚，霜叶红于二月花。",
+                PracticeLayout = PracticeLayoutKind.CharacterWordsPoem,
+                Grid = GridKind.None,
+                GridColor = "#4CC58B",
+                TextColor = "#1A1A1A",
+                TraceColor = "#F2B4AA",
+                ShowHeaderFields = false,
+                FrameBorder = false,
+                StrokeOrderByGlyph = new Dictionary<string, CharacterStrokeOrder>
+                {
+                    ["春"] = new([
+                        "M 100 790 L 900 790 L 900 850 L 100 850 Z",
+                        "M 460 120 L 540 120 L 540 850 L 460 850 Z"
+                    ])
+                }
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "character-words-poem.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            Assert.True(CountPixels(bitmap, 0.05, 0.05, 0.95, 0.47, IsTemplateGreen) > 1000);
+            Assert.True(CountPixels(bitmap, 0.05, 0.49, 0.95, 0.66, IsTemplateGreen) > 600);
+            Assert.True(CountPixels(bitmap, 0.05, 0.67, 0.95, 0.88, IsTemplateGreen) > 250);
+            Assert.True(CountPixels(bitmap, 0.06, 0.68, 0.80, 0.82, IsDarkInk) > 180);
+            Assert.True(CountPixelsMm(bitmap, 96, 60, 20, 105, 31, IsStrokeRed) > 10);
+            Assert.True(CountPixelsMm(bitmap, 96, 51.2, 30, 52.1, 44, IsGuideGreen) > 18);
+            Assert.True(CountPixelsMm(bitmap, 96, 44.2, 37, 59.1, 37.8, IsGuideGreen) > 18);
+            Assert.True(CountPixelsMm(bitmap, 96, 16, 158, 22, 168, IsDarkInk) > 15);
+            Assert.True(CountPixelsMm(bitmap, 96, 26, 158, 32, 168, IsDarkInk) > 15);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ExportPng_StandardStrokeOrderHighlightsCurrentStroke()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "春",
+                Mode = PracticeMode.Trace,
+                RepeatsPerChar = 4,
+                TraceSlotCount = 3,
+                ShowStrokeOrder = true,
+                GridColor = "#29A86C",
+                TraceColor = "#C9D6D0",
+                StrokeOrderByGlyph = new Dictionary<string, CharacterStrokeOrder>
+                {
+                    ["春"] = new([
+                        "M 100 790 L 900 790 L 900 850 L 100 850 Z",
+                        "M 460 120 L 540 120 L 540 850 L 460 850 Z"
+                    ])
+                }
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var traceCell = pages[0].Cells[1];
+            var path = Path.Combine(directory, "standard-stroke-order.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            Assert.True(CountPixelsMm(
+                bitmap,
+                96,
+                traceCell.XMm,
+                traceCell.YMm,
+                traceCell.XMm + traceCell.SizeMm,
+                traceCell.YMm + traceCell.SizeMm,
+                IsStrokeRed) > 10);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ExportPdf_WritesPdfForEveryPage()
     {
         var directory = CreateTempDirectory();
@@ -431,6 +524,22 @@ public sealed class SheetExporterTests
         return pixel.Red < 80 &&
                pixel.Green < 80 &&
                pixel.Blue < 80;
+    }
+
+    private static bool IsStrokeRed(SKColor pixel)
+    {
+        return pixel.Red > 190 &&
+               pixel.Green < 150 &&
+               pixel.Blue < 145;
+    }
+
+    private static bool IsGuideGreen(SKColor pixel)
+    {
+        return pixel.Green > 150 &&
+               pixel.Red < 230 &&
+               pixel.Blue < 230 &&
+               pixel.Green >= pixel.Red &&
+               pixel.Green >= pixel.Blue;
     }
 
     private static bool IsTextInk(SKColor pixel)

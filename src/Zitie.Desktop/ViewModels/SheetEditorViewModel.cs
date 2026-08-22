@@ -28,6 +28,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
     private readonly ModuleCatalog _catalog;
     private readonly PinyinCatalog _pinyinCatalog;
+    private readonly StrokeOrderCatalog _strokeOrderCatalog;
     private readonly FontCatalog _fontCatalog;
     private readonly IRegionNavigationJournal _journal;
     private readonly ISystemDialogs _dialogs;
@@ -71,10 +72,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         PinyinCatalog pinyinCatalog,
         FontCatalog fontCatalog,
         IRegionNavigationJournal journal,
-        ISystemDialogs systemDialogs)
+        ISystemDialogs systemDialogs,
+        StrokeOrderCatalog? strokeOrderCatalog = null)
     {
         _catalog = catalog;
         _pinyinCatalog = pinyinCatalog;
+        _strokeOrderCatalog = strokeOrderCatalog ?? new StrokeOrderCatalog();
         _fontCatalog = fontCatalog;
         _journal = journal;
         _dialogs = systemDialogs;
@@ -1180,6 +1183,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         var headerPreset = (SheetHeaderPreset)Math.Clamp(HeaderPresetIndex, 0, HeaderPresetChoices.Length - 1);
         var traceIntensity = (TraceIntensity)Math.Clamp(TraceIntensityIndex, 0, TraceIntensityChoices.Length - 1);
         var title = string.IsNullOrWhiteSpace(Title) ? null : Title.Trim();
+        var specialLayoutUsesContentTitle = _editorState.PracticeLayout == PracticeLayoutKind.CharacterWordsPoem;
         var showTitle = headerPreset is SheetHeaderPreset.TitleAndFields
                         or SheetHeaderPreset.Poem
                         or SheetHeaderPreset.Custom;
@@ -1193,7 +1197,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             PracticeLayout = _editorState.PracticeLayout,
             BlankContentLayout = _editorState.BlankContentLayout,
             FillContentAreaWithBlankCells = _editorState.FillContentAreaWithBlankCells,
-            Title = showTitle ? title : null,
+            Title = showTitle || specialLayoutUsesContentTitle ? title : null,
             HeaderPreset = headerPreset,
             HeaderTextTemplate = headerPreset == SheetHeaderPreset.Custom &&
                                  !string.IsNullOrWhiteSpace(HeaderTextTemplate)
@@ -1214,9 +1218,11 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             GroupByWord = GroupByWord,
             ShowPinyin = ShowPinyin,
             PinyinOnly = PinyinOnly,
+            ShowStrokeOrder = _editorState.ShowStrokeOrder,
             PinyinByGlyph = ShowPinyin || _editorState.Grid == GridKind.Pinyin
                 ? _pinyinCatalog.PinyinByGlyph
                 : null,
+            StrokeOrderByGlyph = ResolveStrokeOrders(),
             Orientation = _editorState.Orientation,
             ShowPoemHeader = headerPreset == SheetHeaderPreset.Poem ||
                              (headerPreset != SheetHeaderPreset.None && ShowPoemHeader),
@@ -1247,6 +1253,39 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         RaisePropertyChanged(nameof(PageIndicator));
         RaisePropertyChanged(nameof(CanExport));
         if (!_suppressDirty) IsDirty = true;
+    }
+
+    private IReadOnlyDictionary<string, CharacterStrokeOrder>? ResolveStrokeOrders()
+    {
+        if (!_editorState.ShowStrokeOrder &&
+            _editorState.PracticeLayout != PracticeLayoutKind.CharacterWordsPoem)
+            return null;
+
+        var glyphs = StrokeOrderSource()
+            .Where(IsChinese)
+            .Select(static glyph => glyph.ToString());
+        var result = _strokeOrderCatalog.FindForGlyphs(glyphs);
+        return result.Count > 0 ? result : null;
+    }
+
+    private IEnumerable<char> StrokeOrderSource()
+    {
+        foreach (var ch in InputText)
+            yield return ch;
+        foreach (var ch in Title ?? string.Empty)
+            yield return ch;
+        foreach (var ch in Dynasty ?? string.Empty)
+            yield return ch;
+        foreach (var ch in Author ?? string.Empty)
+            yield return ch;
+        foreach (var ch in "春冬风雪花")
+            yield return ch;
+    }
+
+    private static bool IsChinese(char value)
+    {
+        return value is >= '\u3400' and <= '\u9FFF' ||
+               value is >= '\uF900' and <= '\uFAFF';
     }
 
     private static PageSettings ResolvePageSettings(int pageSizeIndex, double marginMm)
@@ -1341,6 +1380,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         if (defaults.GroupByWord is { } groupByWord) GroupByWord = groupByWord;
         if (defaults.ShowPinyin is { } showPinyin) ShowPinyin = showPinyin;
         if (defaults.PinyinOnly is { } pinyinOnly) PinyinOnly = pinyinOnly;
+        if (defaults.ShowStrokeOrder is { } showStrokeOrder)
+            _editorState = _editorState with { ShowStrokeOrder = showStrokeOrder };
         if (defaults.Vertical is { } vertical) IsVertical = vertical;
         if (defaults.ShowPoemHeader is { } showPoemHeader) ShowPoemHeader = showPoemHeader;
         if (defaults.FrameBorder is { } frameBorder) FrameBorder = frameBorder;
@@ -1348,6 +1389,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         if (defaults.Background is { Length: > 0 } background)
             BackgroundIndex = background.ToLowerInvariant() switch
             {
+                "plain" => 0,
                 "redgrid" => 1,
                 "letter" => 2,
                 "ricepaper" => 3,

@@ -72,6 +72,7 @@ public static class ModulePreviewFactory
             GroupByWord = defaults.GroupByWord == true,
             ShowPinyin = defaults.ShowPinyin == true,
             PinyinOnly = defaults.PinyinOnly == true,
+            ShowStrokeOrder = defaults.ShowStrokeOrder == true,
             HollowGlyph = defaults.HollowGlyph == true,
             TraceIntensity = ParseTraceIntensity(defaults.TraceIntensity),
             TraceColor = Normalize(defaults.TraceColor),

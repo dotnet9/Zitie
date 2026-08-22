@@ -13,5 +13,7 @@ internal static class ResourcePaths
 
     public static string Pinyin { get; } = Path.Combine(Root, "pinyin");
 
+    public static string Strokes { get; } = Path.Combine(Root, "strokes");
+
     public static string Textbooks { get; } = Path.Combine(Root, "textbooks");
 }

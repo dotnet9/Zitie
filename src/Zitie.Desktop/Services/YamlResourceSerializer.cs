@@ -83,6 +83,7 @@ internal static class YamlResourceSerializer
             GroupByWord = GetBoolean(map, "groupByWord"),
             ShowPinyin = GetBoolean(map, "showPinyin"),
             PinyinOnly = GetBoolean(map, "pinyinOnly"),
+            ShowStrokeOrder = GetBoolean(map, "showStrokeOrder"),
             Vertical = GetBoolean(map, "vertical"),
             ShowPoemHeader = GetBoolean(map, "showPoemHeader"),
             FrameBorder = GetBoolean(map, "frameBorder"),
@@ -191,6 +192,7 @@ internal static class YamlResourceSerializer
         Add(lines, 2, "groupByWord", defaults.GroupByWord);
         Add(lines, 2, "showPinyin", defaults.ShowPinyin);
         Add(lines, 2, "pinyinOnly", defaults.PinyinOnly);
+        Add(lines, 2, "showStrokeOrder", defaults.ShowStrokeOrder);
         Add(lines, 2, "vertical", defaults.Vertical);
         Add(lines, 2, "showPoemHeader", defaults.ShowPoemHeader);
         Add(lines, 2, "frameBorder", defaults.FrameBorder);
