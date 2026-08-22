@@ -21,6 +21,7 @@ public sealed class SheetDocumentStoreTests
             {
                 Text = "春眠不觉晓",
                 BlankContentLayout = true,
+                FillContentAreaWithBlankCells = true,
                 LayoutColumns = 5,
                 LayoutRows = 4,
                 Grid = GridKind.Nine,
@@ -48,6 +49,7 @@ public sealed class SheetDocumentStoreTests
             Assert.Equal("poem-wuyan", loaded.ModuleId);
             Assert.Equal(spec.Text, loaded.Spec.Text);
             Assert.True(loaded.Spec.BlankContentLayout);
+            Assert.True(loaded.Spec.FillContentAreaWithBlankCells);
             Assert.Equal(5, loaded.Spec.LayoutColumns);
             Assert.Equal(4, loaded.Spec.LayoutRows);
             Assert.Equal(spec.GridColor, loaded.Spec.GridColor);
@@ -71,6 +73,7 @@ public sealed class SheetDocumentStoreTests
             {
                 Text = "一二三",
                 BlankContentLayout = true,
+                FillContentAreaWithBlankCells = true,
                 LayoutColumns = 3,
                 LayoutRows = 2,
                 GridColor = "#123456",
@@ -95,6 +98,7 @@ public sealed class SheetDocumentStoreTests
             Assert.Equal("我的模板", module.Name);
             Assert.Equal("#123456", module.Defaults.GridColor);
             Assert.True(module.Defaults.BlankContentLayout);
+            Assert.True(module.Defaults.FillContentAreaWithBlankCells);
             Assert.Equal(3, module.Defaults.LayoutColumns);
             Assert.Equal(2, module.Defaults.LayoutRows);
             Assert.Equal(7d, module.Defaults.GroupGap);
@@ -116,6 +120,7 @@ public sealed class SheetDocumentStoreTests
         {
             Text = "永",
             BlankContentLayout = true,
+            FillContentAreaWithBlankCells = true,
             LayoutColumns = 1,
             LayoutRows = 1,
             Title = "大字帖",
@@ -135,6 +140,7 @@ public sealed class SheetDocumentStoreTests
 
         Assert.Equal(string.Empty, state.InputText);
         Assert.True(state.BlankContentLayout);
+        Assert.True(state.FillContentAreaWithBlankCells);
         Assert.Equal(1, state.LayoutColumns);
         Assert.Equal(1, state.LayoutRows);
         Assert.Equal(spec.Grid, state.Grid);

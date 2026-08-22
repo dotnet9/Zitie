@@ -34,6 +34,7 @@ public static class ModulePreviewFactory
         {
             Text = text,
             BlankContentLayout = blankContentLayout,
+            FillContentAreaWithBlankCells = defaults.FillContentAreaWithBlankCells == true,
             Grid = grid,
             Mode = mode,
             CellsPerLine = vertical

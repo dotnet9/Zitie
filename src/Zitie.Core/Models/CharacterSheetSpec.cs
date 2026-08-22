@@ -11,6 +11,9 @@ public sealed record CharacterSheetSpec
     /// <summary>正文区域作为固定空白版式输出，不根据练习文本生成范字或描红字。</summary>
     public bool BlankContentLayout { get; init; }
 
+    /// <summary>练习内容不足一页时，用空白格补满正文区域。</summary>
+    public bool FillContentAreaWithBlankCells { get; init; }
+
     public GridKind Grid { get; init; } = GridKind.Mi;
 
     public PracticeMode Mode { get; init; } = PracticeMode.Trace;

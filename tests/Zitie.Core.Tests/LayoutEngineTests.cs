@@ -77,6 +77,52 @@ public class LayoutEngineTests
     }
 
     [Fact]
+    public void Paginate_FillContentAreaWithBlankCells_PadsShortPracticePage()
+    {
+        var spec = MakeSpec("一二", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                CellsPerLine = 4,
+                ShowHeaderFields = false,
+                FillContentAreaWithBlankCells = true
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+        var contentSlots = page.Cells.Where(slot => slot.GroupIndex >= 0).ToList();
+        var fillerSlots = page.Cells.Where(slot => slot.GroupIndex < 0).ToList();
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.Equal(["一", "二"], contentSlots.Select(slot => slot.Glyph));
+        Assert.Equal(page.Cells.Count - contentSlots.Count, fillerSlots.Count);
+        Assert.All(fillerSlots, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
+    public void Paginate_FillContentAreaWithBlankCells_CreatesBlankPageForEmptyText()
+    {
+        var spec = MakeSpec(" ", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                CellsPerLine = 4,
+                ShowHeaderFields = false,
+                FillContentAreaWithBlankCells = true
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.All(page.Cells, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
     public void Paginate_SlotsStayInsidePageBounds()
     {
         var spec = MakeSpec(new string('永', 100));

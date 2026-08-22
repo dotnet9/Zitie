@@ -79,6 +79,7 @@ public static class SheetDocumentStore
         var defaults = new ModuleDefaults
         {
             BlankContentLayout = spec.BlankContentLayout,
+            FillContentAreaWithBlankCells = spec.FillContentAreaWithBlankCells,
             LayoutColumns = spec.LayoutColumns,
             LayoutRows = spec.LayoutRows,
             Grid = spec.Grid.ToString().ToLowerInvariant(),

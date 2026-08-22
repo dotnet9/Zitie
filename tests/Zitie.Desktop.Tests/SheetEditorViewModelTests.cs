@@ -37,6 +37,8 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
         Assert.Equal("现代", viewModel.Dynasty);
         Assert.True(viewModel.ShowPoemHeader);
         Assert.Equal(GridKind.English, viewModel.Spec.Grid);
+        Assert.True(viewModel.Spec.FillContentAreaWithBlankCells);
+        Assert.Equal(viewModel.Pages[0].Columns * viewModel.Pages[0].Rows, viewModel.Pages[0].Cells.Count);
         Assert.Same(template, viewModel.SelectedModule);
         Assert.True(viewModel.IsDirty);
     }

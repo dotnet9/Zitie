@@ -20,6 +20,7 @@ public sealed class ModuleCatalogTests
         Assert.DoesNotContain("高级VIP", module.Categories);
         Assert.True(File.Exists(module.PreviewImagePath));
         Assert.False(module.Defaults.BlankContentLayout);
+        Assert.True(module.Defaults.FillContentAreaWithBlankCells);
         Assert.True(module.Defaults.ShowPinyin);
     }
 
@@ -32,6 +33,7 @@ public sealed class ModuleCatalogTests
         Assert.Contains("试卷", module.Categories);
         Assert.DoesNotContain("高级VIP", module.Categories);
         Assert.True(module.Defaults.BlankContentLayout);
+        Assert.False(module.Defaults.FillContentAreaWithBlankCells);
         Assert.Equal("a4Landscape", module.Defaults.PageSize);
     }
 
@@ -61,6 +63,16 @@ public sealed class ModuleCatalogTests
         Assert.Equal(GridKind.English, preview.Spec.Grid);
         Assert.False(preview.Spec.BlankContentLayout);
         Assert.NotEmpty(preview.Spec.Text);
+    }
+
+    [Fact]
+    public void PoetryTemplates_DoNotUseGenericBlankCellFill()
+    {
+        var catalog = new ModuleCatalog();
+        var poem = Assert.Single(catalog.Modules, item => item.Id == "nqez-953");
+
+        Assert.Contains("书法", poem.Categories);
+        Assert.False(poem.Defaults.FillContentAreaWithBlankCells);
     }
 
     [Fact]

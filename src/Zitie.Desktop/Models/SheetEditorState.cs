@@ -11,6 +11,7 @@ public sealed record SheetEditorState
 
     public string InputText { get; init; } = string.Empty;
     public bool BlankContentLayout { get; init; }
+    public bool FillContentAreaWithBlankCells { get; init; }
     public string Title { get; init; } = string.Empty;
     public GridKind Grid { get; init; }
     public PracticeMode Mode { get; init; }
@@ -63,6 +64,7 @@ public sealed record SheetEditorState
         {
             InputText = spec.BlankContentLayout ? string.Empty : spec.Text,
             BlankContentLayout = spec.BlankContentLayout,
+            FillContentAreaWithBlankCells = spec.FillContentAreaWithBlankCells,
             Title = spec.Title ?? string.Empty,
             Grid = spec.Grid,
             Mode = spec.Mode,

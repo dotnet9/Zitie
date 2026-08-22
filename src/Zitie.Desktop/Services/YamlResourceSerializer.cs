@@ -70,6 +70,7 @@ internal static class YamlResourceSerializer
         return new ModuleDefaults
         {
             BlankContentLayout = GetBoolean(map, "blankContentLayout"),
+            FillContentAreaWithBlankCells = GetBoolean(map, "fillContentAreaWithBlankCells"),
             LayoutColumns = GetInt32(map, "layoutColumns"),
             LayoutRows = GetInt32(map, "layoutRows"),
             Grid = GetOptionalString(map, "grid"),
@@ -176,6 +177,7 @@ internal static class YamlResourceSerializer
 
         var defaults = module.Defaults;
         Add(lines, 2, "blankContentLayout", defaults.BlankContentLayout);
+        Add(lines, 2, "fillContentAreaWithBlankCells", defaults.FillContentAreaWithBlankCells);
         Add(lines, 2, "layoutColumns", defaults.LayoutColumns);
         Add(lines, 2, "layoutRows", defaults.LayoutRows);
         Add(lines, 2, "grid", defaults.Grid);

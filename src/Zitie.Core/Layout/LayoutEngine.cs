@@ -97,6 +97,20 @@ public static class LayoutEngine
                         groupGapMm,
                         repeatedGroupSize));
             }
+            else if (spec.FillContentAreaWithBlankCells)
+            {
+                pages.Add(CreateBlankLayoutPage(
+                    spec,
+                    columns,
+                    firstPageRows,
+                    hasHeader: true,
+                    gridSizeMm,
+                    cellPitch,
+                    rowPitch,
+                    columnPitch,
+                    groupGapMm,
+                    repeatedGroupSize));
+            }
 
             return pages;
         }
@@ -282,6 +296,23 @@ public static class LayoutEngine
             if (cells.Count == 0)
                 // 单组超过整页容量（参数极端），放弃排版避免死循环
                 break;
+
+            if (spec.FillContentAreaWithBlankCells && cursor < capacity)
+                AddBlankSlots(
+                    cells,
+                    spec,
+                    vertical,
+                    cursor,
+                    capacity,
+                    columns,
+                    rows,
+                    contentTop,
+                    cellPitch,
+                    rowPitch,
+                    columnPitch,
+                    groupGapMm,
+                    repeatedGroupSize,
+                    gridSizeMm);
 
             pages.Add(new SheetPage(pageIndex, columns, rows, hasHeader, cells));
             pageIndex++;

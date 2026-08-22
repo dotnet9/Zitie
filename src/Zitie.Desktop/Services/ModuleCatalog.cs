@@ -73,6 +73,8 @@ public sealed record ModuleDefaults
 {
     public bool? BlankContentLayout { get; set; }
 
+    public bool? FillContentAreaWithBlankCells { get; set; }
+
     public int? LayoutColumns { get; set; }
 
     public int? LayoutRows { get; set; }
@@ -322,6 +324,7 @@ public sealed class ModuleCatalog
         var blankLayout = IsBlankLayout(title, tags);
         var grid = ResolveGrid(title, tags, blankLayout);
         var vertical = IsVerticalLayout(title, tags);
+        var fillBlankCells = !blankLayout && !IsPoetryLike(title);
         var groupByWord = !blankLayout && ShouldGroupByWord(title, tags);
         var mode = ResolveMode(title, tags, blankLayout);
         var traceCount = ResolveTraceCount(title, mode, blankLayout);
@@ -333,6 +336,7 @@ public sealed class ModuleCatalog
         return new ModuleDefaults
         {
             BlankContentLayout = blankLayout,
+            FillContentAreaWithBlankCells = fillBlankCells,
             LayoutColumns = columns,
             LayoutRows = rows,
             Grid = grid,
@@ -391,6 +395,11 @@ public sealed class ModuleCatalog
         if (ContainsAny(title, "横排", "A4横", "A3横")) return false;
         return ContainsAny(title, "竖排", "竖式") ||
                tags.Contains(7) && ContainsAny(title, "古诗", "诗词", "书法", "春联");
+    }
+
+    private static bool IsPoetryLike(string title)
+    {
+        return ContainsAny(title, "古诗", "诗词", "春联");
     }
 
     private static bool ShouldGroupByWord(string title, IReadOnlySet<int> tags)

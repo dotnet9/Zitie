@@ -1163,6 +1163,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         {
             Text = InputText,
             BlankContentLayout = _editorState.BlankContentLayout,
+            FillContentAreaWithBlankCells = _editorState.FillContentAreaWithBlankCells,
             Title = showTitle ? title : null,
             HeaderPreset = headerPreset,
             HeaderTextTemplate = headerPreset == SheetHeaderPreset.Custom &&
@@ -1275,6 +1276,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware
         SetEditorState(_editorState with
         {
             BlankContentLayout = blankContentLayout,
+            FillContentAreaWithBlankCells = defaults.FillContentAreaWithBlankCells == true,
             LayoutColumns = Math.Clamp(defaults.LayoutColumns ?? 0, 0, 64),
             LayoutRows = Math.Clamp(defaults.LayoutRows ?? 0, 0, 128)
         }, nameof(IsContentEditingEnabled));
