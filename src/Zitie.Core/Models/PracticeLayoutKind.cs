@@ -19,5 +19,8 @@ public enum PracticeLayoutKind
     BracketPinyinColumns,
 
     /// <summary>同步生字、组词训练和同步古诗三段组合版式。</summary>
-    CharacterWordsPoem
+    CharacterWordsPoem,
+
+    /// <summary>五言古诗书法卡片：水墨背景、花形中框和 5×4 诗格。</summary>
+    FiveCharacterPoemCalligraphy
 }

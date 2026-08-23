@@ -538,6 +538,7 @@ public class LayoutEngineTests
     [InlineData(PracticeLayoutKind.BracketGridWords)]
     [InlineData(PracticeLayoutKind.BracketPinyinColumns)]
     [InlineData(PracticeLayoutKind.CharacterWordsPoem)]
+    [InlineData(PracticeLayoutKind.FiveCharacterPoemCalligraphy)]
     public void Paginate_PracticeLayout_FillsWholeTemplatePage(PracticeLayoutKind layout)
     {
         var spec = MakeSpec("花 石 队", mode: PracticeMode.Copy, repeats: 1, title: null)
@@ -572,6 +573,27 @@ public class LayoutEngineTests
         Assert.True(pages.Count > 1);
         Assert.All(pages, page => Assert.Equal(page.Columns * page.Rows, page.Cells.Count));
         Assert.Contains(pages[^1].Cells, cell => cell.GroupIndex < 0);
+    }
+
+    [Fact]
+    public void Paginate_FiveCharacterPoemCalligraphy_BlankTextKeepsBlankPoemGrid()
+    {
+        var spec = MakeSpec(string.Empty, mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = PracticeLayoutKind.FiveCharacterPoemCalligraphy,
+                Grid = GridKind.None,
+                ShowHeaderFields = false
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(20, page.Cells.Count);
+        Assert.All(page.Cells, cell =>
+        {
+            Assert.Equal(string.Empty, cell.Glyph);
+            Assert.Equal(CellRole.Blank, cell.Role);
+        });
     }
 
     [Fact]

@@ -420,6 +420,78 @@ public sealed class SheetExporterTests
     }
 
     [Fact]
+    public void ExportPng_FiveCharacterPoemCalligraphyDrawsCardAndPoemGrid()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = "锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。",
+                PracticeLayout = PracticeLayoutKind.FiveCharacterPoemCalligraphy,
+                Grid = GridKind.None,
+                Title = "悯农",
+                Author = "李绅",
+                Dynasty = "唐",
+                HeaderPreset = SheetHeaderPreset.None,
+                GridColor = "#63C28B",
+                TextColor = "#363638",
+                TraceColor = "#B9C5BE"
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "five-character-poem-calligraphy.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            Assert.True(CountPixelsMm(bitmap, 96, 38, 68, 172, 203, IsGuideGreen) > 350);
+            Assert.True(CountPixelsMm(bitmap, 96, 68, 122, 142, 182, IsGuideGreen) > 220);
+            Assert.True(CountPixelsMm(bitmap, 96, 82, 96, 128, 111, IsDarkInk) > 45);
+            Assert.True(CountPixelsMm(bitmap, 96, 72, 126, 138, 180, IsGuideInk) > 180);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void ExportPng_FiveCharacterPoemCalligraphy_BlankTitleAndTextStayBlank()
+    {
+        var directory = CreateTempDirectory();
+        try
+        {
+            var spec = CreateSpec() with
+            {
+                Text = string.Empty,
+                PracticeLayout = PracticeLayoutKind.FiveCharacterPoemCalligraphy,
+                Grid = GridKind.None,
+                Title = null,
+                Author = "李绅",
+                Dynasty = "唐",
+                HeaderPreset = SheetHeaderPreset.None,
+                GridColor = "#63C28B",
+                TextColor = "#363638",
+                TraceColor = "#B9C5BE"
+            };
+            var pages = LayoutEngine.Paginate(spec);
+            var path = Path.Combine(directory, "blank-five-character-poem-calligraphy.png");
+
+            SheetExporter.ExportPng(path, spec, pages[0], pages.Count, dpi: 96);
+
+            using var bitmap = SKBitmap.Decode(path);
+            Assert.NotNull(bitmap);
+            Assert.True(CountPixelsMm(bitmap, 96, 83, 96, 127, 111, IsDarkInk) < 20);
+            Assert.True(CountPixelsMm(bitmap, 96, 72, 126, 138, 180, IsDarkInk) < 30);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ExportPdf_WritesPdfForEveryPage()
     {
         var directory = CreateTempDirectory();

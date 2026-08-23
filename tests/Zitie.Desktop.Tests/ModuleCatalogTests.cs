@@ -141,6 +141,25 @@ public sealed class ModuleCatalogTests
     }
 
     [Fact]
+    public void FiveCharacterPoemCalligraphyTemplate_UsesDedicatedLayout()
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-953");
+        var preview = ModulePreviewFactory.Create(module);
+
+        Assert.Equal("五言古诗书法", module.Name);
+        Assert.Equal(PracticeLayoutKind.FiveCharacterPoemCalligraphy, preview.Spec.PracticeLayout);
+        Assert.Equal(GridKind.None, preview.Spec.Grid);
+        Assert.Equal("悯农", preview.Spec.Title);
+        Assert.Equal("李绅", preview.Spec.Author);
+        Assert.Equal("唐", preview.Spec.Dynasty);
+        Assert.Contains("锄禾日当午", preview.Spec.Text);
+        Assert.False(preview.Spec.ShowHeaderFields);
+        Assert.Equal(5, preview.Pages[0].Columns);
+        Assert.Equal(4, preview.Pages[0].Rows);
+    }
+
+    [Fact]
     public void BuiltInStrokeOrderTemplates_EnableStrokeOrderDefaults()
     {
         var catalog = new ModuleCatalog();

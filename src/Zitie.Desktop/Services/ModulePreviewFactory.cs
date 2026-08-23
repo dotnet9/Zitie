@@ -52,7 +52,9 @@ public static class ModulePreviewFactory
             GroupGapMm = Math.Clamp(defaults.GroupGap ?? 2, 1, 10),
             Title = headerPreset is SheetHeaderPreset.TitleAndFields
                 or SheetHeaderPreset.Poem
-                or SheetHeaderPreset.Custom
+                or SheetHeaderPreset.Custom ||
+                    practiceLayout is PracticeLayoutKind.CharacterWordsPoem
+                        or PracticeLayoutKind.FiveCharacterPoemCalligraphy
                 ? title
                 : null,
             HeaderPreset = headerPreset,

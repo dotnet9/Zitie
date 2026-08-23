@@ -1183,7 +1183,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         var headerPreset = (SheetHeaderPreset)Math.Clamp(HeaderPresetIndex, 0, HeaderPresetChoices.Length - 1);
         var traceIntensity = (TraceIntensity)Math.Clamp(TraceIntensityIndex, 0, TraceIntensityChoices.Length - 1);
         var title = string.IsNullOrWhiteSpace(Title) ? null : Title.Trim();
-        var specialLayoutUsesContentTitle = _editorState.PracticeLayout == PracticeLayoutKind.CharacterWordsPoem;
+        var specialLayoutUsesContentTitle = _editorState.PracticeLayout is
+            PracticeLayoutKind.CharacterWordsPoem or
+            PracticeLayoutKind.FiveCharacterPoemCalligraphy;
         var showTitle = headerPreset is SheetHeaderPreset.TitleAndFields
                         or SheetHeaderPreset.Poem
                         or SheetHeaderPreset.Custom;

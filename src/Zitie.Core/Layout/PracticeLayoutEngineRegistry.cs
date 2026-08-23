@@ -11,7 +11,8 @@ public static class PracticeLayoutEngineRegistry
             new BracketWordColumnsLayoutEngine(),
             new BracketGridWordsLayoutEngine(),
             new BracketPinyinColumnsLayoutEngine(),
-            new CharacterWordsPoemLayoutEngine()
+            new CharacterWordsPoemLayoutEngine(),
+            new FiveCharacterPoemCalligraphyLayoutEngine()
         }.ToDictionary(static engine => engine.Kind);
 
     public static bool TryGet(PracticeLayoutKind kind, out IPracticeLayoutEngine engine)

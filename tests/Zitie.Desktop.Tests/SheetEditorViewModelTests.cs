@@ -291,6 +291,40 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     }
 
     [Fact]
+    public void FiveCharacterPoemCalligraphyTemplate_AllowsBlankTitleAndText()
+    {
+        _ = fixture;
+        var catalog = new ModuleCatalog();
+        var viewModel = new SheetEditorViewModel(
+            catalog,
+            new TextCatalog(),
+            new PinyinCatalog(),
+            new FontCatalog(),
+            new StubNavigationJournal(),
+            new StubDialogs());
+        var template = Assert.Single(catalog.Modules, module => module.Id == "nqez-953");
+
+        viewModel.SwitchTemplate(template);
+        viewModel.Title = string.Empty;
+        viewModel.InputText = string.Empty;
+
+        var path = Path.Combine(Path.GetTempPath(), $"zitie-five-poem-blank-{Guid.NewGuid():N}.zitie.json");
+        try
+        {
+            viewModel.SaveDocumentTo(path);
+
+            Assert.Null(viewModel.Spec.Title);
+            Assert.Equal(string.Empty, viewModel.Spec.Text);
+            Assert.Equal(20, viewModel.Pages[0].Cells.Count);
+            Assert.All(viewModel.Pages[0].Cells, cell => Assert.Equal(string.Empty, cell.Glyph));
+        }
+        finally
+        {
+            if (File.Exists(path)) File.Delete(path);
+        }
+    }
+
+    [Fact]
     public void StrokeOrderTemplate_LoadsStrokeOrdersForInputText()
     {
         _ = fixture;

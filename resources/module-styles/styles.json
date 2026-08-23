@@ -100,7 +100,22 @@
       "tags": [
         1,
         7
-      ]
+      ],
+      "defaults": {
+        "practiceLayout": "fiveCharacterPoemCalligraphy",
+        "grid": "none",
+        "frameBorder": false,
+        "title": "悯农",
+        "author": "李绅",
+        "dynasty": "唐",
+        "headerPreset": "none",
+        "background": "plain",
+        "gridColor": "#63C28B",
+        "textColor": "#363638",
+        "traceColor": "#B9C5BE",
+        "traceIntensity": "light",
+        "text": "锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。"
+      }
     },
     {
       "id": "957",
