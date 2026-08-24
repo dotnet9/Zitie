@@ -1,0 +1,35 @@
+id: "nqez-23691"
+name: "古诗带拼音"
+description: "水彩春景背景的古诗拼音模板，固定插画使用 SVG，拼音和五列四行诗格动态生成。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  layoutColumns: 5
+  layoutRows: 4
+  grid: "tian"
+  gridGap: 0.8
+  groupGap: 1.4
+  mode: "copy"
+  repeats: 1
+  traceCount: 0
+  showPinyin: true
+  vertical: false
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "plain"
+  backgroundColor: "#DEF3FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#7AC7A7"
+  textColor: "#526E61"
+  pageMarginTop: 55
+  pageMarginBottom: 83
+  pageMarginLeft: 47
+  pageMarginRight: 47
+  title: "画"
+  author: "王维"
+  dynasty: "唐"
+  fontFamily: "KaiTi"
+  text: "远看山有色近听水无声春去花还在人来鸟不惊"

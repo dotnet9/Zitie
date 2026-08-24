@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#eaf7fb"/>
+  <path d="M0 0h210v92C156 76 101 86 0 73Z" fill="#cfeef3" opacity=".58"/>
+  <path d="M0 217c36-21 66-16 98 1 38 19 77 14 112-10v89H0Z" fill="#bfe7c1" opacity=".84"/>
+  <path d="M8 260c37-35 78-35 114-11 31-28 59-31 88-15v63H8Z" fill="#67b47a" opacity=".34"/>
+  <path d="M11 22c7 5 14 7 23 7-5-7-11-10-20-10Z" fill="#252525" opacity=".84"/>
+  <path d="M32 15c5 4 10 6 16 6-3-5-8-7-14-7Z" fill="#252525" opacity=".68"/>
+  <path d="M161 232c16-15 31-18 46-7M169 228c10 2 18 0 25-7" fill="none" stroke="#8d776a" stroke-width="1.1"/>
+  <path d="M75 36h60M78 31h54M78 43h54" fill="none" stroke="#65c199" stroke-width=".65"/>
+  <path d="M74 30h5v14h-5M136 30h-5v14h5" fill="#65c199" stroke="#65c199" stroke-width=".5"/>
+  <path d="M56 48c14-4 24 2 37-1 13-3 24 3 37 0 13-3 21 2 28 8 7 6 5 16 7 25 2 9-3 17 0 26 3 9-2 18-9 24-7 6-16 3-26 6-12 3-23-2-35 0-12 2-21-3-31-1-10 2-18-4-19-15V64q0-13 11-16Z" fill="#fff" opacity=".88" stroke="#65c199" stroke-width="1"/>
+  <path d="M56 137c14-4 24 2 37-1 13-3 24 3 37 0 13-3 21 2 28 8 7 6 5 16 7 25 2 9-3 17 0 26 3 9-2 18-9 24-7 6-16 3-26 6-12 3-23-2-35 0-12 2-21-3-31-1-10 2-18-4-19-15v-56q0-13 11-16Z" fill="#fff" opacity=".88" stroke="#65c199" stroke-width="1"/>
+  <rect x="68" y="232" width="74" height="13" rx="4" fill="#fff" opacity=".9"/>
+  <text x="75" y="240" fill="#55766a" font-size="3.2" font-family="Microsoft YaHei, sans-serif">姓名：</text>
+  <path d="M88 240h42" stroke="#7bc9a2" stroke-width=".5"/>
+</svg>

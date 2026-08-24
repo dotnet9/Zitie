@@ -50,8 +50,15 @@ public sealed class FontCatalog
         foreach (var name in SKFontManager.Default.GetFontFamilies())
             AddFontFamily(names, name);
 
-        foreach (var fontFamily in FontManager.Current.SystemFonts)
-            AddFontFamily(names, fontFamily.Name);
+        try
+        {
+            foreach (var fontFamily in FontManager.Current.SystemFonts)
+                AddFontFamily(names, fontFamily.Name);
+        }
+        catch (InvalidOperationException)
+        {
+            // Avalonia platform services may not be initialized in background and test hosts.
+        }
 
         return names.ToList();
     }

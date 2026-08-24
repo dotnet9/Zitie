@@ -1,0 +1,37 @@
+id: "nqez-24938"
+name: "七言古诗竖排1"
+description: "云鹤青山背景的七言古诗竖排模板，固定插画使用 SVG，四列七行诗格动态排版。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  layoutColumns: 4
+  layoutRows: 7
+  grid: "tian"
+  gridSize: 13.5
+  gridGap: 0.7
+  groupGap: 1.4
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  showPinyin: false
+  vertical: true
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "plain"
+  backgroundColor: "#DCEDD7"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#83AB4E"
+  textColor: "#75806A"
+  pageMarginTop: 48
+  pageMarginBottom: 95
+  pageMarginLeft: 73
+  pageMarginRight: 73
+  title: "村居"
+  author: "高鼎"
+  dynasty: "清"
+  fontFamily: "KaiTi"
+  text: "草长莺飞二月天拂堤杨柳醉春烟儿童散学归来早忙趁东风放纸鸢"

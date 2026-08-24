@@ -1,0 +1,35 @@
+id: "nqez-3769"
+name: "五言古诗抄写"
+description: "水彩春山背景的五言古诗抄写模板，上半部分展示范字，下半部分保留空白练习格。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: true
+  layoutColumns: 5
+  layoutRows: 8
+  grid: "tian"
+  gridGap: 0.7
+  groupGap: 1.2
+  mode: "copy"
+  repeats: 1
+  traceCount: 0
+  showPinyin: false
+  vertical: false
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "plain"
+  backgroundColor: "#EAF7FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#6BC59A"
+  textColor: "#46493F"
+  pageMarginTop: 31
+  pageMarginBottom: 66
+  pageMarginLeft: 52
+  pageMarginRight: 52
+  title: "悯农"
+  author: "李绅"
+  dynasty: "唐"
+  fontFamily: "KaiTi"
+  text: "锄禾日当午汗滴禾下土谁知盘中餐粒粒皆辛苦"

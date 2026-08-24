@@ -1,0 +1,34 @@
+id: "nqez-19388"
+name: "7言古诗横排"
+description: "江南水墨背景的七言古诗横排模板，固定装饰使用 SVG，七列四行诗格动态排版。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  layoutColumns: 7
+  layoutRows: 4
+  grid: "tian"
+  gridGap: 0.5
+  groupGap: 0
+  mode: "copy"
+  repeats: 1
+  traceCount: 0
+  showPinyin: false
+  vertical: false
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "ricepaper"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#B89B6D"
+  textColor: "#B9AC98"
+  pageMarginTop: 58
+  pageMarginBottom: 100
+  pageMarginLeft: 53
+  pageMarginRight: 53
+  title: "赠汪伦"
+  author: "李白"
+  dynasty: "唐"
+  fontFamily: "KaiTi"
+  text: "李白乘舟将欲行忽闻岸上踏歌声桃花潭水深千尺不及汪伦送我情"

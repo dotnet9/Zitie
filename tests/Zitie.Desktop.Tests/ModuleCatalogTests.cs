@@ -206,6 +206,43 @@ public sealed class ModuleCatalogTests
         Assert.Equal(4, preview.Pages[0].Rows);
     }
 
+    [Theory]
+    [InlineData("nqez-957", "957", 4, 7, true, false)]
+    [InlineData("nqez-3769", "3769", 5, 8, false, false)]
+    [InlineData("nqez-17534", "17534", 4, 7, true, false)]
+    [InlineData("nqez-19388", "19388", 7, 4, false, false)]
+    [InlineData("nqez-23691", "23691", 5, 4, false, true)]
+    [InlineData("nqez-24938", "24938", 4, 7, true, false)]
+    [InlineData("nqez-35157", "35157", 4, 5, true, false)]
+    public void DecoratedPoemTemplates_UseDirectorySvgAndExplicitGridLayout(
+        string id,
+        string sourceTemplateId,
+        int columns,
+        int rows,
+        bool vertical,
+        bool showPinyin)
+    {
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == id);
+        var preview = ModulePreviewFactory.Create(module);
+
+        Assert.Equal(sourceTemplateId, module.SourceTemplateId);
+        Assert.True(Directory.Exists(module.SourcePath));
+        Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
+        Assert.Contains("<svg", module.ReadTextAsset(module.Defaults.BackgroundArtwork));
+        Assert.True(File.Exists(module.PreviewImagePath));
+        Assert.Equal(columns, module.Defaults.LayoutColumns);
+        Assert.Equal(rows, module.Defaults.LayoutRows);
+        Assert.Equal(vertical, module.Defaults.Vertical);
+        Assert.Equal(showPinyin, module.Defaults.ShowPinyin);
+
+        var page = Assert.Single(preview.Pages);
+        Assert.Equal(columns, page.Columns);
+        Assert.Equal(rows, page.Rows);
+        Assert.Equal(columns * rows, page.Cells.Count);
+        Assert.False(string.IsNullOrWhiteSpace(preview.Spec.BackgroundArtworkSvg));
+    }
+
     [Fact]
     public void BuiltInStrokeOrderTemplates_EnableStrokeOrderDefaults()
     {

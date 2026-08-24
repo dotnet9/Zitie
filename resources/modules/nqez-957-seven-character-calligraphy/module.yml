@@ -1,0 +1,37 @@
+id: "nqez-957"
+name: "七言诗词书法"
+description: "青山竹影背景的七言诗词书法模板，固定画面使用 SVG，四列七行诗格动态排版。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  layoutColumns: 4
+  layoutRows: 7
+  grid: "plain"
+  gridSize: 13
+  gridGap: 0.8
+  groupGap: 2.2
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  showPinyin: false
+  vertical: true
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "plain"
+  backgroundColor: "#EDF8FB"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#73AEDD"
+  textColor: "#5F7F99"
+  pageMarginTop: 50
+  pageMarginBottom: 104
+  pageMarginLeft: 72
+  pageMarginRight: 72
+  title: "山行"
+  author: "杜牧"
+  dynasty: "唐"
+  fontFamily: "KaiTi"
+  text: "霜叶红于二月花停车坐爱枫林晚白云生处有人家远上寒山石径斜"

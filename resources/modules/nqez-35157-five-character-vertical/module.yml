@@ -1,0 +1,37 @@
+id: "nqez-35157"
+name: "五言古诗竖排"
+description: "水墨远山背景的五言古诗竖排模板，固定插画使用 SVG，四列五行诗格动态排版。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  layoutColumns: 4
+  layoutRows: 5
+  grid: "plain"
+  gridSize: 14
+  gridGap: 0.8
+  groupGap: 1.6
+  mode: "trace"
+  repeats: 1
+  traceCount: 1
+  traceIntensity: "verylight"
+  showPinyin: false
+  vertical: true
+  showPoemHeader: true
+  frameBorder: false
+  headerPreset: "poem"
+  background: "plain"
+  backgroundColor: "#FBFBFA"
+  backgroundArtwork: "assets/background.svg"
+  gridColor: "#AAB2B7"
+  textColor: "#788087"
+  pageMarginTop: 54
+  pageMarginBottom: 116
+  pageMarginLeft: 72
+  pageMarginRight: 72
+  title: "古朗月行"
+  author: "李白"
+  dynasty: "唐"
+  fontFamily: "KaiTi"
+  text: "小时不识月呼作白玉盘又疑瑶台镜飞在青云端"
