@@ -3,8 +3,10 @@
 内置资源集中放在这里，并通过 `src/Zitie.Desktop/Zitie.Desktop.csproj` 链接到应用输出目录的 `resources/` 下。
 
 - `modules/`：字帖模板源码目录；每个子目录放 `module.yml` 与 `assets/`。发布时由 `scripts/pack_modules.ps1` 压缩成同名 `.zi` 包。
+- `module-styles/`：样式模板元数据；对应示例图从仓库 `docs/modules/` 链接到应用输出目录。
 - `texts/`：可直接生成字帖的练习文本，语文和英语已覆盖小学一年级到高中三年级。
 - `pinyin/`：拼音词表 YAML。
+- `strokes/`：离线汉字笔顺路径，运行时用于“有笔顺”模板和专用生字模板。
 - `textbooks/`：教材版本索引与教材资源元数据 YAML。
 
 `textbooks/textbook-editions-2026.yml` 来自国家中小学智慧教育平台当前在线电子教材资源快照，仅作为教材版本索引使用。

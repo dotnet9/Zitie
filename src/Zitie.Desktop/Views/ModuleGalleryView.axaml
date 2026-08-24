@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
-             xmlns:zitie="using:Zitie.Avalonia.Controls"
              xmlns:controls="using:Zitie.Desktop.Controls"
+             xmlns:u="https://irihi.tech/ursa"
              x:Class="Zitie.Desktop.Views.ModuleGalleryView"
              x:DataType="vm:ModuleGalleryViewModel"
              Background="{DynamicResource ZitiePaperBrush}"
@@ -15,7 +15,7 @@
                     <Border Classes="page-title-accent" />
                     <StackPanel Spacing="5">
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                            <TextBlock Text="模板库" Classes="page-title" />
+                            <TextBlock Text="样式分类" Classes="page-title" />
                             <TextBlock Text="TEMPLATE GALLERY" Classes="page-title-en" />
                         </StackPanel>
                         <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造"
@@ -23,9 +23,9 @@
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
-                    <Button Content="打开模板目录"
+                    <Button Content="打开示例图目录"
                             Classes="gallery-action"
-                            AutomationProperties.Name="打开模板目录"
+                            AutomationProperties.Name="打开示例图目录"
                             Command="{Binding OpenTemplateDirectoryCommand}" />
                     <Button Content="刷新"
                             Classes="gallery-action"
@@ -34,24 +34,11 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Margin="0,20,0,0" ColumnDefinitions="300,*,Auto" ColumnSpacing="14">
-                <TextBox Grid.Column="0"
-                         Classes="gallery-search"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         AutomationProperties.Name="搜索模板"
-                         PlaceholderText="搜索模板名称、说明或分类">
-                    <TextBox.InnerLeftContent>
-                        <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
-                                            IconSize="15"
-                                            StrokeThickness="2"
-                                            Foreground="{DynamicResource ZitieInkMutedBrush}"
-                                            Margin="10,0,6,0" />
-                    </TextBox.InnerLeftContent>
-                </TextBox>
-                <ItemsControl Grid.Column="1" ItemsSource="{Binding CategoryChoices}">
+            <Grid Margin="0,20,0,0" ColumnDefinitions="*,260,Auto" ColumnSpacing="14">
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding CategoryChoices}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="6" />
+                            <WrapPanel Orientation="Horizontal" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -63,6 +50,19 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <TextBox Grid.Column="1"
+                         Classes="gallery-search"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="搜索模板"
+                         PlaceholderText="搜索">
+                    <TextBox.InnerLeftContent>
+                        <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
+                                            IconSize="15"
+                                            StrokeThickness="2"
+                                            Foreground="{DynamicResource ZitieInkMutedBrush}"
+                                            Margin="10,0,6,0" />
+                    </TextBox.InnerLeftContent>
+                </TextBox>
                 <TextBlock Grid.Column="2"
                            Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
                            Classes="gallery-count"
@@ -70,71 +70,71 @@
             </Grid>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" Margin="26,18,26,0" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel>
-                <TextBlock Text="未找到匹配的模板"
-                           Classes="module-empty"
-                           IsVisible="{Binding IsEmpty}" />
-                <ItemsControl ItemsSource="{Binding FilteredModules}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:ModuleCardViewModel">
-                            <Button Classes="module-card"
-                                    Width="{Binding CardWidth}"
-                                    Height="{Binding CardHeight}"
-                                    AutomationProperties.Name="{Binding Module.Name}"
-                                    Command="{Binding OpenCommand}"
-                                    CommandParameter="{Binding Module}">
-                                <Grid RowDefinitions="Auto,*">
-                                    <Border Grid.RowSpan="2" Classes="card-shadow-layer" />
-                                    <Grid Grid.Row="0">
-                                        <Border Classes="module-thumb"
-                                                Height="{Binding ThumbHeight}">
-                                            <zitie:ZitiePreview Spec="{Binding PreviewSpec}"
-                                                               Pages="{Binding PreviewPages}"
-                                                               PageIndex="0"
-                                                               Zoom="{Binding PreviewZoom}"
-                                                               HorizontalScrollBarVisibility="Hidden"
-                                                               VerticalScrollBarVisibility="Hidden"
-                                                               HorizontalContentAlignment="Center"
-                                                               VerticalContentAlignment="Center"
-                                                               IsHitTestVisible="False" />
-                                        </Border>
-                                        <Border Classes="module-tag">
-                                            <TextBlock Text="{Binding CategoryText}"
-                                                       Foreground="{DynamicResource ZitieAccentBrush}"
-                                                       FontSize="{DynamicResource ZitieUiFontSizeTiny}" />
-                                        </Border>
-                                    </Grid>
-                                    <StackPanel Grid.Row="1" Margin="4,10,4,4" Spacing="4">
-                                        <TextBlock Text="{Binding Module.Name}"
-                                                   Classes="module-card-title"
-                                                   TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding Module.Description}"
-                                                   Classes="module-card-desc"
-                                                   TextWrapping="Wrap" />
-                                        <StackPanel Margin="0,4,0,0">
-                                            <Rectangle Height="1" Stroke="{DynamicResource ZitieBorderBrush}" StrokeDashArray="3,3" />
-                                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
-                                                <Border Classes="module-card-dot" />
-                                                <TextBlock Text="{Binding StatusText}" Classes="module-card-status" />
+        <u:LoadingContainer Grid.Row="1"
+                            IsLoading="{Binding IsLoading}"
+                            LoadingMessage="{Binding LoadingMessage}">
+            <ScrollViewer Margin="26,18,26,0" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+                    <TextBlock Text="未找到匹配的模板"
+                               Classes="module-empty"
+                               IsVisible="{Binding IsEmpty}" />
+                    <ItemsControl ItemsSource="{Binding FilteredModules}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ModuleCardViewModel">
+                                <Button Classes="module-card"
+                                        Width="{Binding CardWidth}"
+                                        Height="{Binding CardHeight}"
+                                        AutomationProperties.Name="{Binding Module.Name}"
+                                        Command="{Binding OpenCommand}"
+                                        CommandParameter="{Binding Module}">
+                                    <Grid RowDefinitions="Auto,*">
+                                        <Border Grid.RowSpan="2" Classes="card-shadow-layer" />
+                                        <Grid Grid.Row="0">
+                                            <Border Classes="module-thumb"
+                                                    Height="{Binding ThumbHeight}">
+                                                <Image Source="{Binding PreviewImage}"
+                                                       Stretch="Uniform"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       IsHitTestVisible="False" />
+                                            </Border>
+                                            <Border Classes="module-tag">
+                                                <TextBlock Text="{Binding CategoryText}"
+                                                           Foreground="{DynamicResource ZitieAccentBrush}"
+                                                           FontSize="{DynamicResource ZitieUiFontSizeTiny}" />
+                                            </Border>
+                                        </Grid>
+                                        <StackPanel Grid.Row="1" Margin="4,10,4,4" Spacing="4">
+                                            <TextBlock Text="{Binding Module.Name}"
+                                                       Classes="module-card-title"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Module.Description}"
+                                                       Classes="module-card-desc"
+                                                       TextWrapping="Wrap" />
+                                            <StackPanel Margin="0,4,0,0">
+                                                <Rectangle Height="1" Stroke="{DynamicResource ZitieBorderBrush}" StrokeDashArray="3,3" />
+                                                <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
+                                                    <Border Classes="module-card-dot" />
+                                                    <TextBlock Text="{Binding StatusText}" Classes="module-card-status" />
+                                                </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
-                                    <Border Grid.RowSpan="2" Classes="card-overlay">
-                                        <TextBlock Text="开始生成 →" Classes="card-overlay-text" />
-                                    </Border>
-                                </Grid>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+                                        <Border Grid.RowSpan="2" Classes="card-overlay">
+                                            <TextBlock Text="开始生成 →" Classes="card-overlay-text" />
+                                        </Border>
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </u:LoadingContainer>
 
         <Border Grid.Row="2" Classes="gallery-status-bar">
             <Grid ColumnDefinitions="Auto,*,Auto">

@@ -10,10 +10,12 @@ public static class ModulePreviewFactory
     {
         var defaults = module.Defaults;
 
+        var practiceLayout = PracticeLayoutKindParser.Parse(defaults.PracticeLayout);
         var grid = ParseGrid(defaults.Grid);
         var mode = ParseMode(defaults.Mode);
         var title = Normalize(defaults.Title);
         var vertical = defaults.Vertical == true;
+        var blankContentLayout = defaults.BlankContentLayout == true;
         var requestedPoemHeader = defaults.ShowPoemHeader == true;
         var headerPreset = ParseHeaderPreset(
             defaults.HeaderPreset,
@@ -24,7 +26,7 @@ public static class ModulePreviewFactory
         var showHeaderFields = headerPreset is SheetHeaderPreset.Fields
             or SheetHeaderPreset.TitleAndFields
             or SheetHeaderPreset.Custom;
-        var text = Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
+        var text = blankContentLayout ? string.Empty : Normalize(defaults.Text) ?? FallbackText(module.Id, grid);
         var repeats = Math.Clamp(defaults.Repeats ?? (mode == PracticeMode.Trace ? 5 : 3), 1, 8);
         var traceCount = Math.Clamp(defaults.TraceCount ?? 2, 0, repeats - 1);
         var page = ResolvePageSettings(defaults);
@@ -32,11 +34,16 @@ public static class ModulePreviewFactory
         var spec = new CharacterSheetSpec
         {
             Text = text,
+            PracticeLayout = practiceLayout,
+            BlankContentLayout = blankContentLayout,
+            FillContentAreaWithBlankCells = defaults.FillContentAreaWithBlankCells == true,
             Grid = grid,
             Mode = mode,
             CellsPerLine = vertical
                 ? 0
                 : Math.Clamp(defaults.CellsPerLine ?? 12, 1, 64),
+            LayoutColumns = Math.Clamp(defaults.LayoutColumns ?? 0, 0, 64),
+            LayoutRows = Math.Clamp(defaults.LayoutRows ?? 0, 0, 128),
             BlankCellLineCount = Math.Clamp(defaults.BlankCellLineCount ?? 0, 0, 10),
             RepeatsPerChar = repeats,
             TraceSlotCount = traceCount,
@@ -45,7 +52,9 @@ public static class ModulePreviewFactory
             GroupGapMm = Math.Clamp(defaults.GroupGap ?? 2, 1, 10),
             Title = headerPreset is SheetHeaderPreset.TitleAndFields
                 or SheetHeaderPreset.Poem
-                or SheetHeaderPreset.Custom
+                or SheetHeaderPreset.Custom ||
+                    practiceLayout is PracticeLayoutKind.CharacterWordsPoem
+                        or PracticeLayoutKind.FiveCharacterPoemCalligraphy
                 ? title
                 : null,
             HeaderPreset = headerPreset,
@@ -65,6 +74,7 @@ public static class ModulePreviewFactory
             GroupByWord = defaults.GroupByWord == true,
             ShowPinyin = defaults.ShowPinyin == true,
             PinyinOnly = defaults.PinyinOnly == true,
+            ShowStrokeOrder = defaults.ShowStrokeOrder == true,
             HollowGlyph = defaults.HollowGlyph == true,
             TraceIntensity = ParseTraceIntensity(defaults.TraceIntensity),
             TraceColor = Normalize(defaults.TraceColor),
@@ -86,6 +96,7 @@ public static class ModulePreviewFactory
         PracticeMode mode,
         bool vertical)
     {
+        if (module.Categories.Count > 0) return module.Categories[0];
         if (!string.IsNullOrWhiteSpace(module.Category)) return module.Category.Trim();
         if (!IsBuiltIn(module)) return "自定义";
         if (grid == GridKind.English) return "英文";
@@ -110,6 +121,7 @@ public static class ModulePreviewFactory
     {
         return value?.ToLowerInvariant() switch
         {
+            "none" => GridKind.None,
             "tian" => GridKind.Tian,
             "huigong" => GridKind.HuiGong,
             "plain" => GridKind.Plain,

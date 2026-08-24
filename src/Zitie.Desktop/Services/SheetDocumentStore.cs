@@ -26,7 +26,7 @@ public static class SheetDocumentStore
         var document = new SheetDocument
         {
             ModuleId = moduleId,
-            Spec = spec with { PinyinByGlyph = null }
+            Spec = spec with { PinyinByGlyph = null, StrokeOrderByGlyph = null }
         };
         File.WriteAllText(path, JsonSerializer.Serialize(document, ZitieJsonContext.Default.SheetDocument));
     }
@@ -78,6 +78,13 @@ public static class SheetDocumentStore
             : name.Trim();
         var defaults = new ModuleDefaults
         {
+            PracticeLayout = spec.PracticeLayout == PracticeLayoutKind.Standard
+                ? null
+                : spec.PracticeLayout.ToString().ToLowerInvariant(),
+            BlankContentLayout = spec.BlankContentLayout,
+            FillContentAreaWithBlankCells = spec.FillContentAreaWithBlankCells,
+            LayoutColumns = spec.LayoutColumns,
+            LayoutRows = spec.LayoutRows,
             Grid = spec.Grid.ToString().ToLowerInvariant(),
             Mode = spec.Mode.ToString().ToLowerInvariant(),
             Repeats = spec.RepeatsPerChar,
@@ -102,6 +109,7 @@ public static class SheetDocumentStore
             GroupByWord = spec.GroupByWord,
             ShowPinyin = spec.ShowPinyin,
             PinyinOnly = spec.PinyinOnly,
+            ShowStrokeOrder = spec.ShowStrokeOrder,
             HollowGlyph = spec.HollowGlyph,
             TraceIntensity = spec.TraceIntensity.ToString().ToLowerInvariant(),
             TraceColor = spec.TraceColor,

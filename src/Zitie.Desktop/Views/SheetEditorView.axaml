@@ -25,27 +25,27 @@
                                         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                 </Button>
                 <Border Grid.Column="1" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
-                <Border Grid.Column="2"
-                        Classes="template-switcher-shell"
-                        VerticalAlignment="Center">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                <Button Grid.Column="2"
+                        Classes="template-switcher-button"
+                        Command="{Binding OpenTemplatePickerCommand}"
+                        AutomationProperties.Name="切换字帖模板"
+                        ToolTip.Tip="切换模板并保留当前内容">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                         <TextBlock Text="模板"
                                    Classes="toolbar-label"
                                    VerticalAlignment="Center" />
-                    <ComboBox ItemsSource="{Binding TemplateChoices}"
-                              Grid.Column="1"
-                              SelectedItem="{Binding SelectedModule}"
-                              Classes="template-switcher"
-                              AutomationProperties.Name="切换字帖模板"
-                              ToolTip.Tip="切换模板并保留当前内容">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="services:ModuleDefinition">
-                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding CurrentTemplateName}"
+                                   Classes="template-switcher-name"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                        <controls:ZitieIcon Grid.Column="2"
+                                            Data="M7,10 L12,15 L17,10"
+                                            IconSize="15"
+                                            StrokeThickness="2"
+                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                     </Grid>
-                </Border>
+                </Button>
                 <Border Grid.Column="3" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
                 <controls:ZitieToolButton Grid.Column="4"
                                           Content="打开"
@@ -143,6 +143,7 @@
                                         <TextBox Text="{Binding InputText}"
                                                  Classes="editor-input"
                                                  AutomationProperties.Name="练习文本"
+                                                 IsEnabled="{Binding IsContentEditingEnabled}"
                                                  AcceptsReturn="True"
                                                  TextWrapping="Wrap"
                                                  MinHeight="108"
@@ -164,6 +165,7 @@
                                         </Grid>
                                         <Button Classes="content-picker-button"
                                                 Command="{Binding OpenContentPickerCommand}"
+                                                IsEnabled="{Binding IsContentEditingEnabled}"
                                                 AutomationProperties.Name="打开内容资源">
                                             <Grid>
                                                 <Rectangle Stroke="{DynamicResource ZitieAccentDisabledBrush}"
@@ -199,21 +201,23 @@
                                         <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
                                                   SelectedIndex="{Binding HeaderPresetIndex}"
                                                   AutomationProperties.Name="页头样式"
+                                                  IsEnabled="{Binding IsStandardPracticeLayout}"
                                                   Classes="editor-input" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="朝代" Classes="editor-label" />
-                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="唐" />
+                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="唐" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="作者" Classes="editor-label" />
-                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeader}" PlaceholderText="李白" />
+                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="李白" />
                                     </StackPanel>
                                 </Grid>
                                 <CheckBox Content="题头显示作者（朝代 · 作者）"
                                           Classes="editor-check"
+                                          IsEnabled="{Binding IsStandardPracticeLayout}"
                                           IsChecked="{Binding ShowPoemHeader}" />
                             </StackPanel>
                         </ScrollViewer>
@@ -244,10 +248,11 @@
                                                        Value="{Binding PageMarginMm}" />
                                     </StackPanel>
                                 </Grid>
-                                <Border Classes="editor-field">
+                                <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
                                         <TextBlock Text="格子类型" Classes="editor-label" />
                                         <ComboBox SelectedIndex="{Binding GridKindIndex}" Classes="editor-input" AutomationProperties.Name="格子类型">
+                                            <ComboBoxItem Content="无格线" />
                                             <ComboBoxItem Content="米字格" />
                                             <ComboBoxItem Content="田字格" />
                                             <ComboBoxItem Content="回宫格" />
@@ -258,7 +263,7 @@
                                         </ComboBox>
                                     </StackPanel>
                                 </Border>
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="每行格数" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding CellsPerLineChoices}" SelectedIndex="{Binding CellsPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行格数" />
@@ -268,7 +273,7 @@
                                         <ComboBox ItemsSource="{Binding BlankCellLineChoices}" SelectedItem="{Binding BlankCellLineCount}" Classes="editor-input" AutomationProperties.Name="{Binding BlankCellLineLabel}" />
                                     </StackPanel>
                                 </Grid>
-                                <Border Classes="editor-field">
+                                <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
                                         <TextBlock Text="格子大小" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -283,8 +288,8 @@
                                         </Grid>
                                     </StackPanel>
                                 </Border>
-                                <CheckBox Content="按词分组（词内字符连续，不拆行）" Classes="editor-check" IsChecked="{Binding GroupByWord}" />
-                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）" Classes="editor-check" IsChecked="{Binding IsVertical}" />
+                                <CheckBox Content="按词分组（词内字符连续，不拆行）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding GroupByWord}" />
+                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding IsVertical}" />
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
@@ -300,7 +305,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Classes="editor-tab-body">
+                            <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <TextBlock Text="练习模式" Classes="editor-label" />
@@ -409,7 +414,7 @@
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel Classes="editor-tab-body">
+                            <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
                                 <CheckBox Content="标注拼音" Classes="editor-check" IsChecked="{Binding ShowPinyin}" />
                                 <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
                                           Classes="editor-check"
@@ -452,21 +457,149 @@
                                                IncreaseCommand="{Binding NextPageCommand}"
                                                DecreaseToolTip="上一页"
                                                IncreaseToolTip="下一页" />
-                        <controls:ZitieStepper Grid.Column="2"
-                                               ValueText="{Binding Zoom, StringFormat={}{0:P0}}"
-                                               AutomationProperties.Name="画布缩放"
-                                               ValueWidth="44"
-                                               DecreaseIconData="M5 12h14"
-                                               IncreaseIconData="M12 5v14 M5 12h14"
-                                               DecreaseCommand="{Binding ZoomOutCommand}"
-                                               IncreaseCommand="{Binding ZoomInCommand}"
-                                               DecreaseToolTip="缩小画布"
-                                               IncreaseToolTip="放大画布" />
+                        <Grid Grid.Column="2"
+                              ColumnDefinitions="Auto,Auto,Auto"
+                              ColumnSpacing="8"
+                              VerticalAlignment="Center">
+                            <TextBlock Text="缩放"
+                                       Classes="gallery-count"
+                                       VerticalAlignment="Center" />
+                            <Slider Grid.Column="1"
+                                    Width="{StaticResource ZitieStageZoomSliderWidth}"
+                                    Classes="gallery-zoom"
+                                    AutomationProperties.Name="画布缩放"
+                                    ToolTip.Tip="缩放画布大小"
+                                    Minimum="0.3"
+                                    Maximum="2"
+                                    TickFrequency="0.05"
+                                    IsSnapToTickEnabled="True"
+                                    Value="{Binding Zoom}" />
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Zoom, StringFormat={}{0:P0}}"
+                                       Classes="gallery-count"
+                                       MinWidth="{StaticResource ZitieStageZoomValueWidth}"
+                                       TextAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>
         </Grid>
     </DockPanel>
+
+    <Grid IsVisible="{Binding IsTemplatePickerOpen}"
+          ZIndex="20">
+        <Border Background="{DynamicResource ZitieOverlayBrush}" />
+        <Border Classes="content-drawer template-drawer"
+                HorizontalAlignment="Right">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+                    <StackPanel Spacing="5">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="模板切换" Classes="content-drawer-title" />
+                            <TextBlock Text="TEMPLATE PREVIEW"
+                                       Classes="content-drawer-title-en"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,2" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding TemplateFilterSummary}"
+                                   Classes="content-drawer-summary"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Classes="content-drawer-close"
+                            Command="{Binding CloseTemplatePickerCommand}"
+                            AutomationProperties.Name="关闭模板切换"
+                            ToolTip.Tip="关闭">
+                        <controls:ZitieIcon Data="M6,6 L18,18 M18,6 L6,18"
+                                            IconSize="18"
+                                            StrokeThickness="2"
+                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                    </Button>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox Text="{Binding TemplateSearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="editor-input content-search"
+                             AutomationProperties.Name="快速搜索模板"
+                             PlaceholderText="搜索模板名称、说明或 ID">
+                        <TextBox.InnerLeftContent>
+                            <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
+                                                IconSize="15"
+                                                StrokeThickness="2"
+                                                Foreground="{DynamicResource ZitieInkMutedBrush}"
+                                                Margin="10,0,6,0" />
+                        </TextBox.InnerLeftContent>
+                    </TextBox>
+                    <Button Grid.Column="1"
+                            Content="重置"
+                            Classes="gallery-action"
+                            Command="{Binding ResetTemplateSearchCommand}"
+                            AutomationProperties.Name="重置模板搜索" />
+                </Grid>
+
+                <Grid Grid.Row="2" RowDefinitions="Auto,*" Margin="0,14,0,0" MinHeight="0">
+                    <Border Classes="content-results-header">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="模 板 列 表" Classes="content-section-label" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding TemplateFilterSummary}"
+                                       Classes="content-section-label" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="1">
+                        <TextBlock Text="未找到匹配的模板"
+                                   Classes="module-empty"
+                                   IsVisible="{Binding IsTemplateFilterEmpty}"
+                                   Margin="2,12,0,0" />
+                        <ListBox ItemsSource="{Binding FilteredTemplateChoices}"
+                                 SelectedItem="{Binding PreviewTemplateModule}"
+                                 Classes="template-results"
+                                 AutomationProperties.Name="模板搜索结果">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="services:ModuleDefinition">
+                                    <Grid RowDefinitions="Auto,Auto" RowSpacing="5">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Classes="template-result-title"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding Description}"
+                                                   Classes="template-result-description"
+                                                   TextWrapping="Wrap" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Grid>
+
+                <Border Grid.Row="3" Classes="content-drawer-footer">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Button Classes="content-apply-button"
+                                Command="{Binding ApplySelectedTemplateCommand}"
+                                AutomationProperties.Name="应用所选模板">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <controls:ZitieIcon Data="M20,6 L9,17 L4,12"
+                                                    IconSize="16"
+                                                    StrokeThickness="2"
+                                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                <TextBlock Text="应用所选模板" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                        <TextBlock Grid.Column="1"
+                                   Text="保留当前练习文本"
+                                   Classes="muted-text"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
 
     <Grid IsVisible="{Binding IsContentPickerOpen}"
           ZIndex="20">

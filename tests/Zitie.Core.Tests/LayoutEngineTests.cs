@@ -77,6 +77,52 @@ public class LayoutEngineTests
     }
 
     [Fact]
+    public void Paginate_FillContentAreaWithBlankCells_PadsShortPracticePage()
+    {
+        var spec = MakeSpec("一二", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                CellsPerLine = 4,
+                ShowHeaderFields = false,
+                FillContentAreaWithBlankCells = true
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+        var contentSlots = page.Cells.Where(slot => slot.GroupIndex >= 0).ToList();
+        var fillerSlots = page.Cells.Where(slot => slot.GroupIndex < 0).ToList();
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.Equal(["一", "二"], contentSlots.Select(slot => slot.Glyph));
+        Assert.Equal(page.Cells.Count - contentSlots.Count, fillerSlots.Count);
+        Assert.All(fillerSlots, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
+    public void Paginate_FillContentAreaWithBlankCells_CreatesBlankPageForEmptyText()
+    {
+        var spec = MakeSpec(" ", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                CellsPerLine = 4,
+                ShowHeaderFields = false,
+                FillContentAreaWithBlankCells = true
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.All(page.Cells, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
     public void Paginate_SlotsStayInsidePageBounds()
     {
         var spec = MakeSpec(new string('永', 100));
@@ -429,6 +475,125 @@ public class LayoutEngineTests
         Assert.Equal(3, slots.Count);
         Assert.Equal(["chūn", "tiān", "huā"], slots.Select(slot => slot.Glyph));
         Assert.All(slots, slot => Assert.Equal(CellRole.Model, slot.Role));
+    }
+
+    [Fact]
+    public void Paginate_PinyinGrid_SplitsChineseTextIntoSyllables()
+    {
+        var spec = MakeSpec("春天，花朵", grid: GridKind.Pinyin, mode: PracticeMode.Copy, repeats: 1)
+            with
+            {
+                GridSizeMm = 20,
+                PinyinByGlyph = new Dictionary<string, string>
+                {
+                    ["春"] = "chūn",
+                    ["天"] = "tiān",
+                    ["花"] = "huā",
+                    ["朵"] = "duǒ"
+                }
+            };
+
+        var slots = LayoutEngine.Paginate(spec).SelectMany(page => page.Cells).ToList();
+
+        Assert.Equal(["chūn", "tiān", "huā", "duǒ"], slots.Select(slot => slot.Glyph));
+    }
+
+    [Fact]
+    public void Paginate_BlankContentLayout_CreatesFixedBlankGrid()
+    {
+        var spec = MakeSpec("这段正文不会排进格子", grid: GridKind.Tian, mode: PracticeMode.Copy, repeats: 1)
+            with
+            {
+                BlankContentLayout = true,
+                LayoutColumns = 5,
+                LayoutRows = 4
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(5, page.Columns);
+        Assert.Equal(4, page.Rows);
+        Assert.Equal(20, page.Cells.Count);
+        Assert.All(page.Cells, slot =>
+        {
+            Assert.Equal(CellRole.Blank, slot.Role);
+            Assert.Equal(string.Empty, slot.Glyph);
+        });
+    }
+
+    [Fact]
+    public void Paginate_BlankContentLayoutWithoutGrid_CreatesBackgroundOnlyPage()
+    {
+        var spec = MakeSpec("春联正文不参与排版", grid: GridKind.Tian, mode: PracticeMode.Copy, repeats: 1)
+            with { BlankContentLayout = true };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Empty(page.Cells);
+    }
+
+    [Theory]
+    [InlineData(PracticeLayoutKind.BracketWordRows)]
+    [InlineData(PracticeLayoutKind.BracketWordColumns)]
+    [InlineData(PracticeLayoutKind.BracketGridWords)]
+    [InlineData(PracticeLayoutKind.BracketPinyinColumns)]
+    [InlineData(PracticeLayoutKind.CharacterWordsPoem)]
+    [InlineData(PracticeLayoutKind.FiveCharacterPoemCalligraphy)]
+    public void Paginate_PracticeLayout_FillsWholeTemplatePage(PracticeLayoutKind layout)
+    {
+        var spec = MakeSpec("花 石 队", mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = layout,
+                Grid = layout == PracticeLayoutKind.BracketGridWords ? GridKind.Plain : GridKind.None,
+                ShowHeaderFields = false
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(page.Columns * page.Rows, page.Cells.Count);
+        Assert.Equal(["花", "石", "队"], page.Cells.Take(3).Select(cell => cell.Glyph));
+        Assert.Contains(page.Cells, cell => cell.GroupIndex < 0);
+    }
+
+    [Fact]
+    public void Paginate_PracticeLayout_OverflowPagesAreAlsoFilled()
+    {
+        var text = string.Join(' ', Enumerable.Range(0, 80).Select(index => $"词{index}"));
+        var spec = MakeSpec(text, mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = PracticeLayoutKind.BracketGridWords,
+                Grid = GridKind.Plain,
+                ShowHeaderFields = false
+            };
+
+        var pages = LayoutEngine.Paginate(spec);
+
+        Assert.True(pages.Count > 1);
+        Assert.All(pages, page => Assert.Equal(page.Columns * page.Rows, page.Cells.Count));
+        Assert.Contains(pages[^1].Cells, cell => cell.GroupIndex < 0);
+    }
+
+    [Fact]
+    public void Paginate_FiveCharacterPoemCalligraphy_BlankTextKeepsBlankPoemGrid()
+    {
+        var spec = MakeSpec(string.Empty, mode: PracticeMode.Copy, repeats: 1, title: null)
+            with
+            {
+                PracticeLayout = PracticeLayoutKind.FiveCharacterPoemCalligraphy,
+                Grid = GridKind.None,
+                ShowHeaderFields = false
+            };
+
+        var page = Assert.Single(LayoutEngine.Paginate(spec));
+
+        Assert.Equal(20, page.Cells.Count);
+        Assert.All(page.Cells, cell =>
+        {
+            Assert.Equal(string.Empty, cell.Glyph);
+            Assert.Equal(CellRole.Blank, cell.Role);
+        });
     }
 
     [Fact]

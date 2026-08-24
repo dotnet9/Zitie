@@ -57,6 +57,7 @@ internal static class YamlResourceSerializer
             Id = GetString(map, "id"),
             Name = GetString(map, "name"),
             Description = GetString(map, "description"),
+            Category = GetOptionalString(map, "category"),
             Kind = GetString(map, "kind", "customText"),
             Enabled = GetBoolean(map, "enabled") ?? true,
             Defaults = ReadModuleDefaults(GetMapping(map, "defaults"))
@@ -69,6 +70,11 @@ internal static class YamlResourceSerializer
 
         return new ModuleDefaults
         {
+            PracticeLayout = GetOptionalString(map, "practiceLayout"),
+            BlankContentLayout = GetBoolean(map, "blankContentLayout"),
+            FillContentAreaWithBlankCells = GetBoolean(map, "fillContentAreaWithBlankCells"),
+            LayoutColumns = GetInt32(map, "layoutColumns"),
+            LayoutRows = GetInt32(map, "layoutRows"),
             Grid = GetOptionalString(map, "grid"),
             GridSize = GetDouble(map, "gridSize"),
             GridGap = GetDouble(map, "gridGap"),
@@ -78,6 +84,7 @@ internal static class YamlResourceSerializer
             GroupByWord = GetBoolean(map, "groupByWord"),
             ShowPinyin = GetBoolean(map, "showPinyin"),
             PinyinOnly = GetBoolean(map, "pinyinOnly"),
+            ShowStrokeOrder = GetBoolean(map, "showStrokeOrder"),
             Vertical = GetBoolean(map, "vertical"),
             ShowPoemHeader = GetBoolean(map, "showPoemHeader"),
             FrameBorder = GetBoolean(map, "frameBorder"),
@@ -167,11 +174,17 @@ internal static class YamlResourceSerializer
         Add(lines, 0, "id", module.Id);
         Add(lines, 0, "name", module.Name);
         Add(lines, 0, "description", module.Description);
+        Add(lines, 0, "category", module.Category);
         Add(lines, 0, "kind", module.Kind);
         Add(lines, 0, "enabled", module.Enabled);
         lines.Add("defaults:");
 
         var defaults = module.Defaults;
+        Add(lines, 2, "practiceLayout", defaults.PracticeLayout);
+        Add(lines, 2, "blankContentLayout", defaults.BlankContentLayout);
+        Add(lines, 2, "fillContentAreaWithBlankCells", defaults.FillContentAreaWithBlankCells);
+        Add(lines, 2, "layoutColumns", defaults.LayoutColumns);
+        Add(lines, 2, "layoutRows", defaults.LayoutRows);
         Add(lines, 2, "grid", defaults.Grid);
         Add(lines, 2, "gridSize", defaults.GridSize);
         Add(lines, 2, "gridGap", defaults.GridGap);
@@ -181,6 +194,7 @@ internal static class YamlResourceSerializer
         Add(lines, 2, "groupByWord", defaults.GroupByWord);
         Add(lines, 2, "showPinyin", defaults.ShowPinyin);
         Add(lines, 2, "pinyinOnly", defaults.PinyinOnly);
+        Add(lines, 2, "showStrokeOrder", defaults.ShowStrokeOrder);
         Add(lines, 2, "vertical", defaults.Vertical);
         Add(lines, 2, "showPoemHeader", defaults.ShowPoemHeader);
         Add(lines, 2, "frameBorder", defaults.FrameBorder);

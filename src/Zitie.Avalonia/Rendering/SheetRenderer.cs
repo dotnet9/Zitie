@@ -24,6 +24,12 @@ public static class SheetRenderer
     {
         DrawBackground(canvas, spec);
         DrawBackgroundArtwork(canvas, spec);
+        if (PracticeLayoutRendererRegistry.TryGet(spec.PracticeLayout, out var practiceLayoutRenderer))
+        {
+            practiceLayoutRenderer.Render(canvas, spec, page, theme);
+            return;
+        }
+
         if (spec.FrameBorder) DrawFrame(canvas, spec, theme);
         DrawHeader(canvas, spec, page, theme);
         DrawCells(canvas, spec, page, theme);
@@ -219,12 +225,16 @@ public static class SheetRenderer
             PathEffect = SKPathEffect.CreateDash(DashPattern, 0)
         };
         using var glyphPaint = new SKPaint { IsAntialias = true };
+        var strokeOrderSlots = spec.ShowStrokeOrder && spec.StrokeOrderByGlyph is not null
+            ? new Dictionary<int, int>()
+            : null;
 
         foreach (var cell in page.Cells)
         {
             var x = (float)(cell.XMm * LayoutEngine.MmToPt);
             var y = (float)(cell.YMm * LayoutEngine.MmToPt);
             var size = (float)(cell.SizeMm * LayoutEngine.MmToPt);
+            var groupSlotIndex = NextGroupSlotIndex(cell, strokeOrderSlots);
 
             DrawGrid(canvas, spec.Grid, x, y, size, solidPaint, dashPaint);
 
@@ -240,15 +250,147 @@ public static class SheetRenderer
             glyphPaint.Color = (cell.Role == CellRole.Model
                 ? ResolveColor(spec.TextColor, theme.ModelGlyphColor)
                 : TraceGlyphColor(spec, theme)).ToSKColor();
-            var fontSize = spec.Grid == GridKind.Pinyin ? size * 0.5f : size * 0.74f;
-            DrawCenteredGlyph(canvas, spec, cell.Glyph, fontSize,
-                new SKPoint(x + size / 2, y + size / 2), glyphPaint,
-                hollow: spec.TraceIntensity == TraceIntensity.Hollow ||
-                        spec.HollowGlyph && cell.Role == CellRole.Model);
+            var fontSize = spec.Grid == GridKind.Pinyin
+                ? FitTextSize(spec, cell.Glyph, size * 0.5f, size * 0.86f)
+                : size * 0.74f;
+            if (!TryDrawStrokeOrderCell(
+                    canvas,
+                    spec,
+                    cell,
+                    groupSlotIndex,
+                    x,
+                    y,
+                    size,
+                    glyphPaint.Color))
+                DrawCenteredGlyph(canvas, spec, cell.Glyph, fontSize,
+                    new SKPoint(x + size / 2, y + size / 2), glyphPaint,
+                    hollow: spec.TraceIntensity == TraceIntensity.Hollow ||
+                            spec.HollowGlyph && cell.Role == CellRole.Model);
 
             if (spec.ShowPinyin)
                 DrawPinyin(canvas, cell, spec, x, y, size, theme);
         }
+    }
+
+    private static int NextGroupSlotIndex(CellSlot cell, Dictionary<int, int>? strokeOrderSlots)
+    {
+        if (strokeOrderSlots is null || cell.GroupIndex < 0)
+            return 0;
+
+        strokeOrderSlots.TryGetValue(cell.GroupIndex, out var index);
+        strokeOrderSlots[cell.GroupIndex] = index + 1;
+        return index;
+    }
+
+    private static bool TryDrawStrokeOrderCell(
+        SKCanvas canvas,
+        CharacterSheetSpec spec,
+        CellSlot cell,
+        int groupSlotIndex,
+        float x,
+        float y,
+        float size,
+        SKColor completedColor)
+    {
+        if (!spec.ShowStrokeOrder ||
+            spec.StrokeOrderByGlyph is null ||
+            cell.Role != CellRole.Trace ||
+            spec.GroupByWord ||
+            spec.Orientation == SheetOrientation.Vertical ||
+            !spec.StrokeOrderByGlyph.TryGetValue(cell.Glyph, out var strokeOrder))
+            return false;
+
+        var currentStrokeIndex = groupSlotIndex - 1;
+        if (currentStrokeIndex < 0 || currentStrokeIndex >= strokeOrder.Strokes.Count)
+            return false;
+
+        var parsedPaths = strokeOrder.Strokes
+            .Select(ParseStrokePath)
+            .Where(static path => path is not null)
+            .Cast<SKPath>()
+            .ToArray();
+        if (parsedPaths.Length == 0)
+            return false;
+
+        try
+        {
+            using var completedPaint = new SKPaint
+            {
+                Color = completedColor,
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill
+            };
+            using var currentPaint = new SKPaint
+            {
+                Color = StrokeOrderCurrentColor(),
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill
+            };
+
+            var pathIndex = Math.Min(currentStrokeIndex, parsedPaths.Length - 1);
+            for (var index = 0; index <= pathIndex; index++)
+                DrawStrokePathInCell(
+                    canvas,
+                    parsedPaths[index],
+                    x,
+                    y,
+                    size,
+                    index == pathIndex ? currentPaint : completedPaint);
+        }
+        finally
+        {
+            foreach (var path in parsedPaths)
+                path.Dispose();
+        }
+
+        return true;
+    }
+
+    private static SKPath? ParseStrokePath(string pathData)
+    {
+        try
+        {
+            return SKPath.ParseSvgPathData(pathData);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static void DrawStrokePathInCell(
+        SKCanvas canvas,
+        SKPath path,
+        float x,
+        float y,
+        float size,
+        SKPaint paint)
+    {
+        var boxSize = size * 0.78f;
+        var boxX = x + (size - boxSize) / 2f;
+        var boxY = y + (size - boxSize) / 2f;
+        var scale = boxSize / 1024f;
+        var matrix = new SKMatrix
+        {
+            ScaleX = scale,
+            SkewX = 0,
+            TransX = boxX,
+            SkewY = 0,
+            ScaleY = -scale,
+            TransY = boxY + 900 * scale,
+            Persp0 = 0,
+            Persp1 = 0,
+            Persp2 = 1
+        };
+
+        using var transformed = new SKPath(path);
+        transformed.Transform(matrix);
+        canvas.DrawPath(transformed, paint);
+    }
+
+    private static SKColor StrokeOrderCurrentColor()
+    {
+        return Color.FromRgb(0xE8, 0x7C, 0x70).ToSKColor();
     }
 
     private static void DrawPinyin(
@@ -283,6 +425,8 @@ public static class SheetRenderer
         SKPaint solidPaint,
         SKPaint dashPaint)
     {
+        if (kind == GridKind.None) return;
+
         canvas.DrawRect(x, y, size, size, solidPaint);
 
         switch (kind)
@@ -398,6 +542,21 @@ public static class SheetRenderer
         using var paint = new SKPaint { Color = color, IsAntialias = true };
         var baselineY = center.Y - (font.Metrics.Descent - font.Metrics.Ascent) / 2 - font.Metrics.Ascent;
         canvas.DrawText(text, center.X, baselineY, SKTextAlign.Center, font, paint);
+    }
+
+    private static float FitTextSize(
+        CharacterSheetSpec spec,
+        string text,
+        float preferredSizePt,
+        float maxWidthPt)
+    {
+        if (string.IsNullOrEmpty(text) || maxWidthPt <= 0) return preferredSizePt;
+
+        using var font = CreateFont(spec, text, preferredSizePt);
+        var width = font.MeasureText(text);
+        if (width <= maxWidthPt) return preferredSizePt;
+
+        return Math.Max(5.5f, preferredSizePt * maxWidthPt / Math.Max(1, width));
     }
 
     private static void DrawLeftText(

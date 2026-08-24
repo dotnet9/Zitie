@@ -10,11 +10,16 @@ public sealed record SheetEditorState
     public const string DefaultInputText = "床前明月光，疑是地上霜。举头望明月，低头思故乡。";
 
     public string InputText { get; init; } = string.Empty;
+    public PracticeLayoutKind PracticeLayout { get; init; }
+    public bool BlankContentLayout { get; init; }
+    public bool FillContentAreaWithBlankCells { get; init; }
     public string Title { get; init; } = string.Empty;
     public GridKind Grid { get; init; }
     public PracticeMode Mode { get; init; }
     public int RepeatsPerChar { get; init; } = 5;
     public int CellsPerLine { get; init; }
+    public int LayoutColumns { get; init; }
+    public int LayoutRows { get; init; }
     public int BlankCellLineCount { get; init; }
     public TraceIntensity TraceIntensity { get; init; } = TraceIntensity.Medium;
     public string GridColor { get; init; } = "#B04A3F";
@@ -29,6 +34,7 @@ public sealed record SheetEditorState
     public bool GroupByWord { get; init; }
     public bool ShowPinyin { get; init; }
     public bool PinyinOnly { get; init; }
+    public bool ShowStrokeOrder { get; init; }
     public SheetOrientation Orientation { get; init; }
     public bool ShowPoemHeader { get; init; }
     public bool FrameBorder { get; init; }
@@ -49,6 +55,7 @@ public sealed record SheetEditorState
         return new SheetEditorState
         {
             InputText = DefaultInputText,
+            Grid = GridKind.Mi,
             FontFamilyName = fontFamilyName
         };
     }
@@ -58,12 +65,17 @@ public sealed record SheetEditorState
         ArgumentNullException.ThrowIfNull(spec);
         return new SheetEditorState
         {
-            InputText = spec.Text,
+            InputText = spec.BlankContentLayout ? string.Empty : spec.Text,
+            PracticeLayout = spec.PracticeLayout,
+            BlankContentLayout = spec.BlankContentLayout,
+            FillContentAreaWithBlankCells = spec.FillContentAreaWithBlankCells,
             Title = spec.Title ?? string.Empty,
             Grid = spec.Grid,
             Mode = spec.Mode,
             RepeatsPerChar = spec.RepeatsPerChar,
             CellsPerLine = spec.CellsPerLine,
+            LayoutColumns = spec.LayoutColumns,
+            LayoutRows = spec.LayoutRows,
             BlankCellLineCount = spec.BlankCellLineCount,
             TraceIntensity = spec.TraceIntensity,
             GridColor = string.IsNullOrWhiteSpace(spec.GridColor) ? "#B04A3F" : spec.GridColor!,
@@ -78,6 +90,7 @@ public sealed record SheetEditorState
             GroupByWord = spec.GroupByWord,
             ShowPinyin = spec.ShowPinyin,
             PinyinOnly = spec.PinyinOnly,
+            ShowStrokeOrder = spec.ShowStrokeOrder,
             Orientation = spec.Orientation,
             ShowPoemHeader = spec.ShowPoemHeader,
             FrameBorder = spec.FrameBorder,

@@ -30,6 +30,7 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<TextCatalog>();
         containerRegistry.RegisterSingleton<TextbookCatalog>();
         containerRegistry.RegisterSingleton<PinyinCatalog>();
+        containerRegistry.RegisterSingleton<StrokeOrderCatalog>();
         containerRegistry.RegisterSingleton<FontCatalog>();
         containerRegistry.RegisterSingleton<ISystemDialogs, SystemDialogsService>();
         // fork 把导航历史注册为瞬时实例，导致注入到 ViewModel 的 journal 与区域导航服务
