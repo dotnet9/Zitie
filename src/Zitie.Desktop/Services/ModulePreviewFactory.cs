@@ -117,7 +117,7 @@ public static class ModulePreviewFactory
         return sourcePath.StartsWith(builtInDirectory, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static GridKind ParseGrid(string? value)
+    internal static GridKind ParseGrid(string? value)
     {
         return value?.ToLowerInvariant() switch
         {

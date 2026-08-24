@@ -172,6 +172,8 @@ public sealed class ModuleCatalog
     private const string ModuleFileName = "module.yml";
     private const int DirectoryTemplateOrderStart = 10_000;
     private const int UserTemplateOrderStart = 20_000;
+    private readonly object _reloadLock = new();
+    private volatile bool _isLoaded;
 
     public static readonly IReadOnlyList<string> StyleCategoryOrder =
     [
@@ -202,17 +204,28 @@ public sealed class ModuleCatalog
             ResourcePaths.ModuleStyles,
             ResourcePaths.ModuleStyleImages,
             ResourcePaths.Modules,
-            ResolveDefaultUserDirectory())
+            ResolveDefaultUserDirectory(),
+            loadImmediately: true)
+    {
+    }
+
+    public ModuleCatalog(bool loadImmediately)
+        : this(
+            ResourcePaths.ModuleStyles,
+            ResourcePaths.ModuleStyleImages,
+            ResourcePaths.Modules,
+            ResolveDefaultUserDirectory(),
+            loadImmediately)
     {
     }
 
     public ModuleCatalog(string styleDirectory)
-        : this(styleDirectory, Path.Combine(styleDirectory, "images"), string.Empty, string.Empty)
+        : this(styleDirectory, Path.Combine(styleDirectory, "images"), string.Empty, string.Empty, loadImmediately: true)
     {
     }
 
     public ModuleCatalog(string styleDirectory, string imageDirectory)
-        : this(styleDirectory, imageDirectory, string.Empty, string.Empty)
+        : this(styleDirectory, imageDirectory, string.Empty, string.Empty, loadImmediately: true)
     {
     }
 
@@ -221,12 +234,22 @@ public sealed class ModuleCatalog
         string imageDirectory,
         string builtInDirectory,
         string userDirectory)
+        : this(styleDirectory, imageDirectory, builtInDirectory, userDirectory, loadImmediately: true)
+    {
+    }
+
+    public ModuleCatalog(
+        string styleDirectory,
+        string imageDirectory,
+        string builtInDirectory,
+        string userDirectory,
+        bool loadImmediately)
     {
         StyleDirectory = styleDirectory;
         ImageDirectory = imageDirectory;
         BuiltInDirectory = builtInDirectory;
         UserDirectory = userDirectory;
-        Reload();
+        if (loadImmediately) Reload();
     }
 
     public string StyleDirectory { get; }
@@ -237,10 +260,28 @@ public sealed class ModuleCatalog
 
     public string UserDirectory { get; }
 
+    public bool IsLoaded => _isLoaded;
+
     public IReadOnlyList<ModuleDefinition> Modules { get; private set; } = Array.Empty<ModuleDefinition>();
+
+    public void EnsureLoaded()
+    {
+        lock (_reloadLock)
+        {
+            if (_isLoaded) return;
+            ReloadCore();
+        }
+    }
 
     public void Reload()
     {
+        lock (_reloadLock)
+            ReloadCore();
+    }
+
+    private void ReloadCore()
+    {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var modules = new List<ModuleDefinition>();
         modules.AddRange(LoadStyleModules());
         LoadDirectory(BuiltInDirectory, modules, DirectoryTemplateOrderStart, isUserDirectory: false);
@@ -253,9 +294,11 @@ public sealed class ModuleCatalog
             .ThenBy(module => module.DisplayOrder)
             .ThenBy(module => module.Name, StringComparer.CurrentCulture)
             .ToList();
+        _isLoaded = true;
 
         ZitieLogging.Info(
-            $"模板目录加载完成：{Modules.Count} 个模板（样式：{StyleDirectory}；内置：{BuiltInDirectory}；用户：{UserDirectory}）");
+            $"模板目录加载完成：{Modules.Count} 个模板，耗时 {stopwatch.ElapsedMilliseconds} ms" +
+            $"（样式：{StyleDirectory}；内置：{BuiltInDirectory}；用户：{UserDirectory}）");
     }
 
     public ModuleDefinition? Find(string? id)

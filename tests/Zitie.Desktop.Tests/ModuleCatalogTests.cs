@@ -12,6 +12,23 @@ namespace Zitie.Desktop.Tests;
 public sealed class ModuleCatalogTests
 {
     [Fact]
+    public void DeferredCatalog_LoadsOnlyWhenRequested()
+    {
+        var catalog = new ModuleCatalog(loadImmediately: false);
+
+        Assert.False(catalog.IsLoaded);
+        Assert.Empty(catalog.Modules);
+
+        catalog.EnsureLoaded();
+        var loadedModules = catalog.Modules;
+        catalog.EnsureLoaded();
+
+        Assert.True(catalog.IsLoaded);
+        Assert.Equal(326, loadedModules.Count);
+        Assert.Same(loadedModules, catalog.Modules);
+    }
+
+    [Fact]
     public void BuiltInCatalog_LoadsNqezStyleTemplatesWithImages()
     {
         var catalog = new ModuleCatalog();

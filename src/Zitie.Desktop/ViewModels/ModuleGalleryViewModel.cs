@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -30,9 +31,11 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
     private int _loadRevision;
     private string _searchText = string.Empty;
     private string _selectedCategory = string.Empty;
-    private string _loadingMessage = "正在加载模板...";
     private double _galleryZoom = DefaultGalleryZoom;
+    private double _galleryAvailableWidth = 1100;
+    private int _galleryColumnCount = 4;
     private bool _isLoading = true;
+    private bool _isDisposed;
 
     public ModuleGalleryViewModel(
         IRegionManager regionManager,
@@ -68,6 +71,11 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     public IReadOnlyList<ModuleCardViewModel> FilteredModules { get; private set; } = Array.Empty<ModuleCardViewModel>();
 
+    public IReadOnlyList<ModuleCardRowViewModel> FilteredModuleRows { get; private set; } =
+        Array.Empty<ModuleCardRowViewModel>();
+
+    public IReadOnlyList<int> LoadingPlaceholders { get; } = Enumerable.Range(0, 6).ToArray();
+
     public int FilteredModuleCount => FilteredModules.Count;
 
     public bool IsLoading
@@ -78,13 +86,9 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
             if (!SetProperty(ref _isLoading, value)) return;
             RefreshCommand.RaiseCanExecuteChanged();
             RaisePropertyChanged(nameof(IsEmpty));
+            RaisePropertyChanged(nameof(IsInitialLoading));
+            RaisePropertyChanged(nameof(GalleryContentOpacity));
         }
-    }
-
-    public string LoadingMessage
-    {
-        get => _loadingMessage;
-        private set => SetProperty(ref _loadingMessage, value);
     }
 
     public string CatalogSummary
@@ -107,6 +111,10 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     public bool IsEmpty => !IsLoading && FilteredModules.Count == 0;
 
+    public bool IsInitialLoading => IsLoading && Modules.Count == 0;
+
+    public double GalleryContentOpacity => IsInitialLoading ? 0 : 1;
+
     public double MinimumZoom => MinimumGalleryZoom;
 
     public double MaximumZoom => MaximumGalleryZoom;
@@ -121,6 +129,7 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
             if (!SetProperty(ref _galleryZoom, zoom)) return;
             foreach (var module in Modules)
                 module.CardZoom = zoom;
+            RebuildRows();
         }
     }
 
@@ -156,7 +165,12 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     private void QueueInitialLoad()
     {
-        Dispatcher.UIThread.Post(() => _ = LoadModuleCardsAsync(reloadCatalog: false), DispatcherPriority.Background);
+        Dispatcher.UIThread.Post(
+            () =>
+            {
+                if (!_isDisposed) _ = LoadModuleCardsAsync(reloadCatalog: false);
+            },
+            DispatcherPriority.Background);
     }
 
     private void ConfigureSearchDebounce()
@@ -170,23 +184,33 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     private async Task LoadModuleCardsAsync(bool reloadCatalog)
     {
+        if (_isDisposed) return;
+
         var revision = Interlocked.Increment(ref _loadRevision);
-        LoadingMessage = reloadCatalog ? "正在刷新模板..." : "正在加载模板...";
+        var stopwatch = Stopwatch.StartNew();
         IsLoading = true;
 
         try
         {
             var cards = await Task.Run(() =>
             {
-                if (reloadCatalog) _catalog.Reload();
+                if (reloadCatalog)
+                    _catalog.Reload();
+                else
+                    _catalog.EnsureLoaded();
                 return _catalog.Modules
                     .Select(module => new ModuleCardViewModel(module, _openCommand))
                     .ToList();
             });
 
-            if (revision != _loadRevision) return;
+            if (revision != _loadRevision || _isDisposed)
+            {
+                DisposeCards(cards);
+                return;
+            }
 
             ApplyModuleCards(cards);
+            ZitieLogging.Info($"模板卡片索引准备完成：{cards.Count} 个，耗时 {stopwatch.ElapsedMilliseconds} ms");
             if (reloadCatalog)
             {
                 ZitieLogging.Info("模板页已刷新");
@@ -198,13 +222,14 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
         }
         finally
         {
-            if (revision == _loadRevision)
+            if (revision == _loadRevision && !_isDisposed)
                 IsLoading = false;
         }
     }
 
     private void ApplyModuleCards(IReadOnlyList<ModuleCardViewModel> modules)
     {
+        var previousModules = Modules;
         Modules = modules;
         foreach (var module in Modules)
             module.CardZoom = GalleryZoom;
@@ -227,7 +252,10 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
         RaisePropertyChanged(nameof(Modules));
         RaisePropertyChanged(nameof(CategoryChoices));
         RaisePropertyChanged(nameof(CatalogSummary));
+        RaisePropertyChanged(nameof(IsInitialLoading));
+        RaisePropertyChanged(nameof(GalleryContentOpacity));
         ApplyFilter();
+        DisposeCards(previousModules);
     }
 
     private void OpenTemplateDirectory()
@@ -255,6 +283,8 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     private void ApplyFilter()
     {
+        if (_isDisposed) return;
+
         var keyword = SearchText.Trim();
         var category = SelectedCategory;
 
@@ -269,8 +299,45 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
                 StringComparison.CurrentCultureIgnoreCase);
 
         RaisePropertyChanged(nameof(FilteredModules));
+        RebuildRows();
         RaisePropertyChanged(nameof(FilteredModuleCount));
         RaisePropertyChanged(nameof(IsEmpty));
+    }
+
+    public void UpdateGalleryWidth(double availableWidth)
+    {
+        if (!double.IsFinite(availableWidth) || availableWidth <= 0) return;
+
+        _galleryAvailableWidth = availableWidth;
+        var columnCount = CalculateGalleryColumnCount(availableWidth, GalleryZoom);
+        if (_galleryColumnCount == columnCount) return;
+
+        _galleryColumnCount = columnCount;
+        RebuildRows();
+    }
+
+    internal static int CalculateGalleryColumnCount(double availableWidth, double zoom)
+    {
+        if (!double.IsFinite(availableWidth) || availableWidth <= 0) return 1;
+
+        var normalizedZoom = Math.Clamp(zoom, MinimumGalleryZoom, MaximumGalleryZoom);
+        var slotWidth = ModuleCardViewModel.BaseCardWidth * normalizedZoom +
+                        ModuleCardViewModel.CardHorizontalSpacing;
+        return Math.Clamp(
+            (int)Math.Floor((availableWidth + ModuleCardViewModel.CardHorizontalSpacing) / slotWidth),
+            1,
+            12);
+    }
+
+    private void RebuildRows()
+    {
+        var columnCount = CalculateGalleryColumnCount(_galleryAvailableWidth, GalleryZoom);
+        _galleryColumnCount = columnCount;
+        FilteredModuleRows = FilteredModules
+            .Chunk(columnCount)
+            .Select(static cards => new ModuleCardRowViewModel(cards))
+            .ToList();
+        RaisePropertyChanged(nameof(FilteredModuleRows));
     }
 
     public void AdjustZoom(double delta)
@@ -280,7 +347,23 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     public void Dispose()
     {
+        if (_isDisposed) return;
+
+        _isDisposed = true;
+        Interlocked.Increment(ref _loadRevision);
         _subscriptions.Dispose();
         _searchTextChanges.Dispose();
+        DisposeCards(Modules);
+        Modules = Array.Empty<ModuleCardViewModel>();
+        FilteredModules = Array.Empty<ModuleCardViewModel>();
+        FilteredModuleRows = Array.Empty<ModuleCardRowViewModel>();
+    }
+
+    private static void DisposeCards(IEnumerable<ModuleCardViewModel> modules)
+    {
+        foreach (var module in modules)
+            module.Dispose();
     }
 }
+
+public sealed record ModuleCardRowViewModel(IReadOnlyList<ModuleCardViewModel> Modules);

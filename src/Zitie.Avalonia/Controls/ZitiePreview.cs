@@ -23,6 +23,7 @@ public class ZitiePreview : TemplatedControl
     private WriteableBitmap? _bitmap;
     private IImage? _pageImage;
     private bool _templateApplied;
+    private bool _isAttached;
 
     public static readonly StyledProperty<CharacterSheetSpec?> SpecProperty =
         AvaloniaProperty.Register<ZitiePreview, CharacterSheetSpec?>(nameof(Spec));
@@ -140,12 +141,20 @@ public class ZitiePreview : TemplatedControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        _isAttached = true;
         InvalidatePreview();
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        _isAttached = false;
+        ClearPreview();
+        base.OnDetachedFromVisualTree(e);
     }
 
     private void InvalidatePreview()
     {
-        if (!_templateApplied) return;
+        if (!_templateApplied || !_isAttached) return;
 
         var spec = Spec;
         var pages = Pages;
@@ -155,9 +164,7 @@ public class ZitiePreview : TemplatedControl
 
         if (spec is null || page is null)
         {
-            PageImage = null;
-            _bitmap?.Dispose();
-            _bitmap = null;
+            ClearPreview();
             return;
         }
 
@@ -194,6 +201,13 @@ public class ZitiePreview : TemplatedControl
         PageImage = bitmap;
         _bitmap?.Dispose();
         _bitmap = bitmap;
+    }
+
+    private void ClearPreview()
+    {
+        PageImage = null;
+        _bitmap?.Dispose();
+        _bitmap = null;
     }
 
 }

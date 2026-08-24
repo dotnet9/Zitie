@@ -34,6 +34,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     private readonly ISystemDialogs _dialogs;
     private readonly Subject<string> _templateSearchTextChanges = new();
     private readonly CompositeDisposable _subscriptions = new();
+    private Task _catalogLoadTask = Task.CompletedTask;
 
     private SheetEditorState _editorState = SheetEditorState.CreateDefault();
     private FontOption? _selectedSheetFont;
@@ -58,6 +59,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     private EditorPreviewSnapshot? _contentPreviewSnapshot;
     private EditorPreviewSnapshot? _templatePreviewSnapshot;
     private string _templateSearchText = string.Empty;
+    private string? _pendingNavigationModuleId;
+    private bool _isNavigationActive;
+    private bool _isDisposed;
 
     private static readonly string[] ColorChoiceValues =
     [
@@ -84,7 +88,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         _selectedSheetFont = _fontCatalog.Find(_fontCatalog.DefaultFontFamily) ??
                              _fontCatalog.Fonts.FirstOrDefault();
         _editorState = SheetEditorState.CreateDefault(_selectedSheetFont?.Name);
-        RefreshTemplateChoices();
+        if (_catalog.IsLoaded) RefreshTemplateChoices();
         ContentSelection = new TextContentSelection(textCatalog.Entries);
 
         GoBackCommand = new DelegateCommand(() => _journal.GoBack());
@@ -133,7 +137,10 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
                 () => Zoom < 2)
             .ObservesProperty(() => Zoom);
         ConfigureTemplateSearchDebounce();
+        if (!_catalog.IsLoaded) _catalogLoadTask = LoadCatalogAsync();
     }
+
+    internal Task CatalogLoadTask => _catalogLoadTask;
 
     private async Task OpenDocumentAsync()
     {
@@ -1536,6 +1543,68 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             SetCurrentModule(current);
     }
 
+    private async Task LoadCatalogAsync()
+    {
+        try
+        {
+            await Task.Run(_catalog.EnsureLoaded).ConfigureAwait(false);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (_isDisposed) return;
+                RefreshTemplateChoices();
+                ApplyPendingNavigationModule();
+            });
+        }
+        catch (Exception exception)
+        {
+            ZitieLogging.Warn("编辑页模板目录加载失败", exception);
+            if (!_isDisposed)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (_isNavigationActive)
+                        SetStatus($"模板加载失败：{exception.Message}");
+                });
+            }
+        }
+    }
+
+    private void ApplyPendingNavigationModule()
+    {
+        if (!_isNavigationActive) return;
+
+        var moduleId = _pendingNavigationModuleId;
+        _pendingNavigationModuleId = null;
+        if (string.IsNullOrWhiteSpace(moduleId))
+        {
+            SetStatus("已就绪");
+            return;
+        }
+
+        var module = _catalog.Find(moduleId);
+        if (module is null)
+        {
+            SetStatus("已就绪");
+            return;
+        }
+
+        _suppressDirty = true;
+        _suppressRebuild = true;
+        try
+        {
+            ApplyModuleDefaults(module);
+        }
+        finally
+        {
+            _suppressRebuild = false;
+            _suppressDirty = false;
+        }
+
+        RebuildImmediately();
+        IsDirty = false;
+        SetStatus("已就绪");
+    }
+
     private void ConfigureTemplateSearchDebounce()
     {
         var subscription = _templateSearchTextChanges
@@ -1652,13 +1721,24 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
+        _isNavigationActive = true;
+        var moduleId = navigationContext.Parameters.GetValue<string?>("moduleId");
         _suppressDirty = true;
         _suppressRebuild = true;
         try
         {
             ResetEditorState();
-            var module = _catalog.Find(navigationContext.Parameters.GetValue<string?>("moduleId"));
-            if (module is not null) ApplyModuleDefaults(module);
+            if (_catalog.IsLoaded)
+            {
+                RefreshTemplateChoices();
+                var module = _catalog.Find(moduleId);
+                if (module is not null) ApplyModuleDefaults(module);
+                _pendingNavigationModuleId = null;
+            }
+            else
+            {
+                _pendingNavigationModuleId = moduleId;
+            }
         }
         finally
         {
@@ -1668,7 +1748,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
         RebuildImmediately();
         IsDirty = false;
-        SetStatus("已就绪");
+        SetStatus(_catalog.IsLoaded ? "已就绪" : "正在加载模板...");
     }
 
     private void ResetEditorState()
@@ -1702,12 +1782,19 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        _isNavigationActive = false;
+        _pendingNavigationModuleId = null;
         if (_isContentPickerOpen) CloseContentPicker(commit: false);
         if (_isTemplatePickerOpen) CloseTemplatePicker(commit: false);
     }
 
     public void Dispose()
     {
+        if (_isDisposed) return;
+
+        _isDisposed = true;
+        _isNavigationActive = false;
+        _pendingNavigationModuleId = null;
         _subscriptions.Dispose();
         _templateSearchTextChanges.Dispose();
     }

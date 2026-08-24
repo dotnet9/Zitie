@@ -26,7 +26,7 @@ public partial class App : PrismApplication
     {
         ZitieLogging.Initialize();
         containerRegistry.RegisterSingleton<DeviceSettingsService>();
-        containerRegistry.RegisterSingleton<ModuleCatalog>();
+        containerRegistry.RegisterInstance(new ModuleCatalog(loadImmediately: false));
         containerRegistry.RegisterSingleton<TextCatalog>();
         containerRegistry.RegisterSingleton<TextbookCatalog>();
         containerRegistry.RegisterSingleton<PinyinCatalog>();
