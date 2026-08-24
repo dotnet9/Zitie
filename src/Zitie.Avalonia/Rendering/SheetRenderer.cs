@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using SkiaSharp;
 using Svg.Skia;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using Zitie.Core.Layout;
 using Zitie.Core.Models;
@@ -14,6 +15,7 @@ namespace Zitie.Avalonia.Rendering;
 public static class SheetRenderer
 {
     private static readonly float[] DashPattern = { 3f, 2.5f };
+    private static readonly ConditionalWeakTable<string, CachedBackgroundArtwork> BackgroundArtworkCache = new();
 
     public static void RenderPage(
         SKCanvas canvas,
@@ -87,10 +89,10 @@ public static class SheetRenderer
 
         try
         {
-            using var svg = new SKSvg();
-            using var reader = XmlReader.Create(new StringReader(spec.BackgroundArtworkSvg));
-            svg.Load(reader);
-            var picture = svg.Picture;
+            var artwork = BackgroundArtworkCache.GetValue(
+                spec.BackgroundArtworkSvg,
+                static svgText => CachedBackgroundArtwork.Load(svgText));
+            var picture = artwork.Picture;
             if (picture is null) return;
 
             var source = picture.CullRect;
@@ -114,6 +116,38 @@ public static class SheetRenderer
         catch
         {
             // 背景资源缺失或 SVG 不可解析时跳过插画，避免影响字帖内容与导出。
+        }
+    }
+
+    private sealed class CachedBackgroundArtwork
+    {
+        private readonly SKSvg? _svg;
+
+        private CachedBackgroundArtwork(SKSvg? svg)
+        {
+            _svg = svg;
+        }
+
+        ~CachedBackgroundArtwork()
+        {
+            _svg?.Dispose();
+        }
+
+        public SKPicture? Picture => _svg?.Picture;
+
+        public static CachedBackgroundArtwork Load(string svgText)
+        {
+            try
+            {
+                var svg = new SKSvg();
+                using var reader = XmlReader.Create(new StringReader(svgText));
+                svg.Load(reader);
+                return new CachedBackgroundArtwork(svg);
+            }
+            catch
+            {
+                return new CachedBackgroundArtwork(null);
+            }
         }
     }
 

@@ -38,6 +38,7 @@ internal sealed class FiveCharacterPoemCalligraphyRenderer : BracketPracticeLayo
         DrawTitle(canvas, spec, PoemTitle(spec), ink);
         DrawAuthorLine(canvas, spec, PoemSubtitle(spec), ink);
         DrawPoemGrid(canvas, spec, page, green, ResolveTrace(spec));
+        DrawNameLine(canvas, spec, green);
     }
 
     private static void DrawTitle(
@@ -97,6 +98,24 @@ internal sealed class FiveCharacterPoemCalligraphyRenderer : BracketPracticeLayo
                 new SKPoint(Mm(GridLeftMm + column * CellMm + CellMm / 2), Mm(GridTopMm + row * CellMm + CellMm / 2)),
                 glyphColor);
         }
+    }
+
+    private static void DrawNameLine(SKCanvas canvas, CharacterSheetSpec spec, SKColor green)
+    {
+        DrawFittedText(canvas, spec, "姓名:", 8.5f,
+            new SKPoint(Mm(81.5), Mm(195.2)),
+            SKTextAlign.Left,
+            green.WithAlpha(220),
+            Mm(15));
+
+        using var line = new SKPaint
+        {
+            Color = green.WithAlpha(205),
+            StrokeWidth = Mm(0.5),
+            StrokeCap = SKStrokeCap.Round,
+            IsAntialias = true
+        };
+        canvas.DrawLine(Mm(98), Mm(195.2), Mm(128), Mm(195.2), line);
     }
 
     private static string PoemTitle(CharacterSheetSpec spec)

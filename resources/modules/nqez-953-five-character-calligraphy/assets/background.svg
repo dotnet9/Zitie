@@ -1,59 +1,244 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 210 297">
   <defs>
     <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fbfaf4"/>
-      <stop offset="0.62" stop-color="#faf8ef"/>
-      <stop offset="1" stop-color="#f5f4e9"/>
+      <stop offset="0" stop-color="#fdfcf7"/>
+      <stop offset="0.56" stop-color="#fbfaf3"/>
+      <stop offset="1" stop-color="#f4f5eb"/>
     </linearGradient>
-    <linearGradient id="farMountain" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#d8ebe3" stop-opacity="0.28"/>
-      <stop offset="1" stop-color="#a8d8cf" stop-opacity="0.72"/>
+    <radialGradient id="windowPaper" cx="48%" cy="42%" r="68%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.78" stop-color="#fffef9"/>
+      <stop offset="1" stop-color="#f4faf3"/>
+    </radialGradient>
+    <linearGradient id="mountainFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dceee7" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#bcded5" stop-opacity="0.7"/>
     </linearGradient>
-    <linearGradient id="nearMountain" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#a9d9ce" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#72b8aa" stop-opacity="0.7"/>
+    <linearGradient id="mountainMid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b6ddd3" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#8ac8bc" stop-opacity="0.78"/>
     </linearGradient>
-    <pattern id="fibers" width="17" height="13" patternUnits="userSpaceOnUse">
-      <path d="M1 3l3 .35M11 8l4 .45M5 12l2 .2" fill="none" stroke="#9b8a6e" stroke-width=".18" opacity=".18"/>
-      <circle cx="8" cy="4" r=".18" fill="#9b8a6e" opacity=".16"/>
+    <linearGradient id="mountainNear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fcfc0" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#58a999" stop-opacity="0.86"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9f3ee" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#a7d6ca" stop-opacity="0.65"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#283d38"/>
+      <stop offset="0.62" stop-color="#142824"/>
+      <stop offset="1" stop-color="#0f1e1b"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef1e8"/>
+      <stop offset="1" stop-color="#d8dfd6"/>
+    </linearGradient>
+    <linearGradient id="bird" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#28253d"/>
+      <stop offset="1" stop-color="#121725"/>
+    </linearGradient>
+    <pattern id="paperFibers" width="17" height="13" patternUnits="userSpaceOnUse">
+      <path d="M1 3.1l4.2 .28M10.5 8.4l4.8 .2M4 11.8l2.8 .22" fill="none" stroke="#9d896c" stroke-width="0.13" opacity="0.13"/>
+      <path d="M7.6 1.2l.3 1.6M15.2 10.5l.25 1.25" fill="none" stroke="#b2a58d" stroke-width="0.11" opacity="0.12"/>
+      <circle cx="12" cy="3.1" r="0.15" fill="#a9977a" opacity="0.1"/>
     </pattern>
+
+    <path id="leafLong" d="M0 0C.85-.72 3.15-.94 4.85-.18 3.35.76 1.35.82 0 0Z"/>
+    <path id="leafSlim" d="M0 0C.62-.48 2.55-.61 3.85-.08 2.65.53 1 .58 0 0Z"/>
+    <g id="sprayLong">
+      <path d="M0 0C1.2 13 2 29-1.8 51" fill="none" stroke="#78b581" stroke-width="0.42" stroke-linecap="round"/>
+      <g fill="#70b77e">
+        <use xlink:href="#leafLong" transform="translate(.5 6) rotate(157) scale(.86)"/>
+        <use xlink:href="#leafSlim" transform="translate(1.1 9.8) rotate(18) scale(.9)"/>
+        <use xlink:href="#leafLong" transform="translate(1.1 14.2) rotate(160) scale(.92)"/>
+        <use xlink:href="#leafLong" transform="translate(1.3 18.2) rotate(21) scale(.82)"/>
+        <use xlink:href="#leafSlim" transform="translate(.9 22.6) rotate(157) scale(1.04)"/>
+        <use xlink:href="#leafLong" transform="translate(.5 27) rotate(19) scale(.84)"/>
+        <use xlink:href="#leafLong" transform="translate(-.1 31.5) rotate(162) scale(.78)"/>
+        <use xlink:href="#leafSlim" transform="translate(-.8 35.6) rotate(17) scale(.94)"/>
+        <use xlink:href="#leafLong" transform="translate(-1.5 39.7) rotate(165) scale(.76)"/>
+        <use xlink:href="#leafSlim" transform="translate(-1.9 43.4) rotate(14) scale(.82)"/>
+        <use xlink:href="#leafSlim" transform="translate(-2 47) rotate(169) scale(.7)"/>
+      </g>
+    </g>
+    <g id="sprayArc">
+      <path d="M0 0C-2.5 11-1.2 25 6 40" fill="none" stroke="#83bc88" stroke-width="0.4" stroke-linecap="round"/>
+      <g fill="#82c18c">
+        <use xlink:href="#leafSlim" transform="translate(-.8 5) rotate(142) scale(.86)"/>
+        <use xlink:href="#leafLong" transform="translate(-1.5 9.3) rotate(9) scale(.76)"/>
+        <use xlink:href="#leafLong" transform="translate(-1.8 14) rotate(149) scale(.84)"/>
+        <use xlink:href="#leafSlim" transform="translate(-1.3 18) rotate(12) scale(.92)"/>
+        <use xlink:href="#leafLong" transform="translate(-.2 22.3) rotate(151) scale(.72)"/>
+        <use xlink:href="#leafLong" transform="translate(1.3 27) rotate(17) scale(.84)"/>
+        <use xlink:href="#leafSlim" transform="translate(3.1 31.5) rotate(158) scale(.88)"/>
+        <use xlink:href="#leafSlim" transform="translate(4.7 35.4) rotate(24) scale(.72)"/>
+      </g>
+    </g>
+    <g id="sprayFine">
+      <path d="M0 0C1 8 0 17-2.2 28" fill="none" stroke="#91c793" stroke-width="0.3" stroke-linecap="round"/>
+      <g fill="#91ca96">
+        <use xlink:href="#leafSlim" transform="translate(.4 5) rotate(158) scale(.72)"/>
+        <use xlink:href="#leafSlim" transform="translate(.5 8.5) rotate(18) scale(.76)"/>
+        <use xlink:href="#leafSlim" transform="translate(.2 12) rotate(161) scale(.74)"/>
+        <use xlink:href="#leafSlim" transform="translate(-.3 15.8) rotate(17) scale(.68)"/>
+        <use xlink:href="#leafSlim" transform="translate(-1 19.4) rotate(164) scale(.7)"/>
+        <use xlink:href="#leafSlim" transform="translate(-1.6 23) rotate(13) scale(.64)"/>
+      </g>
+    </g>
   </defs>
 
   <rect width="210" height="297" fill="url(#paper)"/>
-  <rect width="210" height="297" fill="url(#fibers)"/>
+  <rect width="210" height="297" fill="url(#paperFibers)"/>
 
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M36 15C59 2 82 17 106 9c25-8 43 7 67-3 15-6 28-4 43-12" stroke="#504b40" stroke-width="1.25" opacity=".8"/>
-    <path d="M71 10c4 12 1 24-5 36M83 12c5 12 3 27-3 40M96 12c4 14 2 31-5 47M111 10c6 13 6 27 1 42M126 11c5 11 5 24 0 39M142 10c7 13 7 27 2 43M158 8c6 12 7 25 2 39M176 5c7 10 9 22 6 34M190 0c8 9 10 19 9 31" stroke="#78bd82" stroke-width=".42" opacity=".7"/>
-    <path d="M67 21l-5 3m8 2l5 2m-8 5l-6 2m6 5l5 2M81 22l-5 3m7 4l6 2m-8 7l-6 3m6 4l5 3M94 25l-6 3m7 4l6 2m-8 6l-6 3m5 5l6 2M111 20l-6 3m8 5l6 2m-7 7l-6 3m7 5l6 2M127 20l-6 3m8 5l6 2m-8 7l-6 3m7 5l6 2M144 19l-6 3m8 5l6 2m-8 7l-6 3m7 6l6 2M161 17l-6 3m8 5l6 2m-8 7l-6 3m7 5l6 2M181 13l-6 3m8 5l6 2m-8 7l-6 3M198 9l-5 3m6 5l5 2m-5 6l-5 3" stroke="#69b779" stroke-width=".7" opacity=".58"/>
-    <path d="M51 17c-7 0-14-2-22-8 5 7 11 11 19 12-5 2-9 5-13 9 8-2 14-5 18-10 5 3 10 5 16 6-4-5-9-8-16-9Z" fill="#202033" stroke="none" opacity=".92"/>
-    <path d="M124 15c4-3 8-3 12 0m-4 0c4-4 8-4 12 0" stroke="#233040" stroke-width=".75" opacity=".7"/>
+  <!-- The top willow is built from irregular branches and layered leaf sprays. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M214-3C202 1 199 10 189 14c-10 4-19-1-29 2-12 3-18 12-31 9-9-2-13-9-23-7-12 2-16 12-27 13-10 1-18-5-27-1-7 3-10 9-16 13" fill="none" stroke="#3f4139" stroke-width="1.35" opacity="0.86"/>
+    <path d="M213-1C201 4 198 11 188 15c-10 3-19-.7-28 2.5-12 4-18 11-30 8.7-10-2-14-8-23-6-11 2-16 11-27 12-10 1-17-4-26-1-7 2-11 8-17 13" fill="none" stroke="#a49b86" stroke-width="0.36" opacity="0.68"/>
+    <path d="M208 8c-9 4-15 10-19 18M184 15c5 4 11 6 19 6M161 17c-3-7-7-11-13-15M132 25c-7 5-13 10-19 18M107 20c-8-5-14-7-22-5M81 31c-3 7-8 13-15 17M60 31c-8-3-16-1-24 5" fill="none" stroke="#45463d" stroke-width="0.92" opacity="0.82"/>
+    <path d="M206 8c-7 3-12 8-16 15M160 17c-3-5-7-9-12-13M132 25c-6 4-11 8-17 16M80 31c-3 6-7 11-13 16M59 32c-8-2-14 0-21 5" fill="none" stroke="#a9a08a" stroke-width="0.3" opacity="0.6"/>
+    <g opacity="0.92">
+      <use xlink:href="#sprayFine" transform="translate(39 36) rotate(-14) scale(.82 1.08)"/>
+      <use xlink:href="#sprayLong" transform="translate(47 34) rotate(-10) scale(.78 1.1)"/>
+      <use xlink:href="#sprayArc" transform="translate(55 32) rotate(6) scale(.72 1.05)"/>
+      <use xlink:href="#sprayLong" transform="translate(64 40) rotate(8) scale(.76 1.18)" opacity="0.82"/>
+      <use xlink:href="#sprayFine" transform="translate(73 31) rotate(-7) scale(.9 1.12)"/>
+      <use xlink:href="#sprayArc" transform="translate(81 28) rotate(-4) scale(.82 1.08)" opacity="0.84"/>
+      <use xlink:href="#sprayLong" transform="translate(91 23) rotate(7) scale(.73 1.1)"/>
+      <use xlink:href="#sprayFine" transform="translate(101 19) rotate(-8) scale(.92 1.08)"/>
+      <use xlink:href="#sprayArc" transform="translate(111 18) rotate(5) scale(.82 1.2)"/>
+      <use xlink:href="#sprayLong" transform="translate(121 23) rotate(-6) scale(.76 1.08)" opacity="0.86"/>
+      <use xlink:href="#sprayFine" transform="translate(131 25) rotate(8) scale(.92 1.18)"/>
+      <use xlink:href="#sprayArc" transform="translate(140 22) rotate(-10) scale(.86 1.06)"/>
+      <use xlink:href="#sprayLong" transform="translate(150 19) rotate(5) scale(.8 1.16)"/>
+      <use xlink:href="#sprayFine" transform="translate(160 17) rotate(-8) scale(.96 1.06)"/>
+      <use xlink:href="#sprayArc" transform="translate(170 16) rotate(4) scale(.84 1.18)"/>
+      <use xlink:href="#sprayLong" transform="translate(180 15) rotate(-7) scale(.78 1.08)"/>
+      <use xlink:href="#sprayFine" transform="translate(190 13) rotate(8) scale(.94 1.14)"/>
+      <use xlink:href="#sprayArc" transform="translate(200 9) rotate(-5) scale(.78 1.05)"/>
+    </g>
+    <g opacity="0.43">
+      <use xlink:href="#sprayFine" transform="translate(44 37) rotate(10) scale(.74 1.25)"/>
+      <use xlink:href="#sprayArc" transform="translate(70 34) rotate(-12) scale(.68 1.18)"/>
+      <use xlink:href="#sprayFine" transform="translate(98 21) rotate(11) scale(.76 1.3)"/>
+      <use xlink:href="#sprayLong" transform="translate(128 24) rotate(12) scale(.55 1.12)"/>
+      <use xlink:href="#sprayFine" transform="translate(157 18) rotate(11) scale(.74 1.3)"/>
+      <use xlink:href="#sprayArc" transform="translate(187 15) rotate(10) scale(.62 1.2)"/>
+    </g>
+    <g opacity="0.32">
+      <use xlink:href="#sprayFine" transform="translate(51 33) rotate(15) scale(.6 1.4)"/>
+      <use xlink:href="#sprayFine" transform="translate(59 36) rotate(-16) scale(.65 1.18)"/>
+      <use xlink:href="#sprayFine" transform="translate(87 27) rotate(14) scale(.7 1.34)"/>
+      <use xlink:href="#sprayFine" transform="translate(116 19) rotate(-14) scale(.65 1.4)"/>
+      <use xlink:href="#sprayFine" transform="translate(145 21) rotate(16) scale(.68 1.25)"/>
+      <use xlink:href="#sprayFine" transform="translate(175 15) rotate(-14) scale(.68 1.38)"/>
+      <use xlink:href="#sprayFine" transform="translate(196 11) rotate(14) scale(.64 1.2)"/>
+    </g>
   </g>
 
-  <path d="M0 251c18-12 34-10 53-3 19 8 35-1 53-9 20-9 36 6 55 0 18-5 31-16 49-17v75H0Z" fill="url(#farMountain)"/>
-  <path d="M0 273c22-13 41-8 61-15 22-8 41 8 60 4 23-5 39-20 55-15 14 4 23-8 34-10v60H0Z" fill="url(#nearMountain)"/>
-  <path d="M0 287c29-11 48-1 72-8 24-8 42 5 62 0 25-6 48-19 76-15v33H0Z" fill="#86c9bb" opacity=".34"/>
-  <path d="M0 251c18-12 34-10 53-3 19 8 35-1 53-9 20-9 36 6 55 0 18-5 31-16 49-17" fill="none" stroke="#90c8bb" stroke-width=".55" opacity=".55"/>
-
-  <g transform="translate(174 224)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <ellipse cx="1" cy="24" rx="27" ry="32" fill="#8fcaad" opacity=".18" stroke="none"/>
-    <path d="M-18 16Q0-5 26 12Q15 15-18 16Z" stroke="#493f34" stroke-width="1.05" fill="#28362f" opacity=".92"/>
-    <path d="M-11 20v23M18 19v24M-11 43h29M-5 43c1-13 5-20 12-20s11 7 12 20" stroke="#493f34" stroke-width=".9"/>
-    <path d="M-23 1c8 2 15 0 21-8M8-2c6-6 12-8 20-7M-7 3c-5-8-9-13-15-16" stroke="#625543" stroke-width="1.05"/>
-    <path d="M-15-7c-5 7-7 15-7 24M14-9c4 6 6 15 5 26" stroke="#70a97b" stroke-width=".55" opacity=".75"/>
+  <!-- Small kingfishers resting on the willow, retained as subtle blue accents. -->
+  <g stroke="#253b44" stroke-width="0.28" stroke-linejoin="round">
+    <g transform="translate(89 19)">
+      <ellipse cx="0" cy="0" rx="1.5" ry="1.1" fill="#3978a7"/>
+      <path d="M-1.1.1c-.2 1.6.1 2.7 1 3.7L.5.5Z" fill="#244f75"/>
+      <circle cx="1.15" cy="-.65" r=".62" fill="#4b8fbd"/>
+      <path d="M1.7-.7l1.6-.2-1.4.7Z" fill="#2f3531"/>
+    </g>
+    <g transform="translate(133 23) scale(.86)">
+      <ellipse cx="0" cy="0" rx="1.5" ry="1.1" fill="#3d79a7"/>
+      <path d="M-1.1.1c-.2 1.6.1 2.7 1 3.7L.5.5Z" fill="#284f73"/>
+      <circle cx="1.15" cy="-.65" r=".62" fill="#5795bb"/>
+      <path d="M1.7-.7l1.6-.2-1.4.7Z" fill="#2f3531"/>
+    </g>
+    <g transform="translate(181 14) scale(.72)">
+      <ellipse cx="0" cy="0" rx="1.5" ry="1.1" fill="#3d79a7"/>
+      <path d="M-1.1.1c-.2 1.6.1 2.7 1 3.7L.5.5Z" fill="#284f73"/>
+      <circle cx="1.15" cy="-.65" r=".62" fill="#5795bb"/>
+      <path d="M1.7-.7l1.6-.2-1.4.7Z" fill="#2f3531"/>
+    </g>
   </g>
 
-  <path d="M105 79c10 2 16 5 25 3 10-2 15 7 24 11 10 4 8 15 15 23 7 8 2 17 4 27 3 10-5 18-8 28-3 10-14 12-20 20-7 8-17 4-27 9-9 5-18 0-28 2-10 2-16-7-25-11-9-4-9-15-16-22-7-8-2-18-4-28-2-10 6-17 7-27 1-10 11-14 16-22 6-8 17-5 26-10 5-3 9-5 12-5Z" fill="#fffef9" stroke="#65c28b" stroke-width=".75"/>
-  <path d="M105 82.5c10 2 16 4 24 2 9-2 14 7 23 10 9 4 7 14 14 22 6 7 2 16 4 26 2 9-5 17-8 26-3 9-13 11-19 18-6 8-16 4-25 9-9 4-17 0-26 2-10 2-15-7-24-10-9-4-8-14-15-21-6-8-2-17-4-26-2-10 6-16 7-26 1-9 10-13 15-21 6-7 16-4 25-9 4-2 8-4 11-4Z" fill="none" stroke="#65c28b" stroke-width=".35" stroke-dasharray="1.2 1.4" opacity=".62"/>
-
-  <g fill="none" stroke="#63c28b">
-    <path d="M74 97h62M74 111h62" stroke-width=".78" opacity=".9"/>
-    <path d="M74 97h4v14h-4M136 97h-4v14h4" fill="#63c28b" stroke-width=".4" opacity=".88"/>
-    <path d="M80 97v14M130 97v14" stroke-width=".55" opacity=".9"/>
+  <!-- Swallow and distant birds. -->
+  <g transform="translate(16 17)" fill="url(#bird)">
+    <path d="M16 6C10 3 5-.6 0-5c2.1 6.8 5.7 12 11.3 15.2C6.7 10.8 3 12.8-.2 16c6.8-.7 12.5-2.7 17.4-6.2 4.6 3.8 10.2 6.3 17.5 7.2-4.5-4.7-8.7-8.4-14.2-10.5C27 4.1 32 1.1 36.2-3c-7.7 2-14.1 4.5-20.2 9Z"/>
+    <path d="M13.5 7.1c2.5-2.1 5.5-2.1 8.3-.2-2.6 2.4-5.7 3-8.8 1.8Z" fill="#38364d"/>
+    <path d="M17.1 9.1l-1.7 10.8 4.1-7.6 4.5 6.8-2.1-10.4Z"/>
+  </g>
+  <g fill="none" stroke="#30464d" stroke-linecap="round">
+    <path d="M115 18c3.3-3.1 6.8-3.1 10.4 0m-2.8 0c3.1-3.8 6.5-3.8 10 0" stroke-width="0.62" opacity="0.72"/>
+    <path d="M143 34c2.2-2 4.5-2 6.8 0m-1.9 0c2.1-2.5 4.3-2.5 6.5 0" stroke-width="0.38" opacity="0.48"/>
   </g>
 
-  <g fill="none" stroke="#63c28b" stroke-linecap="round">
-    <path d="M99 195.2h29" stroke-width=".55" opacity=".78"/>
+  <!-- The white garden window leaves room for dynamic title, author and practice grid. -->
+  <path d="M82 78c-9-1-15 3-21 11L49 106c-5 7-6 14-5 24l-2 18c-1 10 2 18 9 26l13 17c6 8 14 11 24 13l12 3c6 2 10 0 16 0 8 0 14-3 21-5 8-3 13-8 19-15l12-14c6-7 8-15 7-24l2-15c1-9-1-17-6-25l-9-15c-5-8-11-12-20-16l-18-5c-7-2-13 0-20 0-8-1-14 1-22-1Z" fill="#a7dec0" opacity="0.24"/>
+  <path d="M80 76.5c-8.5-.8-14.5 3.5-20 11L48 105c-4.6 6.8-5.7 14.3-4.5 23.2l-2 18.5c-1 9.7 2.4 18.2 9 25.8l13 16.7c6.1 7.5 14.3 10.2 23.5 12.4l12.2 3.2c5.7 1.4 10.4-.5 15.8-.5 7.6 0 14-2.8 20.8-5.2 7.7-2.5 13.2-7.7 18.8-14.5l11.8-13.8c5.5-6.7 7.4-14.3 6.9-23l1.8-15c1-8.7-1-16.3-5.7-23.8l-9.1-15.1c-4.6-7.7-10.8-12-19.5-15.2l-18.2-5.6c-6.8-2-12.8-.2-19.3-.3-7.6-.8-14.5 1.4-22.3-.3Z" fill="url(#windowPaper)" stroke="#4fbd7e" stroke-width="0.82"/>
+  <path d="M82 80.6c-7.8-.7-13.2 3.2-18.2 10L52.6 107c-4.1 6.2-5.1 13-4 21l-1.8 17.3c-.9 8.8 2.2 16.4 8.2 23.3l12 15.5c5.5 6.8 12.9 9.2 21.3 11.2l11.3 3c5.1 1.3 9.4-.4 14.4-.4 6.8 0 12.6-2.5 18.8-4.7 6.9-2.3 11.9-7 17-13.1l10.7-12.7c5-6 6.7-12.9 6.2-20.8l1.7-13.7c.9-7.8-.9-14.7-5.2-21.5l-8.2-13.7c-4.2-6.9-9.8-10.8-17.6-13.7l-16.6-5.1c-6.1-1.8-11.6-.2-17.5-.3-6.9-.7-13.1 1.3-20.3-.2Z" fill="none" stroke="#8fd7ac" stroke-width="0.32" stroke-dasharray="1.2 1.45" opacity="0.9"/>
+  <path d="M51.4 130c-1.5-5.2-1.2-10.1 1.1-14.8M157 98c4.7 4 7.3 8.8 8 14.5M62.6 181c4.8 5.1 10.4 8.1 16.9 9.4M148 180c-4.5 5.1-9.9 8.3-16 10" fill="none" stroke="#b6e5c6" stroke-width="0.45" stroke-linecap="round" opacity="0.82"/>
+
+  <!-- Fixed title plaque; the actual title is drawn dynamically by C#. -->
+  <g stroke-linejoin="round">
+    <path d="M72.5 96.4h65v15.5h-65Z" fill="#fffefa" stroke="#56be81" stroke-width="0.62"/>
+    <path d="M72.5 96.4h5v15.5h-5ZM137.5 96.4h-5v15.5h5Z" fill="#61c88b"/>
+    <path d="M79.5 96.4v15.5M130.5 96.4v15.5" fill="none" stroke="#79d19f" stroke-width="0.42"/>
+    <path d="M75.4 99.2l2-2M75.4 109l2 2M134.6 99.2l-2-2M134.6 109l-2 2" fill="none" stroke="#d8f2e0" stroke-width="0.38"/>
   </g>
-  <text x="82" y="194.6" fill="#63c28b" font-size="3.2" font-family="Microsoft YaHei, sans-serif" opacity=".88">姓名：</text>
+
+  <!-- Layered watercolor landscape. -->
+  <path d="M0 225c10-7 19-9 28-6 5 2 9 7 14 8 8 2 14-5 20-6 8-1 13 8 21 7 7-1 11-10 18-12 7-2 12 6 19 7 9 1 14-11 22-13 8-2 13 8 21 8 8 0 13-10 20-11 10-1 17 8 27 7v83H0Z" fill="url(#mountainFar)" opacity="0.58"/>
+  <path d="M0 242c9-6 18-10 27-8 7 1 12 9 18 10 8 2 13-6 20-7 8-1 14 10 22 9 9-1 14-12 22-13 8-1 13 8 21 8 10 0 16-13 25-15 8-2 14 8 22 7 11-1 20-8 33-7v71H0Z" fill="url(#mountainMid)" opacity="0.56"/>
+  <path d="M0 259c12-9 23-12 34-8 8 3 13 12 22 11 10-1 16-12 25-14 11-2 18 12 29 10 10-2 15-15 25-17 9-2 15 10 24 9 8-1 13-9 21-11 10-2 19 5 30 4v54H0Z" fill="url(#mountainNear)" opacity="0.46"/>
+  <path d="M0 269c21-7 41 2 61-3 19-5 32-14 51-10 23 6 48 0 71-9 9-3 18-4 27-3v53H0Z" fill="url(#water)"/>
+  <path d="M0 286c22-8 43-2 62-10 20-8 35 4 54 2 19-1 32-11 51-10 15 1 29-5 43-8v37H0Z" fill="#7ec4b5" opacity="0.43"/>
+  <path d="M0 225c10-7 19-9 28-6 5 2 9 7 14 8 8 2 14-5 20-6 8-1 13 8 21 7 7-1 11-10 18-12 7-2 12 6 19 7 9 1 14-11 22-13 8-2 13 8 21 8 8 0 13-10 20-11" fill="none" stroke="#a7d2c7" stroke-width="0.42" opacity="0.38"/>
+  <path d="M0 242c9-6 18-10 27-8 7 1 12 9 18 10 8 2 13-6 20-7 8-1 14 10 22 9 9-1 14-12 22-13 8-1 13 8 21 8 10 0 16-13 25-15" fill="none" stroke="#8fc6ba" stroke-width="0.38" opacity="0.32"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M5 262c13 1 25 .5 37-.8M67 273c14 1 26 .6 39-.8M112 258c12 .7 23 .2 35-1.2M11 289c14 .7 27 .3 40-1M76 291c12 .8 24 .4 36-.8" stroke="#eff7f2" stroke-width="0.48" opacity="0.78"/>
+    <path d="M24 232c5-3.2 10-4.2 15-3M87 231c5-4 10-5.2 15-4M142 223c5-4.2 10-5.4 15-4.2" stroke="#6c988e" stroke-width="0.32" opacity="0.24"/>
+  </g>
+
+  <!-- Willow and branches behind the pavilion. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M213 196c-12 1-20 9-27 20-7 10-11 23-12 40M208 204c-11 6-20 7-30 3M194 207c-8-7-15-11-24-14M186 216c7-3 15-3 24-1M180 231c-7-10-14-16-22-19M176 245c-5-9-10-15-17-20" fill="none" stroke="#403c30" stroke-width="1.08"/>
+    <path d="M211 197c-11 2-19 10-25 20-6 10-10 23-11 38M207 205c-10 5-19 6-28 3M193 208c-7-6-14-10-23-13" fill="none" stroke="#8b816b" stroke-width="0.32" opacity="0.72"/>
+    <g opacity="0.83">
+      <use xlink:href="#sprayLong" transform="translate(161 212) rotate(-8) scale(.72 .94)"/>
+      <use xlink:href="#sprayArc" transform="translate(169 194) rotate(-5) scale(.78 1.15)"/>
+      <use xlink:href="#sprayFine" transform="translate(177 207) rotate(9) scale(.9 1.18)"/>
+      <use xlink:href="#sprayLong" transform="translate(187 214) rotate(8) scale(.68 1.05)"/>
+      <use xlink:href="#sprayArc" transform="translate(198 205) rotate(-8) scale(.76 1.12)"/>
+      <use xlink:href="#sprayFine" transform="translate(207 197) rotate(7) scale(.92 1.25)"/>
+    </g>
+    <g opacity="0.38">
+      <use xlink:href="#sprayFine" transform="translate(166 208) rotate(11) scale(.76 1.35)"/>
+      <use xlink:href="#sprayArc" transform="translate(182 213) rotate(-10) scale(.62 1.16)"/>
+      <use xlink:href="#sprayLong" transform="translate(202 204) rotate(10) scale(.54 1.08)"/>
+    </g>
+  </g>
+
+  <!-- Detailed waterside pavilion, intentionally cropped at the page edge. -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M164 245c8-11 17-18 28-19 8-.6 14 2 21 7v14c-17-1-33-1-49-2Z" fill="#2d463f" opacity="0.2"/>
+    <path d="M157 243c12-1 20-5 28-13 5-5 9-10 12-17 3 7 7 12 12 16 5 5 11 8 17 10-11 3-22 4-34 4-12 1-24 1-35 0Z" fill="url(#roof)" stroke="#3a332b" stroke-width="0.92"/>
+    <path d="M157 243c13 1 26 .5 38-.2 11-.5 21-1.7 31-3.8" fill="none" stroke="#1a2925" stroke-width="1.55"/>
+    <path d="M161 240c9-2 17-6 24-12 5-4 9-9 12-15M223 237c-9-2-17-6-24-12" fill="none" stroke="#63766a" stroke-width="0.42" opacity="0.7"/>
+    <path d="M166 239c7-2 14-6 20-11M174 241c7-3 13-7 18-12M217 237c-6-2-11-5-16-9M209 240c-5-3-9-6-12-10" fill="none" stroke="#819287" stroke-width="0.26" opacity="0.5"/>
+    <path d="M197 213v-6.5M194.4 208h5.2M196 204.5h2" fill="none" stroke="#342e28" stroke-width="0.72"/>
+    <ellipse cx="197" cy="202.7" rx="1.9" ry="3.2" fill="#263b36" stroke="#493e34" stroke-width="0.35"/>
+    <path d="M164 246h50v51h-50Z" fill="url(#wall)" stroke="#809388" stroke-width="0.34"/>
+    <path d="M167 246v51M211 244v53M167 255h44" fill="none" stroke="#44534e" stroke-width="0.9"/>
+    <path d="M171 248h36v6h-36Z" fill="#5b6f67" opacity="0.78"/>
+    <path d="M173 249h4v4h-4Zm7 0h4v4h-4Zm7 0h4v4h-4Zm7 0h4v4h-4Zm7 0h4v4h-4Z" fill="#d8c9a8" opacity="0.8"/>
+    <path d="M177 297c.4-18 6.8-27 17-27s16.6 9 17 27" fill="#f8faf4" stroke="#32443e" stroke-width="1.3"/>
+    <path d="M194 270v27" fill="none" stroke="#a5b5aa" stroke-width="0.3" opacity="0.65"/>
+    <path d="M158 246h68M161 249h61" fill="none" stroke="#26342f" stroke-width="0.66"/>
+    <path d="M157 246c10 1 22 1 36 0 13 0 24-1 34-3" fill="none" stroke="#a99269" stroke-width="0.35" opacity="0.68"/>
+  </g>
+
+  <path d="M144 291c8-4 15-4 22-2 8 3 17 1 25-3 7-3 13-3 19-1v12h-68c-1-2 0-4 2-6Z" fill="#579986" opacity="0.4"/>
+  <path d="M147 294c7-2 13-2 19 0m13-3c7-3 14-3 22-1" fill="none" stroke="#e0eee8" stroke-width="0.52" stroke-linecap="round" opacity="0.72"/>
+  <g fill="none" stroke="#557f63" stroke-linecap="round" opacity="0.72">
+    <path d="M143 295c1-9 1-16-1-23M148 295c3-9 4-16 3-23M138 295c-1-8-4-14-7-19" stroke-width="0.48"/>
+    <path d="M142 275c-3-2-6-3-8-3M144 281c3-2 6-3 9-3M150 276c3-2 6-3 8-3" stroke-width="0.4"/>
+  </g>
 </svg>

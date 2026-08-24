@@ -244,6 +244,46 @@ public sealed class ModuleCatalogTests
     }
 
     [Fact]
+    public void BuiltInTemplateArtwork_IsPureSvgWithoutRasterDependencies()
+    {
+        var catalog = new ModuleCatalog();
+        var rasterExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".bmp", ".gif", ".jpeg", ".jpg", ".png", ".webp"
+        };
+
+        var rasterAssets = Directory.EnumerateFiles(catalog.BuiltInDirectory, "*", SearchOption.AllDirectories)
+            .Where(path => rasterExtensions.Contains(Path.GetExtension(path)))
+            .ToArray();
+        Assert.Empty(rasterAssets);
+
+        foreach (var svgPath in Directory.EnumerateFiles(
+                     catalog.BuiltInDirectory,
+                     "*.svg",
+                     SearchOption.AllDirectories))
+        {
+            var svgText = File.ReadAllText(svgPath);
+            Assert.DoesNotContain("<image", svgText, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("data:image", svgText, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotMatch("(?i)href\\s*=\\s*[\"'][^\"']+\\.(?:bmp|gif|jpe?g|png|webp)", svgText);
+
+            using var svg = new SKSvg();
+            using var reader = System.Xml.XmlReader.Create(new StringReader(svgText));
+            svg.Load(reader);
+            Assert.NotNull(svg.Picture);
+        }
+
+        var builtInRoot = Path.GetFullPath(catalog.BuiltInDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var modulesWithArtwork = catalog.Modules.Where(module =>
+            !string.IsNullOrWhiteSpace(module.SourcePath) &&
+            Path.GetFullPath(module.SourcePath).StartsWith(builtInRoot, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(module.Defaults.BackgroundArtwork));
+        Assert.All(modulesWithArtwork, module =>
+            Assert.EndsWith(".svg", module.Defaults.BackgroundArtwork, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void BuiltInStrokeOrderTemplates_EnableStrokeOrderDefaults()
     {
         var catalog = new ModuleCatalog();
