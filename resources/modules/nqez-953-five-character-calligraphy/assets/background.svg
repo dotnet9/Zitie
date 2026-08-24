@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbfaf4"/>
+      <stop offset="0.62" stop-color="#faf8ef"/>
+      <stop offset="1" stop-color="#f5f4e9"/>
+    </linearGradient>
+    <linearGradient id="farMountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d8ebe3" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#a8d8cf" stop-opacity="0.72"/>
+    </linearGradient>
+    <linearGradient id="nearMountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9d9ce" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#72b8aa" stop-opacity="0.7"/>
+    </linearGradient>
+    <pattern id="fibers" width="17" height="13" patternUnits="userSpaceOnUse">
+      <path d="M1 3l3 .35M11 8l4 .45M5 12l2 .2" fill="none" stroke="#9b8a6e" stroke-width=".18" opacity=".18"/>
+      <circle cx="8" cy="4" r=".18" fill="#9b8a6e" opacity=".16"/>
+    </pattern>
+  </defs>
+
+  <rect width="210" height="297" fill="url(#paper)"/>
+  <rect width="210" height="297" fill="url(#fibers)"/>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M36 15C59 2 82 17 106 9c25-8 43 7 67-3 15-6 28-4 43-12" stroke="#504b40" stroke-width="1.25" opacity=".8"/>
+    <path d="M71 10c4 12 1 24-5 36M83 12c5 12 3 27-3 40M96 12c4 14 2 31-5 47M111 10c6 13 6 27 1 42M126 11c5 11 5 24 0 39M142 10c7 13 7 27 2 43M158 8c6 12 7 25 2 39M176 5c7 10 9 22 6 34M190 0c8 9 10 19 9 31" stroke="#78bd82" stroke-width=".42" opacity=".7"/>
+    <path d="M67 21l-5 3m8 2l5 2m-8 5l-6 2m6 5l5 2M81 22l-5 3m7 4l6 2m-8 7l-6 3m6 4l5 3M94 25l-6 3m7 4l6 2m-8 6l-6 3m5 5l6 2M111 20l-6 3m8 5l6 2m-7 7l-6 3m7 5l6 2M127 20l-6 3m8 5l6 2m-8 7l-6 3m7 5l6 2M144 19l-6 3m8 5l6 2m-8 7l-6 3m7 6l6 2M161 17l-6 3m8 5l6 2m-8 7l-6 3m7 5l6 2M181 13l-6 3m8 5l6 2m-8 7l-6 3M198 9l-5 3m6 5l5 2m-5 6l-5 3" stroke="#69b779" stroke-width=".7" opacity=".58"/>
+    <path d="M51 17c-7 0-14-2-22-8 5 7 11 11 19 12-5 2-9 5-13 9 8-2 14-5 18-10 5 3 10 5 16 6-4-5-9-8-16-9Z" fill="#202033" stroke="none" opacity=".92"/>
+    <path d="M124 15c4-3 8-3 12 0m-4 0c4-4 8-4 12 0" stroke="#233040" stroke-width=".75" opacity=".7"/>
+  </g>
+
+  <path d="M0 251c18-12 34-10 53-3 19 8 35-1 53-9 20-9 36 6 55 0 18-5 31-16 49-17v75H0Z" fill="url(#farMountain)"/>
+  <path d="M0 273c22-13 41-8 61-15 22-8 41 8 60 4 23-5 39-20 55-15 14 4 23-8 34-10v60H0Z" fill="url(#nearMountain)"/>
+  <path d="M0 287c29-11 48-1 72-8 24-8 42 5 62 0 25-6 48-19 76-15v33H0Z" fill="#86c9bb" opacity=".34"/>
+  <path d="M0 251c18-12 34-10 53-3 19 8 35-1 53-9 20-9 36 6 55 0 18-5 31-16 49-17" fill="none" stroke="#90c8bb" stroke-width=".55" opacity=".55"/>
+
+  <g transform="translate(174 224)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="1" cy="24" rx="27" ry="32" fill="#8fcaad" opacity=".18" stroke="none"/>
+    <path d="M-18 16Q0-5 26 12Q15 15-18 16Z" stroke="#493f34" stroke-width="1.05" fill="#28362f" opacity=".92"/>
+    <path d="M-11 20v23M18 19v24M-11 43h29M-5 43c1-13 5-20 12-20s11 7 12 20" stroke="#493f34" stroke-width=".9"/>
+    <path d="M-23 1c8 2 15 0 21-8M8-2c6-6 12-8 20-7M-7 3c-5-8-9-13-15-16" stroke="#625543" stroke-width="1.05"/>
+    <path d="M-15-7c-5 7-7 15-7 24M14-9c4 6 6 15 5 26" stroke="#70a97b" stroke-width=".55" opacity=".75"/>
+  </g>
+
+  <path d="M105 79c10 2 16 5 25 3 10-2 15 7 24 11 10 4 8 15 15 23 7 8 2 17 4 27 3 10-5 18-8 28-3 10-14 12-20 20-7 8-17 4-27 9-9 5-18 0-28 2-10 2-16-7-25-11-9-4-9-15-16-22-7-8-2-18-4-28-2-10 6-17 7-27 1-10 11-14 16-22 6-8 17-5 26-10 5-3 9-5 12-5Z" fill="#fffef9" stroke="#65c28b" stroke-width=".75"/>
+  <path d="M105 82.5c10 2 16 4 24 2 9-2 14 7 23 10 9 4 7 14 14 22 6 7 2 16 4 26 2 9-5 17-8 26-3 9-13 11-19 18-6 8-16 4-25 9-9 4-17 0-26 2-10 2-15-7-24-10-9-4-8-14-15-21-6-8-2-17-4-26-2-10 6-16 7-26 1-9 10-13 15-21 6-7 16-4 25-9 4-2 8-4 11-4Z" fill="none" stroke="#65c28b" stroke-width=".35" stroke-dasharray="1.2 1.4" opacity=".62"/>
+
+  <g fill="none" stroke="#63c28b">
+    <path d="M74 97h62M74 111h62" stroke-width=".78" opacity=".9"/>
+    <path d="M74 97h4v14h-4M136 97h-4v14h4" fill="#63c28b" stroke-width=".4" opacity=".88"/>
+    <path d="M80 97v14M130 97v14" stroke-width=".55" opacity=".9"/>
+  </g>
+
+  <g fill="none" stroke="#63c28b" stroke-linecap="round">
+    <path d="M99 195.2h29" stroke-width=".55" opacity=".78"/>
+  </g>
+  <text x="82" y="194.6" fill="#63c28b" font-size="3.2" font-family="Microsoft YaHei, sans-serif" opacity=".88">姓名：</text>
+</svg>

@@ -289,7 +289,7 @@ public sealed class ModuleCatalog
 
         Modules = modules
             .GroupBy(module => module.Id, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.Last())
+            .Select(ResolveModuleOverride)
             .OrderBy(module => module.Enabled ? 0 : 1)
             .ThenBy(module => module.DisplayOrder)
             .ThenBy(module => module.Name, StringComparer.CurrentCulture)
@@ -299,6 +299,43 @@ public sealed class ModuleCatalog
         ZitieLogging.Info(
             $"模板目录加载完成：{Modules.Count} 个模板，耗时 {stopwatch.ElapsedMilliseconds} ms" +
             $"（样式：{StyleDirectory}；内置：{BuiltInDirectory}；用户：{UserDirectory}）");
+    }
+
+    private ModuleDefinition ResolveModuleOverride(IEnumerable<ModuleDefinition> definitions)
+    {
+        var candidates = definitions.ToArray();
+        var selected = candidates[^1];
+        if (!IsInsideDirectory(selected.SourcePath, BuiltInDirectory)) return selected;
+
+        var style = candidates.FirstOrDefault(module =>
+            !string.IsNullOrWhiteSpace(module.SourceTemplateId));
+        if (style is null || ReferenceEquals(style, selected)) return selected;
+
+        selected.SourceTemplateId = style.SourceTemplateId;
+        selected.DisplayOrder = style.DisplayOrder;
+        selected.Categories = style.Categories;
+        selected.PreviewImagePath = style.PreviewImagePath;
+        return selected;
+    }
+
+    private static bool IsInsideDirectory(string? path, string? directory)
+    {
+        if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(directory)) return false;
+
+        try
+        {
+            var relativePath = Path.GetRelativePath(
+                Path.GetFullPath(directory),
+                Path.GetFullPath(path));
+            return !Path.IsPathRooted(relativePath) &&
+                   !string.Equals(relativePath, "..", StringComparison.Ordinal) &&
+                   !relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                   !relativePath.StartsWith($"..{Path.AltDirectorySeparatorChar}", StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public ModuleDefinition? Find(string? id)

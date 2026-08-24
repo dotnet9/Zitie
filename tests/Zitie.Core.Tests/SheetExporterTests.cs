@@ -420,7 +420,7 @@ public sealed class SheetExporterTests
     }
 
     [Fact]
-    public void ExportPng_FiveCharacterPoemCalligraphyDrawsCardAndPoemGrid()
+    public void ExportPng_FiveCharacterPoemCalligraphyDrawsDynamicTitleAndPoemGrid()
     {
         var directory = CreateTempDirectory();
         try
@@ -445,7 +445,6 @@ public sealed class SheetExporterTests
 
             using var bitmap = SKBitmap.Decode(path);
             Assert.NotNull(bitmap);
-            Assert.True(CountPixelsMm(bitmap, 96, 38, 68, 172, 203, IsGuideGreen) > 350);
             Assert.True(CountPixelsMm(bitmap, 96, 68, 122, 142, 182, IsGuideGreen) > 220);
             Assert.True(CountPixelsMm(bitmap, 96, 82, 96, 128, 111, IsDarkInk) > 45);
             Assert.True(CountPixelsMm(bitmap, 96, 72, 126, 138, 180, IsGuideInk) > 180);

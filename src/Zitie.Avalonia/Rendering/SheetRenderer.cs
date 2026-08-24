@@ -99,8 +99,14 @@ public static class SheetRenderer
             var pageWidthPt = (float)(spec.Page.WidthMm * LayoutEngine.MmToPt);
             var pageHeightPt = (float)(spec.Page.HeightMm * LayoutEngine.MmToPt);
 
+            var scale = Math.Max(pageWidthPt / source.Width, pageHeightPt / source.Height);
+            var offsetX = (pageWidthPt - source.Width * scale) / 2;
+            var offsetY = (pageHeightPt - source.Height * scale) / 2;
+
             canvas.Save();
-            canvas.Scale(pageWidthPt / source.Width, pageHeightPt / source.Height);
+            canvas.ClipRect(new SKRect(0, 0, pageWidthPt, pageHeightPt));
+            canvas.Translate(offsetX, offsetY);
+            canvas.Scale(scale, scale);
             canvas.Translate(-source.Left, -source.Top);
             canvas.DrawPicture(picture);
             canvas.Restore();

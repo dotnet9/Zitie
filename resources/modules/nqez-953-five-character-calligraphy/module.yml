@@ -1,0 +1,41 @@
+id: "nqez-953"
+name: "五言古诗书法"
+description: "水墨柳亭背景的五言古诗书法模板，固定装饰使用 SVG，诗文内容按五列四行动态排版。"
+kind: "styleTemplate"
+enabled: true
+defaults:
+  practiceLayout: "fiveCharacterPoemCalligraphy"
+  blankContentLayout: false
+  fillContentAreaWithBlankCells: false
+  grid: "none"
+  gridSize: 18
+  gridGap: 1.5
+  groupGap: 2.5
+  hollowGlyph: false
+  mode: "trace"
+  groupByWord: false
+  showPinyin: false
+  pinyinOnly: false
+  showStrokeOrder: false
+  vertical: true
+  showPoemHeader: true
+  frameBorder: false
+  title: "悯农"
+  author: "李绅"
+  dynasty: "唐"
+  headerPreset: "none"
+  background: "plain"
+  backgroundColor: "#FAF8EF"
+  backgroundArtwork: "assets/background.svg"
+  repeats: 5
+  traceCount: 2
+  gridColor: "#63C28B"
+  textColor: "#363638"
+  traceColor: "#B9C5BE"
+  traceIntensity: "light"
+  cellsPerLine: 10
+  blankCellLineCount: 0
+  pageSize: "a4Portrait"
+  pageMargin: 16
+  fontFamily: "KaiTi"
+  text: "锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。"

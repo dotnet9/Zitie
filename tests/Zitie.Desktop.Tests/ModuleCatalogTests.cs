@@ -185,6 +185,16 @@ public sealed class ModuleCatalogTests
         var preview = ModulePreviewFactory.Create(module);
 
         Assert.Equal("五言古诗书法", module.Name);
+        Assert.Equal("953", module.SourceTemplateId);
+        Assert.True(Directory.Exists(module.SourcePath));
+        Assert.Equal("assets/background.svg", module.Defaults.BackgroundArtwork);
+        Assert.Contains("<svg", module.ReadTextAsset(module.Defaults.BackgroundArtwork));
+        Assert.Contains("汉字", module.Categories);
+        Assert.Contains("书法", module.Categories);
+        Assert.True(File.Exists(module.PreviewImagePath));
+        Assert.False(module.Defaults.BlankContentLayout);
+        Assert.False(module.Defaults.FillContentAreaWithBlankCells);
+        Assert.True(module.Defaults.Vertical);
         Assert.Equal(PracticeLayoutKind.FiveCharacterPoemCalligraphy, preview.Spec.PracticeLayout);
         Assert.Equal(GridKind.None, preview.Spec.Grid);
         Assert.Equal("悯农", preview.Spec.Title);
