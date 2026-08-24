@@ -428,12 +428,13 @@ internal sealed class CharacterWordsPoemRenderer : BracketPracticeLayoutRenderer
     {
         var x = Mm(xMm);
         var y = Mm(yMm);
-        using var cap = new SKPath();
-        cap.MoveTo(x, y + Mm(2.2));
-        cap.LineTo(x + Mm(3.4), y);
-        cap.LineTo(x + Mm(6.8), y + Mm(2.2));
-        cap.LineTo(x + Mm(3.4), y + Mm(4.4));
-        cap.Close();
+        using var capBuilder = new SKPathBuilder();
+        capBuilder.MoveTo(x, y + Mm(2.2));
+        capBuilder.LineTo(x + Mm(3.4), y);
+        capBuilder.LineTo(x + Mm(6.8), y + Mm(2.2));
+        capBuilder.LineTo(x + Mm(3.4), y + Mm(4.4));
+        capBuilder.Close();
+        using var cap = capBuilder.Detach();
         canvas.DrawPath(cap, fill);
 
         using var body = fill.Clone();
@@ -441,11 +442,12 @@ internal sealed class CharacterWordsPoemRenderer : BracketPracticeLayoutRenderer
         body.StrokeWidth = Mm(0.65);
         body.StrokeJoin = SKStrokeJoin.Round;
         body.StrokeCap = SKStrokeCap.Round;
-        using var bodyPath = new SKPath();
-        bodyPath.MoveTo(x + Mm(1.25), y + Mm(3.45));
-        bodyPath.LineTo(x + Mm(1.25), y + Mm(6.05));
-        bodyPath.QuadTo(x + Mm(3.4), y + Mm(7.1), x + Mm(5.55), y + Mm(6.05));
-        bodyPath.LineTo(x + Mm(5.55), y + Mm(3.45));
+        using var bodyPathBuilder = new SKPathBuilder();
+        bodyPathBuilder.MoveTo(x + Mm(1.25), y + Mm(3.45));
+        bodyPathBuilder.LineTo(x + Mm(1.25), y + Mm(6.05));
+        bodyPathBuilder.QuadTo(x + Mm(3.4), y + Mm(7.1), x + Mm(5.55), y + Mm(6.05));
+        bodyPathBuilder.LineTo(x + Mm(5.55), y + Mm(3.45));
+        using var bodyPath = bodyPathBuilder.Detach();
         canvas.DrawPath(bodyPath, body);
     }
 
