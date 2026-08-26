@@ -69,4 +69,7 @@ if ($LASTEXITCODE -ne 0) {
     -SourceDirectory $moduleSourcePath `
     -OutputDirectory (Join-Path $resolvedOutputPath "resources\modules")
 
+Get-ChildItem -LiteralPath $resolvedOutputPath -Recurse -File -Filter "*.pdb" -ErrorAction SilentlyContinue |
+    Remove-Item -Force
+
 Write-Host "Published Zitie.Desktop to $resolvedOutputPath"

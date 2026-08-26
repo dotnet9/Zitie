@@ -26,6 +26,8 @@ if (Get-ChildItem -LiteralPath $resolvedOutput -Directory -ErrorAction SilentlyC
 
 Get-ChildItem -LiteralPath $resolvedOutput -File -Filter "*.zi" -ErrorAction SilentlyContinue |
     Remove-Item -Force
+Get-ChildItem -LiteralPath $resolvedOutput -File -Recurse -Filter "*.pdb" -ErrorAction SilentlyContinue |
+    Remove-Item -Force
 
 $templateDirectories = @(Get-ChildItem -LiteralPath $resolvedSource -Directory | Sort-Object Name)
 foreach ($templateDirectory in $templateDirectories) {
@@ -38,7 +40,9 @@ foreach ($templateDirectory in $templateDirectories) {
     $archive = [IO.Compression.ZipFile]::Open($packagePath, [IO.Compression.ZipArchiveMode]::Create)
     try {
         $sourcePrefix = $templateDirectory.FullName.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
-        foreach ($file in Get-ChildItem -LiteralPath $templateDirectory.FullName -File -Recurse | Sort-Object FullName) {
+        foreach ($file in Get-ChildItem -LiteralPath $templateDirectory.FullName -File -Recurse |
+            Where-Object { $_.Extension -ine ".pdb" } |
+            Sort-Object FullName) {
             $entryName = $file.FullName.Substring($sourcePrefix.Length).Replace('\', '/')
             [IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
                 $archive,

@@ -11,4 +11,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
+for /r "artifacts\packages" %%F in (*.pdb) do del /q "%%F" 2>nul
+
 echo Pack succeeded: artifacts\packages
