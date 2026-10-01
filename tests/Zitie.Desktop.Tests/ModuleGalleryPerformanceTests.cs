@@ -30,15 +30,18 @@ public sealed class ModuleGalleryPerformanceTests(AvaloniaHeadlessFixture fixtur
     }
 
     [Fact]
-    public void ScreenshotThumbnail_IsDecodedToBoundedHeight()
+    public async Task ScreenshotThumbnail_IsDecodedToBoundedHeight()
     {
-        _ = fixture;
-        var catalog = new ModuleCatalog();
-        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-945");
+        // Bitmap 解码依赖 Avalonia 运行时，必须在 Headless 会话线程上执行。
+        await fixture.Session.Dispatch(() =>
+        {
+            var catalog = new ModuleCatalog();
+            var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-945");
 
-        using var image = ModuleCardViewModel.DecodeThumbnail(module.PreviewImagePath);
+            using var image = ModuleCardViewModel.DecodeThumbnail(module.PreviewImagePath);
 
-        Assert.InRange(image.PixelSize.Height, 1, ModuleCardViewModel.ThumbnailDecodeHeight);
+            Assert.InRange(image.PixelSize.Height, 1, ModuleCardViewModel.ThumbnailDecodeHeight);
+        }, CancellationToken.None);
     }
 
     [Fact]

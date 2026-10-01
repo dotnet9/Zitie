@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Markup.Xaml.Styling;
@@ -29,13 +30,22 @@ public static class ThemeTestAppBuilder
         .UseHeadless(new AvaloniaHeadlessPlatformOptions());
 }
 
+/// <summary>
+/// Avalonia Application 是进程级共享的：每个测试类各建一个 Headless 会话会导致
+/// 后续类在别的线程访问首个会话创建的 Compositor（"different thread owns it"）。
+/// 因此全部测试类共享同一个静态会话，生命周期跟随进程，Dispose 不做清理。
+/// </summary>
 public sealed class AvaloniaHeadlessFixture : IAsyncLifetime
 {
+    private static readonly Lazy<HeadlessUnitTestSession> SharedSession = new(
+        () => HeadlessUnitTestSession.StartNew(
+            typeof(ThemeTestAppBuilder),
+            AvaloniaTestIsolationLevel.PerAssembly),
+        LazyThreadSafetyMode.ExecutionAndPublication);
+
     public AvaloniaHeadlessFixture()
     {
-        Session = HeadlessUnitTestSession.StartNew(
-            typeof(ThemeTestAppBuilder),
-            AvaloniaTestIsolationLevel.PerAssembly);
+        Session = SharedSession.Value;
     }
 
     public HeadlessUnitTestSession Session { get; }
@@ -45,8 +55,9 @@ public sealed class AvaloniaHeadlessFixture : IAsyncLifetime
         return ValueTask.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        await Task.Run(() => Session.DisposeAsync().AsTask()).ConfigureAwait(false);
+        // 共享会话由进程退出统一回收，避免影响后续测试类。
+        return ValueTask.CompletedTask;
     }
 }
