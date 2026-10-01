@@ -37,8 +37,8 @@
     <PackageVersion Include="YY-Thunks" Version="1.2.2" />
     <!-- 测试 -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
-    <PackageVersion Include="xunit.v3" Version="4.0.0" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
     <!-- 传递依赖钉版（消除旧版漏洞告警） -->
     <PackageVersion Include="System.Drawing.Common" Version="10.0.10" />
   </ItemGroup>
