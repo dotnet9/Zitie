@@ -6,13 +6,11 @@ using Zitie.Desktop.ViewModels;
 
 namespace Zitie.Desktop.Tests;
 
-public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
-    : IClassFixture<AvaloniaHeadlessFixture>
+public sealed class SheetEditorViewModelTests
 {
     [Fact]
     public void SwitchTemplate_PreservesCurrentContent()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -46,7 +44,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void ContentSelection_PreviewsUntilDrawerIsClosed()
     {
-        _ = fixture;
         var viewModel = new SheetEditorViewModel(
             new ModuleCatalog(),
             new TextCatalog(),
@@ -75,7 +72,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void ContentSelection_AppliesPreviewAfterConfirmation()
     {
-        _ = fixture;
         var viewModel = new SheetEditorViewModel(
             new ModuleCatalog(),
             new TextCatalog(),
@@ -101,7 +97,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void TemplateSelection_PreviewsUntilDrawerIsClosed()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -133,7 +128,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void TemplateSelection_AppliesPreviewAfterConfirmation()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -159,7 +153,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void BlankLayoutTemplate_DisablesContentSelectionAndLeavesBodyBlank()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -188,7 +181,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void SwitchingFromBlankLayoutToPracticeTemplate_ReenablesContent()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -210,7 +202,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void SpecialPracticeTemplate_DisablesStandardLayoutOptions()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -232,7 +223,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void CharacterWordsPoemTemplate_ResetsPreviousPaperBackground()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -257,7 +247,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void CharacterWordsPoemTemplate_KeepsResourceTitleAndTitleStrokeOrders()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -293,7 +282,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void FiveCharacterPoemCalligraphyTemplate_AllowsBlankTitleAndText()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,
@@ -327,7 +315,6 @@ public sealed class SheetEditorViewModelTests(AvaloniaHeadlessFixture fixture)
     [Fact]
     public void StrokeOrderTemplate_LoadsStrokeOrdersForInputText()
     {
-        _ = fixture;
         var catalog = new ModuleCatalog();
         var viewModel = new SheetEditorViewModel(
             catalog,

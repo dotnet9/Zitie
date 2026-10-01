@@ -9,6 +9,7 @@
     <!-- Avalonia -->
     <PackageVersion Include="Avalonia" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.1" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.1" />
     <PackageVersion Include="Avalonia.Headless" Version="12.1.1" />
     <!-- 渲染 -->
     <PackageVersion Include="SkiaSharp" Version="4.151.1" />

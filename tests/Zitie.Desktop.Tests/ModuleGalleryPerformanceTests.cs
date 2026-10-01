@@ -1,3 +1,4 @@
+using Avalonia.Headless.XUnit;
 using Avalonia.Media.Imaging;
 using Prism.Commands;
 using Xunit;
@@ -6,8 +7,7 @@ using Zitie.Desktop.ViewModels;
 
 namespace Zitie.Desktop.Tests;
 
-public sealed class ModuleGalleryPerformanceTests(AvaloniaHeadlessFixture fixture)
-    : IClassFixture<AvaloniaHeadlessFixture>
+public sealed class ModuleGalleryPerformanceTests
 {
     [Fact]
     public void CardConstruction_DoesNotCreatePreviewsOrDecodeImages()
@@ -29,19 +29,16 @@ public sealed class ModuleGalleryPerformanceTests(AvaloniaHeadlessFixture fixtur
         }
     }
 
-    [Fact]
-    public async Task ScreenshotThumbnail_IsDecodedToBoundedHeight()
+    [AvaloniaFact]
+    public void ScreenshotThumbnail_IsDecodedToBoundedHeight()
     {
-        // Bitmap 解码依赖 Avalonia 运行时，必须在 Headless 会话线程上执行。
-        await fixture.Session.Dispatch(() =>
-        {
-            var catalog = new ModuleCatalog();
-            var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-945");
+        // Bitmap 解码依赖 Avalonia 运行时，[AvaloniaFact] 保证在 Headless UI 线程执行。
+        var catalog = new ModuleCatalog();
+        var module = Assert.Single(catalog.Modules, item => item.Id == "nqez-945");
 
-            using var image = ModuleCardViewModel.DecodeThumbnail(module.PreviewImagePath);
+        using var image = ModuleCardViewModel.DecodeThumbnail(module.PreviewImagePath);
 
-            Assert.InRange(image.PixelSize.Height, 1, ModuleCardViewModel.ThumbnailDecodeHeight);
-        }, CancellationToken.None);
+        Assert.InRange(image.PixelSize.Height, 1, ModuleCardViewModel.ThumbnailDecodeHeight);
     }
 
     [Fact]
