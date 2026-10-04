@@ -60,6 +60,7 @@ else {
         "-p:IlcGenerateCompleteTypeMetadata=true",
         "-p:IlcTrimMetadata=false",
         "-p:IlcSingleThreaded=true",
+        "-p:StripSymbols=false",
         "-p:TreatWarningsAsErrors=false",
         "-p:ILLinkTreatWarningsAsErrors=false"
     )
