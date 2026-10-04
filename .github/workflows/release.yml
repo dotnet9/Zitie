@@ -2,7 +2,8 @@
 
 # 推送 v* 标签发布 Zitie 桌面安装包（与仓库自带 publish 脚本一致的产物布局）：
 # win-x64 用 Inno Setup 生成 setup.exe（NativeAOT），linux-x64 生成 deb，
-# macOS 生成 dmg（发布由 scripts/publish_demo.ps1 完成，本工作流只做打包）。
+# linux-arm64 生成 zip，macOS 生成 dmg（发布由 scripts/publish_demo.ps1 完成，本工作流只做打包）。
+# 全平台（win/linux/macOS）统一 NativeAOT（完整反射元数据保全，单线程 ILC）。
 on:
   push:
     tags:
@@ -43,6 +44,8 @@ jobs:
             os: windows-latest
           - rid: linux-x64
             os: ubuntu-latest
+          - rid: linux-arm64
+            os: ubuntu-24.04-arm
           - rid: osx-x64
             os: macos-14
           - rid: osx-arm64
@@ -74,7 +77,7 @@ jobs:
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           Write-Host "版本：$version"
 
-      # 仓库自带发布脚本：win 走 NativeAOT，其它平台常规单文件，并打包模板模块
+      # 仓库自带发布脚本：全平台 NativeAOT，并打包模板模块
       - name: 发布（scripts/publish_demo.ps1）
         shell: pwsh
         run: pwsh scripts/publish_demo.ps1 -RuntimeIdentifier '${{ matrix.rid }}'
@@ -83,6 +86,11 @@ jobs:
         if: matrix.rid == 'linux-x64'
         shell: pwsh
         run: pwsh scripts/package_linux_deb.ps1 -Version $env:APP_VERSION -Force
+
+      - name: 打包 Linux deb 安装包 (linux-arm64)
+        if: matrix.rid == 'linux-arm64'
+        shell: pwsh
+        run: pwsh scripts/package_linux_deb.ps1 -RuntimeIdentifier 'linux-arm64' -Version $env:APP_VERSION -Force
 
       - name: 打包 macOS dmg
         if: startsWith(matrix.rid, 'osx-')
