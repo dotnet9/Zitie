@@ -1,4 +1,4 @@
-name: release
+﻿name: release
 
 # 推送 v* 标签发布 Zitie 桌面安装包（与仓库自带 publish 脚本一致的产物布局）：
 # win-x64 用 Inno Setup 生成 setup.exe（NativeAOT），linux-x64 生成 deb，
@@ -114,8 +114,21 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path artifacts/release -Force | Out-Null
-          Copy-Item -Path "artifacts/macos/*.dmg" -Destination artifacts/release/ -Force
-          Get-ChildItem artifacts/release | ForEach-Object { Write-Host $_.Name }
+          # hdiutil 刚 detach 时文件系统可见性可能滞后：轮询等待 dmg 出现且非空
+          $deadline = (Get-Date).AddSeconds(60)
+          do {
+            $dmgs = @(Get-ChildItem -Path artifacts/macos -Filter *.dmg -File -ErrorAction SilentlyContinue |
+              Where-Object Length -gt 0)
+            if ($dmgs.Count -gt 0) { break }
+            Start-Sleep -Seconds 3
+          } while ((Get-Date) -lt $deadline)
+          if ($dmgs.Count -eq 0) { throw "No dmg found under artifacts/macos" }
+          foreach ($d in $dmgs) {
+            Copy-Item -LiteralPath $d.FullName -Destination "artifacts/release/$($d.Name)" -Force
+          }
+          $copied = @(Get-ChildItem artifacts/release -Filter *.dmg -File)
+          if ($copied.Count -eq 0) { throw "Copy produced no files" }
+          $copied | ForEach-Object { Write-Host $_.Name }
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
