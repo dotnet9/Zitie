@@ -52,10 +52,16 @@ if ($RuntimeIdentifier -like "win-*") {
     )
 }
 else {
-    # macOS / Linux：常规单文件，不裁剪（反射库 Prism / CodeWF.Log 兼容性最稳）
+    # macOS / Linux：同样走 NativeAOT（完整反射元数据保全 Prism / CodeWF.Log，配方与 win-x64 一致）
     $publishArguments += @(
-        "-p:PublishSingleFile=true",
-        "-p:PublishTrimmed=false"
+        "-p:PublishAot=true",
+        "-p:PublishTrimmed=true",
+        "-p:PublishSingleFile=false",
+        "-p:IlcGenerateCompleteTypeMetadata=true",
+        "-p:IlcTrimMetadata=false",
+        "-p:IlcSingleThreaded=true",
+        "-p:TreatWarningsAsErrors=false",
+        "-p:ILLinkTreatWarningsAsErrors=false"
     )
 }
 
