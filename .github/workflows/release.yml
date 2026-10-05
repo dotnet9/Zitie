@@ -2,7 +2,7 @@
 
 # 推送 v* 标签发布 Zitie 桌面安装包（与仓库自带 publish 脚本一致的产物布局）：
 # win-x64 用 Inno Setup 生成 setup.exe（NativeAOT），linux-x64 生成 deb，
-# linux-arm64 生成 zip，macOS 生成 dmg（发布由 scripts/publish_demo.ps1 完成，本工作流只做打包）。
+# linux-arm64 生成 deb，macOS 生成 dmg（发布由 scripts/publish_demo.ps1 完成，本工作流只做打包）。
 # 全平台（win/linux/macOS）统一 NativeAOT（完整反射元数据保全，单线程 ILC）。
 on:
   push:
@@ -216,5 +216,4 @@ jobs:
             artifacts/release/*.exe
             artifacts/release/*.deb
             artifacts/release/*.dmg
-            artifacts/release/*.zip
             artifacts/release/*.sha256

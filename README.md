@@ -36,7 +36,7 @@ dotnet run --project src/Zitie.Desktop/Zitie.Desktop.csproj -f net10.0
 
 `%LOCALAPPDATA%\Zitie\modules`
 
-模板库同时加载两类内置模板：`resources/module-styles/styles.json` 中的 223 个样式/图片驱动模板，以及 `resources/modules/<模板名>/` 中的 103 个可编辑 SVG 目录模板。样式模板的示例图位于仓库根目录 `docs/modules`，桌面工程会将其链接到输出目录 `resources/module-styles/images`。
+模板库同时加载两类内置模板：`resources/module-styles/styles.json` 中的 223 个样式/图片驱动模板，以及 `resources/modules/<模板名>/` 中的 111 个可编辑目录模板。样式模板的示例图位于仓库根目录 `docs/modules`，桌面工程会将其链接到输出目录 `resources/module-styles/images`。
 
 目录模板采用“源码目录 + 发布包”双形态：调试输出保留 `module.yml` 与 `assets/` 目录，发布脚本则压缩为 `resources/modules/<模板名>.zi`，发布目录不保留模板源码目录。运行时优先读取同名目录，只有目录不存在时才解压 `.zi`，最后统一按目录加载。用户模板位于 `%LOCALAPPDATA%\Zitie\modules`，保存模板后回到模板页点击“刷新”即可加载，无需重启应用。
 
@@ -89,7 +89,7 @@ dotnet build Zitie.slnx -c Release --no-restore
 pwsh ./scripts/publish_demo.ps1 -RuntimeIdentifier win-x64
 ```
 
-Windows 发布启用 NativeAOT；macOS/Linux 使用不裁剪的单文件发布，以兼容 Avalonia、Prism 和日志组件的反射绑定。
+全平台启用 NativeAOT；macOS/Linux 保留完整反射元数据且不做单文件合并，以兼容 Avalonia、Prism 和日志组件的反射绑定。
 
 ## 项目结构
 
@@ -103,7 +103,7 @@ Windows 发布启用 NativeAOT；macOS/Linux 使用不裁剪的单文件发布�
 
 ## CI/CD：自动发布安装包
 
-推送 `v*` 标签（例如 `v0.1.0`，与 `Directory.Build.props` 的 `<Version>` 一致）会触发 [.github/workflows/release.yml](.github/workflows/release.yml)：先跑全部测试，再用仓库自带的 `scripts/publish_demo.ps1` 发布四个平台（win-x64 NativeAOT、linux-x64 / osx-x64 / osx-arm64 自包含单文件，模板模块随包分发），分别打包为 Inno Setup 中文安装包（Windows）、deb（Linux）、dmg（macOS），最后创建 GitHub Release。也可以在 Actions 页面手动触发并输入版本号。
+推送 `v*` 标签（例如 `v0.1.0`，与 `Directory.Build.props` 的 `<Version>` 一致）会触发 [.github/workflows/release.yml](.github/workflows/release.yml)：先跑全部测试，再用仓库自带的 `scripts/publish_demo.ps1` 发布五个平台（win-x64 / linux-x64 / linux-arm64 / osx-x64 / osx-arm64 全部 NativeAOT，模板模块随包分发），分别打包为 Inno Setup 中文安装包（Windows）、deb（Linux）、dmg（macOS），最后创建 GitHub Release。也可以在 Actions 页面手动触发并输入版本号。
 
 ## 发布
 
