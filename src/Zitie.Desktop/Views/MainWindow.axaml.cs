@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Zitie.Desktop.Controls;
 using Zitie.Desktop.Services;
+using CodeWF.Tools.UpdateChecking;
 
 namespace Zitie.Desktop.Views;
 
