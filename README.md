@@ -2,6 +2,14 @@
 
 Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖生成器，适合生字描红、临摹、古诗抄写、拼音练习和自定义文本排版。
 
+## 下载安装
+
+从 [GitHub Releases](https://github.com/dotnet9/Zitie/releases/latest) 下载最新安装包（附 `.sha256` 校验）：
+
+- Windows：`Zitie-v*-win-x64-setup.exe`（简体中文安装向导）
+- Linux x64 / arm64：`Zitie-*-linux-x64.deb`、`Zitie-*-linux-arm64.deb`
+- macOS x64 / arm64：`Zitie-*-osx-x64.dmg`、`Zitie-*-osx-arm64.dmg`
+
 ## 功能
 
 - 米字格、田字格、回宫格、方格、九宫格、英文四线三格和拼音四线格。
