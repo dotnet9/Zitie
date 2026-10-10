@@ -9,9 +9,9 @@
   <assembly fullname="Prism.Avalonia" preserve="all" />
   <assembly fullname="Prism.DryIoc.Avalonia" preserve="all" />
   <assembly fullname="DryIoc" preserve="all" />
-  <assembly fullname="CodeWF.Log.Core" preserve="all" />
-  <assembly fullname="CodeWF.Log.Avalonia" preserve="all" />
-  <assembly fullname="CodeWF.Tools.Core" preserve="all" />
+  <assembly fullname="CodeWF.Toolkit.Logging" preserve="all" />
+  <assembly fullname="CodeWF.Avalonia.Log" preserve="all" />
+  <assembly fullname="CodeWF.Toolkit.Core" preserve="all" />
 
   <!-- 主题与控件库（XAML 反射绑定） -->
   <assembly fullname="Semi.Avalonia" preserve="all" />
