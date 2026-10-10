@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CodeWF.Tools.UpdateChecking" />
+    <PackageReference Include="CodeWF.Toolkit.Core" />
     <TrimmerRootDescriptor Include="Roots.xml" />
   </ItemGroup>
 
@@ -30,7 +30,7 @@
     <PackageReference Include="Prism.DryIoc.Avalonia" />
     <PackageReference Include="ReactiveUI" />
     <PackageReference Include="System.Reactive" />
-    <PackageReference Include="CodeWF.Log.Avalonia" />
+    <PackageReference Include="CodeWF.Avalonia.Log" />
     <PackageReference Include="VC-LTL" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="YY-Thunks" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageDownload Include="jieba.NET" Version="[$(JiebaNetResourcePackageVersion)]" />

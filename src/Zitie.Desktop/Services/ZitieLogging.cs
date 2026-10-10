@@ -1,6 +1,6 @@
 using Avalonia.Media;
-using CodeWF.Log.Avalonia;
-using CodeWF.Log.Core;
+using CodeWF.Avalonia.Log;
+using CodeWF.Toolkit.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Zitie.Desktop.Services;
