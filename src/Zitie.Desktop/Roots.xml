@@ -15,6 +15,7 @@
 
   <!-- 主题与控件库（XAML 反射绑定） -->
   <assembly fullname="Semi.Avalonia" preserve="all" />
+  <assembly fullname="CodeWF.Avalonia.Controls" preserve="all" />
   <assembly fullname="Ursa" preserve="all" />
   <assembly fullname="Ursa.Themes.Semi" preserve="all" />
   <assembly fullname="Irihi.Avalonia.Shared" preserve="all" />

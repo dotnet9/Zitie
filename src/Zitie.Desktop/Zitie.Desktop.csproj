@@ -30,6 +30,7 @@
     <PackageReference Include="Prism.DryIoc.Avalonia" />
     <PackageReference Include="ReactiveUI" />
     <PackageReference Include="System.Reactive" />
+    <PackageReference Include="CodeWF.Avalonia.Controls" />
     <PackageReference Include="CodeWF.Avalonia.Log" />
     <PackageReference Include="VC-LTL" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="YY-Thunks" Condition="'$(OS)' == 'Windows_NT'" />

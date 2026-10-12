@@ -1,7 +1,8 @@
-﻿<zitie:ZitieWindow xmlns="https://github.com/avaloniaui"
+﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:prism="http://prismlibrary.com/"
                    xmlns:zitie="using:Zitie.Desktop.Controls"
+                   xmlns:codewf="https://codewf.com"
                    xmlns:vm="using:Zitie.Desktop.ViewModels"
                    x:Class="Zitie.Desktop.Views.MainWindow"
                    x:DataType="vm:MainWindowViewModel"
@@ -16,8 +17,9 @@
                    Icon="avares://Zitie.Desktop/Assets/logo.ico"
                    Background="{DynamicResource ZitiePaperBrush}"
                    FontFamily="{DynamicResource ZitieUiFontFamily}"
-                   WindowStartupLocation="CenterScreen">
-    <zitie:ZitieWindow.LeftContent>
+                   WindowStartupLocation="CenterScreen"
+                   TitleBarHeight="44">
+    <codewf:CodeWFWindow.LeftContent>
         <StackPanel Margin="14,0,0,0"
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
@@ -35,9 +37,9 @@
                 <TextBlock Classes="window-title-en" Text="ZITIE WORKSHOP" />
             </StackPanel>
         </StackPanel>
-    </zitie:ZitieWindow.LeftContent>
+    </codewf:CodeWFWindow.LeftContent>
 
-    <zitie:ZitieWindow.TitleBarContent>
+    <codewf:CodeWFWindow.TitleBarContent>
         <StackPanel Orientation="Horizontal"
                     Spacing="8"
                     VerticalAlignment="Center">
@@ -65,7 +67,7 @@
                            VerticalAlignment="Center" />
             </Grid>
         </StackPanel>
-    </zitie:ZitieWindow.TitleBarContent>
+    </codewf:CodeWFWindow.TitleBarContent>
 
     <Grid ColumnDefinitions="64,*" Background="{DynamicResource ZitiePaperBrush}">
         <Border Grid.Column="0" Classes="app-rail">
@@ -145,4 +147,4 @@
             </Border>
         </Grid>
     </Grid>
-</zitie:ZitieWindow>
+</codewf:CodeWFWindow>

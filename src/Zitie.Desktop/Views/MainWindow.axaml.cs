@@ -4,13 +4,13 @@ using Avalonia.Media;
 using Avalonia.Interactivity;
 using System.Diagnostics;
 using System.Reflection;
-using Zitie.Desktop.Controls;
+using CodeWF.Avalonia.Controls.Controls;
 using Zitie.Desktop.Services;
 using CodeWF.Toolkit.Core.UpdateChecking;
 
 namespace Zitie.Desktop.Views;
 
-public partial class MainWindow : ZitieWindow
+public partial class MainWindow : CodeWFWindow
 {
     private static readonly UpdateChecker UpdateChecker = new("dotnet9", "Zitie");
     private WindowNotificationManager? _notificationManager;
