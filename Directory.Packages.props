@@ -10,6 +10,8 @@
     <!-- Avalonia -->
     <PackageVersion Include="Avalonia" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
+    <!-- 对齐 Prism 引入的旧版动态 XAML 加载器，避免与 Avalonia 12 的内部解析类型错配。 -->
+    <PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Headless" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Skia" Version="12.1.4" />
