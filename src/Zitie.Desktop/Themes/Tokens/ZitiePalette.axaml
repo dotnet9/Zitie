@@ -1,52 +1,27 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- 新中式浅色主题：宣纸底、墨色文字、朱砂强调。 -->
-    <Color x:Key="ZitiePaperColor">#F5F0E6</Color>
-    <Color x:Key="ZitiePanelColor">#FFFFFF</Color>
-    <Color x:Key="ZitieRailColor">#FBF8F1</Color>
-    <Color x:Key="ZitieBorderColor">#E8E0D0</Color>
-    <Color x:Key="ZitieBorderStrongColor">#D9CFBA</Color>
-    <Color x:Key="ZitieInkColor">#2B2722</Color>
-    <Color x:Key="ZitieInkSecondaryColor">#6E675D</Color>
-    <Color x:Key="ZitieInkMutedColor">#A29886</Color>
-    <Color x:Key="ZitieAccentColor">#B04A3F</Color>
-    <Color x:Key="ZitieAccentHoverColor">#C05A4E</Color>
-    <Color x:Key="ZitieAccentDarkColor">#963E35</Color>
-    <Color x:Key="ZitieAccentTintColor">#F7EBE7</Color>
-    <Color x:Key="ZitieAccentPressedColor">#EFD8D2</Color>
-    <Color x:Key="ZitieAccentDisabledColor">#D9A7A0</Color>
-    <Color x:Key="ZitieInputColor">#FDFCF9</Color>
-    <Color x:Key="ZitieLightTextColor">#FBF6EF</Color>
-    <Color x:Key="ZitieThumbnailColor">#FDFBF6</Color>
-    <Color x:Key="ZitieTagColor">#FDF8F1</Color>
-    <Color x:Key="ZitieThumbnailBorderColor">#EFE8D8</Color>
-    <Color x:Key="ZitieSuccessColor">#7BA05B</Color>
-    <Color x:Key="ZitiePreviewStageColor">#EDE6D6</Color>
-    <Color x:Key="ZitieStageBarColor">#B3FBF8F1</Color>
-    <Color x:Key="ZitieOverlayColor">#702B2722</Color>
-
-    <SolidColorBrush x:Key="ZitiePaperBrush" Color="{StaticResource ZitiePaperColor}" />
-    <SolidColorBrush x:Key="ZitiePanelBrush" Color="{StaticResource ZitiePanelColor}" />
-    <SolidColorBrush x:Key="ZitieRailBrush" Color="{StaticResource ZitieRailColor}" />
-    <SolidColorBrush x:Key="ZitieBorderBrush" Color="{StaticResource ZitieBorderColor}" />
-    <SolidColorBrush x:Key="ZitieBorderStrongBrush" Color="{StaticResource ZitieBorderStrongColor}" />
-    <SolidColorBrush x:Key="ZitieInkBrush" Color="{StaticResource ZitieInkColor}" />
-    <SolidColorBrush x:Key="ZitieInkSecondaryBrush" Color="{StaticResource ZitieInkSecondaryColor}" />
-    <SolidColorBrush x:Key="ZitieInkMutedBrush" Color="{StaticResource ZitieInkMutedColor}" />
-    <SolidColorBrush x:Key="ZitieAccentBrush" Color="{StaticResource ZitieAccentColor}" />
-    <SolidColorBrush x:Key="ZitieAccentHoverBrush" Color="{StaticResource ZitieAccentHoverColor}" />
-    <SolidColorBrush x:Key="ZitieAccentDarkBrush" Color="{StaticResource ZitieAccentDarkColor}" />
-    <SolidColorBrush x:Key="ZitieAccentTintBrush" Color="{StaticResource ZitieAccentTintColor}" />
-    <SolidColorBrush x:Key="ZitieAccentPressedBrush" Color="{StaticResource ZitieAccentPressedColor}" />
-    <SolidColorBrush x:Key="ZitieAccentDisabledBrush" Color="{StaticResource ZitieAccentDisabledColor}" />
-    <SolidColorBrush x:Key="ZitieInputBrush" Color="{StaticResource ZitieInputColor}" />
-    <SolidColorBrush x:Key="ZitieTextSelectionBrush" Color="{StaticResource ZitieAccentColor}" Opacity="0.28" />
-    <SolidColorBrush x:Key="ZitieLightTextBrush" Color="{StaticResource ZitieLightTextColor}" />
-    <SolidColorBrush x:Key="ZitieThumbnailBrush" Color="{StaticResource ZitieThumbnailColor}" />
-    <SolidColorBrush x:Key="ZitieTagBrush" Color="{StaticResource ZitieTagColor}" />
-    <SolidColorBrush x:Key="ZitieThumbnailBorderBrush" Color="{StaticResource ZitieThumbnailBorderColor}" />
-    <SolidColorBrush x:Key="ZitieSuccessBrush" Color="{StaticResource ZitieSuccessColor}" />
-    <SolidColorBrush x:Key="ZitiePreviewStageBrush" Color="{StaticResource ZitiePreviewStageColor}" />
-    <SolidColorBrush x:Key="ZitieStageBarBrush" Color="{StaticResource ZitieStageBarColor}" />
-    <SolidColorBrush x:Key="ZitieOverlayBrush" Color="{StaticResource ZitieOverlayColor}" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 应用界面读取共享主题令牌；实际字帖纸张保持独立打印配色。 -->
+    <SolidColorBrush x:Key="ZitiePaperBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="ZitiePanelBrush" Color="{DynamicResource StudioBackgroundColor}" />
+    <SolidColorBrush x:Key="ZitieRailBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="ZitieBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="ZitieBorderStrongBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="ZitieInkBrush" Color="{DynamicResource StudioTextColor}" />
+    <SolidColorBrush x:Key="ZitieInkSecondaryBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="ZitieInkMutedBrush" Color="{DynamicResource StudioMutedColor}" />
+    <SolidColorBrush x:Key="ZitieAccentBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="ZitieAccentHoverBrush" Color="{DynamicResource StudioSecondaryColor}" />
+    <SolidColorBrush x:Key="ZitieAccentDarkBrush" Color="{DynamicResource StudioAccentColor}" />
+    <SolidColorBrush x:Key="ZitieAccentTintBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <SolidColorBrush x:Key="ZitieAccentPressedBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <SolidColorBrush x:Key="ZitieAccentDisabledBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="ZitieInputBrush" Color="{DynamicResource StudioBackgroundColor}" />
+    <SolidColorBrush x:Key="ZitieTextSelectionBrush" Color="{DynamicResource StudioAccentColor}" Opacity="0.28" />
+    <SolidColorBrush x:Key="ZitieTagBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <SolidColorBrush x:Key="ZitieThumbnailBorderBrush" Color="{DynamicResource StudioBorderColor}" />
+    <SolidColorBrush x:Key="ZitiePreviewStageBrush" Color="{DynamicResource StudioRaisedColor}" />
+    <SolidColorBrush x:Key="ZitieStageBarBrush" Color="{DynamicResource StudioSurfaceColor}" />
+    <SolidColorBrush x:Key="ZitieLightTextBrush" Color="White" />
+    <SolidColorBrush x:Key="ZitieThumbnailBrush" Color="#FDFBF6" />
+    <SolidColorBrush x:Key="ZitieSuccessBrush" Color="#7BA05B" />
+    <SolidColorBrush x:Key="ZitieOverlayBrush" Color="#702B2722" />
 </ResourceDictionary>

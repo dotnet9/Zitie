@@ -1,9 +1,11 @@
 <Project>
   <PropertyGroup>
+    <!-- Jieba 的模型加载使用反射 JSON；闭合字典转换器由 JiebaModelJsonContext 预编译。 -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.1.5</Version>
+    <Version>0.2.0</Version>
     <Deterministic>true</Deterministic>
     <Authors>沙漠尽头的狼</Authors>
     <Copyright>https://codewf.com</Copyright>

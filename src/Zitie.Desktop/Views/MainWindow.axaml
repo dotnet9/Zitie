@@ -1,5 +1,6 @@
-﻿<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui"
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="https://codewf.com" xmlns:q="using:Zitie.Desktop.I18n"
                    xmlns:prism="http://prismlibrary.com/"
                    xmlns:zitie="using:Zitie.Desktop.Controls"
                    xmlns:codewf="https://codewf.com"
@@ -7,7 +8,7 @@
                    x:Class="Zitie.Desktop.Views.MainWindow"
                    x:DataType="vm:MainWindowViewModel"
                    prism:ViewModelLocator.AutoWireViewModel="True"
-                   Title="字帖 Zitie"
+                   Title="{l:I18n {x:Static q:Language.WindowTitle}}"
                    Width="1240"
                    Height="840"
                    MinWidth="1000"
@@ -30,42 +31,30 @@
                            FontSize="{DynamicResource ZitieUiFontSizeMedium}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource ZitieLightTextBrush}"
-                           Text="字" />
+                           Text="{l:I18n {x:Static q:Language.SealCharacter}}" />
             </Border>
             <StackPanel VerticalAlignment="Center" Spacing="1">
-                <TextBlock Classes="window-title" Text="字帖" />
+                <TextBlock Classes="window-title" Text="{l:I18n {x:Static q:Language.ProductName}}" />
                 <TextBlock Classes="window-title-en" Text="ZITIE WORKSHOP" />
             </StackPanel>
         </StackPanel>
     </codewf:CodeWFWindow.LeftContent>
 
     <codewf:CodeWFWindow.TitleBarContent>
-        <StackPanel Orientation="Horizontal"
-                    Spacing="8"
-                    VerticalAlignment="Center">
-            <TextBlock Classes="window-center-title"
-                       VerticalAlignment="Center"
-                       Text="字 帖 工 坊" />
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <ComboBox Width="100" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Modes}" SelectedItem="{Binding Appearance.SelectedMode}" ToolTip.Tip="{l:I18n {x:Static q:Language.ThemeMode}}">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><TextBlock Text="{Binding Text}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Width="132" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Palettes}" SelectedItem="{Binding Appearance.SelectedPalette}" ToolTip.Tip="{l:I18n {x:Static q:Language.Palette}}">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><StackPanel Orientation="Horizontal" Spacing="8"><Border Width="10" Height="10" CornerRadius="5" Background="{Binding Swatch}" VerticalAlignment="Center" /><TextBlock Text="{Binding Text}" /></StackPanel></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <ComboBox Width="112" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Languages}" SelectedItem="{Binding Appearance.SelectedLanguage}" ToolTip.Tip="{l:I18n {x:Static q:Language.LanguageName}}">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><TextBlock Text="{Binding Text}" /></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
             <Border Classes="device-divider" />
-            <TextBlock Classes="device-label"
-                       VerticalAlignment="Center"
-                       Text="字号" />
-            <Grid ColumnDefinitions="110,Auto"
-                  ColumnSpacing="8"
-                  VerticalAlignment="Center">
-                <Slider Classes="device-font-slider"
-                        AutomationProperties.Name="软件字号"
-                        ToolTip.Tip="调整软件界面字号"
-                        Minimum="{Binding MinimumUiFontSize}"
-                        Maximum="{Binding MaximumUiFontSize}"
-                        TickFrequency="1"
-                        IsSnapToTickEnabled="True"
-                        Value="{Binding UiFontSize}" />
-                <TextBlock Grid.Column="1"
-                           Text="{Binding UiFontSize, StringFormat={}{0:0}}"
-                           Classes="device-value"
-                           VerticalAlignment="Center" />
-            </Grid>
+            <TextBlock Classes="device-label" VerticalAlignment="Center" Text="{l:I18n {x:Static q:Language.FontSize}}" />
+            <Slider Width="80" Classes="device-font-slider" AutomationProperties.Name="{l:I18n {x:Static q:Language.InterfaceFontSize}}" Minimum="{Binding MinimumUiFontSize}" Maximum="{Binding MaximumUiFontSize}" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding UiFontSize}" />
+            <TextBlock Text="{Binding UiFontSize, StringFormat={}{0:0}}" Classes="device-value" VerticalAlignment="Center" />
         </StackPanel>
     </codewf:CodeWFWindow.TitleBarContent>
 
@@ -76,8 +65,8 @@
                     <Button Classes="rail-button"
                             Classes.active="{Binding IsGalleryMode}"
                             Command="{Binding NavigateGalleryCommand}"
-                            AutomationProperties.Name="模板库"
-                            ToolTip.Tip="模板库">
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.TemplateGallery}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.TemplateGallery}}">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
                             <zitie:ZitieIcon Data="M3,3 H10.5 V10.5 H3 Z M13.5,3 H21 V10.5 H13.5 Z M3,13.5 H10.5 V21 H3 Z M13.5,13.5 H21 V21 H13.5 Z"
@@ -88,8 +77,8 @@
                     <Button Classes="rail-button"
                             Classes.active="{Binding !IsGalleryMode}"
                             Command="{Binding NavigateEditorCommand}"
-                            AutomationProperties.Name="新建字帖"
-                            ToolTip.Tip="新建字帖">
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.NewSheet}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.NewSheet}}">
                         <Grid Width="42" Height="42">
                             <Border Classes="rail-active-marker" />
                             <zitie:ZitieIcon Data="M12,5 V19 M5,12 H19"
@@ -106,8 +95,8 @@
                 <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
                     <Button Classes="rail-button"
                             Command="{Binding ToggleLogCommand}"
-                            AutomationProperties.Name="显示或隐藏日志"
-                            ToolTip.Tip="日志">
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.ToggleLog}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.Log}}">
                         <zitie:ZitieIcon Data="M6,3 H15 L19,7 V21 H6 Z M9,11 H16 M9,15 H16 M9,7 H12"
                                           IconSize="21"
                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
@@ -115,10 +104,10 @@
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="0,4,0,0">
                     <Button Classes="rail-button"
-                            Click="OnCheckUpdate"
-                            AutomationProperties.Name="检查更新"
-                            ToolTip.Tip="检查更新">
-                        <zitie:ZitieIcon Data="M21,7 L9,19 L3.5,13.5 L5,12 L9,16 L19.5,5.5 Z"
+                            Click="OnShowAbout"
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.About}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.About}}">
+                        <zitie:ZitieIcon Data="M12,3 A9,9 0 1 0 12,21 A9,9 0 1 0 12,3 M12,11 V17 M12,7 V8"
                                           IconSize="21"
                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                     </Button>
@@ -135,10 +124,10 @@
                 <DockPanel>
                     <Border Padding="12,6" DockPanel.Dock="Top">
                         <DockPanel>
-                            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="日志" />
+                            <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{l:I18n {x:Static q:Language.Log}}" />
                             <Button Classes="gallery-action"
                                     Command="{Binding ToggleLogCommand}"
-                                    Content="关闭"
+                                    Content="{l:I18n {x:Static q:Language.Close}}"
                                     DockPanel.Dock="Right" />
                         </DockPanel>
                     </Border>

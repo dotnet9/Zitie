@@ -11,7 +11,7 @@ using Zitie.Desktop.Services;
 
 namespace Zitie.Desktop.ViewModels;
 
-public class ModuleGalleryViewModel : BindableBase, IDisposable
+public class ModuleGalleryViewModel : LocalizedBindableBase, IDisposable
 {
     private static readonly string[] PreferredCategories =
     [
@@ -78,6 +78,8 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
 
     public int FilteredModuleCount => FilteredModules.Count;
 
+    public string FilteredModuleSummary => AppText.Format(Language.TemplateCount, FilteredModuleCount);
+
     public bool IsLoading
     {
         get => _isLoading;
@@ -95,16 +97,16 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
     {
         get
         {
-            if (IsLoading && Modules.Count == 0) return "正在加载模板...";
+            if (IsLoading && Modules.Count == 0) return AppText.Get(Language.LoadingTemplates);
 
             var counts = Modules
                 .SelectMany(module => module.Module.Categories)
                 .GroupBy(category => category, StringComparer.CurrentCultureIgnoreCase)
                 .ToDictionary(group => group.Key, group => group.Count(), StringComparer.CurrentCultureIgnoreCase);
-            var parts = new List<string> { $"{Modules.Count} 个模板" };
+            var parts = new List<string> { AppText.Format(Language.TemplateCount, Modules.Count) };
             parts.AddRange(PreferredCategories
                 .Where(counts.ContainsKey)
-                .Select(category => $"{category} {counts[category]}"));
+                .Select(category => $"{CatalogText.DisplayCategory(category)} {counts[category]}"));
             return string.Join(" · ", parts);
         }
     }
@@ -213,12 +215,12 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
             ZitieLogging.Info($"模板卡片索引准备完成：{cards.Count} 个，耗时 {stopwatch.ElapsedMilliseconds} ms");
             if (reloadCatalog)
             {
-                ZitieLogging.Info("模板页已刷新");
+                ZitieLogging.Info(AppText.Get(Language.GalleryRefreshed));
             }
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn("模板卡片加载失败", exception);
+            ZitieLogging.Warn(AppText.Get(Language.GalleryLoadFailed), exception);
         }
         finally
         {
@@ -301,6 +303,7 @@ public class ModuleGalleryViewModel : BindableBase, IDisposable
         RaisePropertyChanged(nameof(FilteredModules));
         RebuildRows();
         RaisePropertyChanged(nameof(FilteredModuleCount));
+        RaisePropertyChanged(nameof(FilteredModuleSummary));
         RaisePropertyChanged(nameof(IsEmpty));
     }
 

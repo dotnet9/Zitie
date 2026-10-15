@@ -39,11 +39,11 @@ public static class SheetDocumentStore
         if (root.RootElement.ValueKind != JsonValueKind.Object ||
             !root.RootElement.TryGetProperty("spec", out var spec) ||
             spec.ValueKind != JsonValueKind.Object)
-            throw new InvalidDataException("字帖文档为空或格式无效。");
+            throw new InvalidDataException(AppText.Get(Language.InvalidDocument));
 
         var document = JsonSerializer.Deserialize(json, ZitieJsonContext.Default.SheetDocument);
         if (document is null)
-            throw new InvalidDataException("字帖文档为空或格式无效。");
+            throw new InvalidDataException(AppText.Get(Language.InvalidDocument));
 
         return document;
     }
@@ -54,7 +54,7 @@ public static class SheetDocumentStore
         ArgumentNullException.ThrowIfNull(spec);
 
         if (!string.Equals(Path.GetExtension(path), ".zi", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException("字帖模板只能保存为 .zi 模板包。");
+            throw new InvalidDataException(AppText.Get(Language.TemplateExtensionRequired));
 
         var hasArtwork = !string.IsNullOrWhiteSpace(spec.BackgroundArtworkSvg);
         var module = CreateTemplateModule(spec, name, Path.GetFileNameWithoutExtension(path), hasArtwork);
@@ -129,7 +129,7 @@ public static class SheetDocumentStore
         {
             Id = $"user-{Guid.NewGuid():N}",
             Name = templateName,
-            Description = "用户保存的字帖模板",
+            Description = AppText.Get(Language.UserTemplateDescription),
             Kind = "customText",
             Enabled = true,
             Defaults = defaults

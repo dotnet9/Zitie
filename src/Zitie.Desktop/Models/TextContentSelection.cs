@@ -3,7 +3,7 @@ using Prism.Mvvm;
 namespace Zitie.Desktop.Models;
 
 /// <summary>封装内容库的级联筛选状态，避免编辑器 ViewModel 持有一组相互依赖的索引。</summary>
-public sealed class TextContentSelection : BindableBase
+public sealed class TextContentSelection : LocalizedBindableBase
 {
     public const string All = "全部";
 
@@ -117,9 +117,9 @@ public sealed class TextContentSelection : BindableBase
         }
     }
 
-    public string ResultSummary => $"{FilteredEntries.Count} 条内容";
+    public string ResultSummary => AppText.Format(Language.ContentCount, FilteredEntries.Count);
 
-    public string ResultCountSummary => $"{FilteredEntries.Count} / {_entries.Count} 篇";
+    public string ResultCountSummary => AppText.Format(Language.ContentResultCount, FilteredEntries.Count, _entries.Count);
 
     public string FilterSummary
     {
@@ -131,8 +131,8 @@ public sealed class TextContentSelection : BindableBase
             AddSelected(parts, SelectedGrade);
             AddSelected(parts, SelectedSemester);
             AddSelected(parts, SelectedUnit);
-            if (SearchText.Length > 0) parts.Add($"关键词「{SearchText}」");
-            parts.Add($"命中 {FilteredEntries.Count} 篇");
+            if (SearchText.Length > 0) parts.Add(AppText.Format(Language.KeywordSummary, SearchText));
+            parts.Add(AppText.Format(Language.ContentMatches, FilteredEntries.Count));
             return string.Join(" · ", parts);
         }
     }
@@ -147,7 +147,7 @@ public sealed class TextContentSelection : BindableBase
                 : new[] { entry.Subject, entry.Edition };
             var summary = string.Join(" · ", parts
                 .Where(value => !string.IsNullOrWhiteSpace(value) && value != All));
-            return summary.Length > 0 ? summary : $"{_entries.Count} 条内容";
+            return summary.Length > 0 ? summary : AppText.Format(Language.ContentCount, _entries.Count);
         }
     }
 

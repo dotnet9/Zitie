@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="https://codewf.com" xmlns:q="using:Zitie.Desktop.I18n"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              xmlns:models="using:Zitie.Desktop.Models"
@@ -13,12 +14,14 @@
     <Grid Background="{DynamicResource ZitiePaperBrush}">
     <DockPanel Background="{DynamicResource ZitiePaperBrush}">
         <Border DockPanel.Dock="Top" Classes="editor-toolbar">
-            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="6">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <ScrollViewer x:Name="CommandScroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="6">
                 <Button Grid.Column="0"
                         Classes="editor-icon-button"
                         Command="{Binding GoBackCommand}"
-                        AutomationProperties.Name="返回模板库"
-                        ToolTip.Tip="返回模板库">
+                        AutomationProperties.Name="{l:I18n {x:Static q:Language.BackToGallery}}"
+                        ToolTip.Tip="{l:I18n {x:Static q:Language.BackToGallery}}">
                     <controls:ZitieIcon Data="M15,18 L9,12 L15,6"
                                         IconSize="{StaticResource ZitieToolbarBackIconSize}"
                                         StrokeThickness="2"
@@ -28,10 +31,10 @@
                 <Button Grid.Column="2"
                         Classes="template-switcher-button"
                         Command="{Binding OpenTemplatePickerCommand}"
-                        AutomationProperties.Name="切换字帖模板"
-                        ToolTip.Tip="切换模板并保留当前内容">
+                        AutomationProperties.Name="{l:I18n {x:Static q:Language.SwitchSheetTemplate}}"
+                        ToolTip.Tip="{l:I18n {x:Static q:Language.SwitchTemplatePreservingContent}}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
-                        <TextBlock Text="模板"
+                        <TextBlock Text="{l:I18n {x:Static q:Language.Template}}"
                                    Classes="toolbar-label"
                                    VerticalAlignment="Center" />
                         <TextBlock Grid.Column="1"
@@ -48,53 +51,55 @@
                 </Button>
                 <Border Grid.Column="3" Width="1" Height="20" Background="{DynamicResource ZitieBorderBrush}" Margin="6,0" />
                 <controls:ZitieToolButton Grid.Column="4"
-                                          Content="打开"
+                                          Content="{l:I18n {x:Static q:Language.Open}}"
                                           IconData="M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
                                           Command="{Binding OpenDocumentCommand}"
-                                          AutomationProperties.Name="打开字帖文档"
-                                          ToolTip.Tip="打开字帖文档" />
+                                          AutomationProperties.Name="{l:I18n {x:Static q:Language.OpenSheetDocument}}"
+                                          ToolTip.Tip="{l:I18n {x:Static q:Language.OpenSheetDocument}}" />
                 <controls:ZitieToolButton Grid.Column="5"
-                                          Content="保存"
+                                          Content="{l:I18n {x:Static q:Language.Save}}"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z"
                                           Command="{Binding SaveDocumentCommand}"
-                                          AutomationProperties.Name="保存字帖文档"
-                                          ToolTip.Tip="保存字帖文档" />
+                                          AutomationProperties.Name="{l:I18n {x:Static q:Language.SaveSheetDocument}}"
+                                          ToolTip.Tip="{l:I18n {x:Static q:Language.SaveSheetDocument}}" />
                 <controls:ZitieToolButton Grid.Column="6"
-                                          Content="另存"
+                                          Content="{l:I18n {x:Static q:Language.SaveAs}}"
                                           IconData="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M14 17l4-4 1.5 1.5L15.5 18.5 13 19z"
                                           Command="{Binding SaveAsDocumentCommand}"
-                                          AutomationProperties.Name="另存字帖文档"
-                                          ToolTip.Tip="另存字帖文档" />
+                                          AutomationProperties.Name="{l:I18n {x:Static q:Language.SaveSheetDocumentAs}}"
+                                          ToolTip.Tip="{l:I18n {x:Static q:Language.SaveSheetDocumentAs}}" />
                 <controls:ZitieToolButton Grid.Column="7"
-                                          Content="存为模板"
+                                          Content="{l:I18n {x:Static q:Language.SaveAsTemplate}}"
                                           IconData="M6 3h12v18l-6-4.2L6 21z"
                                           Command="{Binding SaveTemplateCommand}"
-                                          AutomationProperties.Name="保存为可复用模板"
-                                          ToolTip.Tip="保存为可复用模板" />
-                <StackPanel Grid.Column="9"
+                                          AutomationProperties.Name="{l:I18n {x:Static q:Language.SaveReusableTemplate}}"
+                                          ToolTip.Tip="{l:I18n {x:Static q:Language.SaveReusableTemplate}}" />
+                </Grid>
+                </ScrollViewer>
+                <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             Spacing="6"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
-                    <TextBlock Text="未保存更改 ·" Classes="dirty-indicator" IsVisible="{Binding IsDirty}" VerticalAlignment="Center" />
+                    <Border Width="6" Height="6" CornerRadius="3" Background="{DynamicResource ZitieAccentBrush}" IsVisible="{Binding IsDirty}" VerticalAlignment="Center" ToolTip.Tip="{l:I18n {x:Static q:Language.UnsavedChanges}}" />
                     <controls:ZitieToolButton Classes="outline"
-                                              Content="批量 PNG"
+                                              Content="{l:I18n {x:Static q:Language.BatchPng}}"
                                               IconData="M8 3h8v8H8z M3 13h8v8H3z M13 13h8v8h-8z"
                                               Command="{Binding ExportPngsCommand}"
-                                              AutomationProperties.Name="按页批量导出 PNG"
-                                              ToolTip.Tip="按页导出多张 PNG" />
+                                              AutomationProperties.Name="{l:I18n {x:Static q:Language.BatchExportPages}}"
+                                              ToolTip.Tip="{l:I18n {x:Static q:Language.ExportAllPagesPng}}" />
                     <controls:ZitieToolButton Classes="outline"
-                                              Content="导出 PNG"
+                                              Content="{l:I18n {x:Static q:Language.ExportPng}}"
                                               IconData="M3 5h18v14H3z M10.1 10a1.6 1.6 0 1 1-3.2 0 1.6 1.6 0 0 1 3.2 0z M21 16l-5-5-7 7"
                                               Command="{Binding ExportPngCommand}"
-                                              AutomationProperties.Name="导出当前页 PNG"
-                                              ToolTip.Tip="导出当前页 PNG" />
+                                              AutomationProperties.Name="{l:I18n {x:Static q:Language.ExportCurrentPagePng}}"
+                                              ToolTip.Tip="{l:I18n {x:Static q:Language.ExportCurrentPagePng}}" />
                     <controls:ZitieToolButton Classes="primary"
-                                              Content="导出 PDF"
+                                              Content="{l:I18n {x:Static q:Language.ExportPdf}}"
                                               IconData="M12 3v11 M7.5 10.5L12 15l4.5-4.5 M4 17.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5"
                                               Command="{Binding ExportPdfCommand}"
-                                              AutomationProperties.Name="导出 PDF"
-                                              ToolTip.Tip="导出 PDF（适合打印）" />
+                                              AutomationProperties.Name="{l:I18n {x:Static q:Language.ExportPdf}}"
+                                              ToolTip.Tip="{l:I18n {x:Static q:Language.ExportPrintablePdf}}" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -120,14 +125,14 @@
                 <TabControl Classes="editor-tabs"
                             ItemContainerTheme="{StaticResource ZitieEditorTabItemTheme}"
                             SelectedIndex="{Binding SettingsTabIndex}">
-                    <TabItem AutomationProperties.Name="内容设置">
+                    <TabItem AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentSettings}}">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M4,7 V5 A1,1 0 0 1 5,4 H19 A1,1 0 0 1 20,5 V7 M12,4 V20 M9,20 H15"
                                                     IconSize="18"
                                                     StrokeThickness="1.6"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-                                <TextBlock Text="内容" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.Content}}" />
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -135,21 +140,21 @@
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="练习文本" Classes="editor-label" />
+                                            <TextBlock Text="{l:I18n {x:Static q:Language.PracticeText}}" Classes="editor-label" />
                                             <Border Grid.Column="1" Classes="field-badge" VerticalAlignment="Bottom">
                                                 <TextBlock Text="{Binding InputTextSummary}" />
                                             </Border>
                                         </Grid>
                                         <TextBox Text="{Binding InputText}"
                                                  Classes="editor-input"
-                                                 AutomationProperties.Name="练习文本"
+                                                 AutomationProperties.Name="{l:I18n {x:Static q:Language.PracticeText}}"
                                                  IsEnabled="{Binding IsContentEditingEnabled}"
                                                  AcceptsReturn="True"
                                                  TextWrapping="Wrap"
                                                  MinHeight="108"
                                                  VerticalContentAlignment="Top"
-                                                 PlaceholderText="输入要练习的字，逐字生成练习组" />
-                                        <TextBlock Text="自动按标点分句，逐字生成练习组"
+                                                 PlaceholderText="{l:I18n {x:Static q:Language.PracticeTextPlaceholder}}" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.PracticeTextHint}}"
                                                    Classes="muted-text"
                                                    HorizontalAlignment="Right"
                                                    Margin="0,4,0,0" />
@@ -158,7 +163,7 @@
                                 <Border Classes="editor-field">
                                     <StackPanel>
                                         <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
-                                            <TextBlock Text="内容资源" Classes="editor-label" Margin="0" />
+                                            <TextBlock Text="{l:I18n {x:Static q:Language.ContentLibrary}}" Classes="editor-label" Margin="0" />
                                             <Border Grid.Column="1" Classes="field-badge" VerticalAlignment="Bottom">
                                                 <TextBlock Text="{Binding ContentSelection.SourceSummary}" />
                                             </Border>
@@ -166,7 +171,7 @@
                                         <Button Classes="content-picker-button"
                                                 Command="{Binding OpenContentPickerCommand}"
                                                 IsEnabled="{Binding IsContentEditingEnabled}"
-                                                AutomationProperties.Name="打开内容资源">
+                                                AutomationProperties.Name="{l:I18n {x:Static q:Language.OpenContentLibrary}}">
                                             <Grid>
                                                 <Rectangle Stroke="{DynamicResource ZitieAccentDisabledBrush}"
                                                            StrokeThickness="1"
@@ -182,40 +187,40 @@
                                                                         IconSize="16"
                                                                         StrokeThickness="1.8"
                                                                         Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                                    <TextBlock Text="打开内容资源" VerticalAlignment="Center" />
+                                                    <TextBlock Text="{l:I18n {x:Static q:Language.OpenContentLibrary}}" VerticalAlignment="Center" />
                                                 </StackPanel>
                                             </Grid>
                                         </Button>
-                                        <TextBlock Text="覆盖小学到高中课文、古诗与拓展文本"
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.ContentLibraryHint}}"
                                                    Classes="muted-text"
                                                    Margin="0,6,0,0" />
                                     </StackPanel>
                                 </Border>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="标题" Classes="editor-label" />
-                                        <TextBox Text="{Binding Title}" Classes="editor-input" AutomationProperties.Name="标题" PlaceholderText="留空则不显示" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.Title}}" Classes="editor-label" />
+                                        <TextBox Text="{Binding Title}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.Title}}" PlaceholderText="{l:I18n {x:Static q:Language.NoTitlePlaceholder}}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="页头样式" Classes="editor-label" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.HeaderStyle}}" Classes="editor-label" />
                                         <ComboBox ItemsSource="{Binding HeaderPresetChoices}"
                                                   SelectedIndex="{Binding HeaderPresetIndex}"
-                                                  AutomationProperties.Name="页头样式"
+                                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.HeaderStyle}}"
                                                   IsEnabled="{Binding IsStandardPracticeLayout}"
                                                   Classes="editor-input" />
                                     </StackPanel>
                                 </Grid>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="朝代" Classes="editor-label" />
-                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="朝代" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="唐" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.Dynasty}}" Classes="editor-label" />
+                                        <TextBox Text="{Binding Dynasty}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.Dynasty}}" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="{l:I18n {x:Static q:Language.DynastyPlaceholder}}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="作者" Classes="editor-label" />
-                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="作者" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="李白" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.Author}}" Classes="editor-label" />
+                                        <TextBox Text="{Binding Author}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.Author}}" IsEnabled="{Binding IsPoemHeaderFieldsEnabled}" PlaceholderText="{l:I18n {x:Static q:Language.AuthorPlaceholder}}" />
                                     </StackPanel>
                                 </Grid>
-                                <CheckBox Content="题头显示作者（朝代 · 作者）"
+                                <CheckBox Content="{l:I18n {x:Static q:Language.ShowPoemAuthor}}"
                                           Classes="editor-check"
                                           IsEnabled="{Binding IsStandardPracticeLayout}"
                                           IsChecked="{Binding ShowPoemHeader}" />
@@ -223,50 +228,41 @@
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem AutomationProperties.Name="版式设置">
+                    <TabItem AutomationProperties.Name="{l:I18n {x:Static q:Language.LayoutSettings}}">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M3,3 H21 V21 H3 Z M3,9 H21 M9,3 V21"
                                                     IconSize="18"
                                                     StrokeThickness="1.6"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-                                <TextBlock Text="版式" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.Layout}}" />
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Classes="editor-tab-body">
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="纸张规格" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding PageSizeChoices}" SelectedIndex="{Binding PageSizeIndex}" Classes="editor-input" AutomationProperties.Name="纸张规格" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.PaperSize}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding PageSizeChoices}" SelectedIndex="{Binding PageSizeIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.PaperSize}}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="页边距（mm）" Classes="editor-label" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.PageMargin}}" Classes="editor-label" />
                                         <NumericUpDown Classes="editor-input"
-                                                       AutomationProperties.Name="页边距"
+                                                       AutomationProperties.Name="{l:I18n {x:Static q:Language.PageMarginName}}"
                                                        Minimum="0" Maximum="40" Increment="1"
                                                        Value="{Binding PageMarginMm}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
-                                        <TextBlock Text="格子类型" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding GridKindIndex}" Classes="editor-input" AutomationProperties.Name="格子类型">
-                                            <ComboBoxItem Content="无格线" />
-                                            <ComboBoxItem Content="米字格" />
-                                            <ComboBoxItem Content="田字格" />
-                                            <ComboBoxItem Content="回宫格" />
-                                            <ComboBoxItem Content="方格" />
-                                            <ComboBoxItem Content="英文四线三格" />
-                                            <ComboBoxItem Content="九宫格" />
-                                            <ComboBoxItem Content="拼音四线格" />
-                                        </ComboBox>
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.GridType}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding GridKindChoices}" SelectedIndex="{Binding GridKindIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.GridType}}" />
                                     </StackPanel>
                                 </Border>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="每行格数" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding CellsPerLineChoices}" SelectedIndex="{Binding CellsPerLineIndex}" Classes="editor-input" AutomationProperties.Name="每行格数" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.CellsPerRow}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding CellsPerLineChoices}" SelectedIndex="{Binding CellsPerLineIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.CellsPerRow}}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding BlankCellLineLabel}" Classes="editor-label" />
@@ -275,10 +271,10 @@
                                 </Grid>
                                 <Border Classes="editor-field" IsEnabled="{Binding IsStandardPracticeLayout}">
                                     <StackPanel>
-                                        <TextBlock Text="格子大小" Classes="editor-label" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.CellSize}}" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <Slider Classes="editor-slider"
-                                                    AutomationProperties.Name="格子大小"
+                                                    AutomationProperties.Name="{l:I18n {x:Static q:Language.CellSize}}"
                                                     Minimum="8"
                                                     Maximum="60"
                                                     TickFrequency="1"
@@ -288,49 +284,46 @@
                                         </Grid>
                                     </StackPanel>
                                 </Border>
-                                <CheckBox Content="按词分组（词内字符连续，不拆行）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding GroupByWord}" />
-                                <CheckBox Content="竖排版式（从右到左，传统书法帖式）" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding IsVertical}" />
+                                <CheckBox Content="{l:I18n {x:Static q:Language.GroupWords}}" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding GroupByWord}" />
+                                <CheckBox Content="{l:I18n {x:Static q:Language.VerticalLayout}}" Classes="editor-check" IsEnabled="{Binding IsStandardPracticeLayout}" IsChecked="{Binding IsVertical}" />
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem AutomationProperties.Name="练习设置">
+                    <TabItem AutomationProperties.Name="{l:I18n {x:Static q:Language.PracticeSettings}}">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M12,2 V5 M12,19 V22 M2,12 H5 M19,12 H22 M4.9,4.9 L7,7 M17,17 L19.1,19.1 M19.1,4.9 L17,7 M7,17 L4.9,19.1 M12,8 A4,4 0 1 0 12,16 A4,4 0 1 0 12,8"
                                                     IconSize="18"
                                                     StrokeThickness="1.6"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-                                <TextBlock Text="练习" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.Practice}}" />
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
                                 <Border Classes="editor-field">
                                     <StackPanel>
-                                        <TextBlock Text="练习模式" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding PracticeModeIndex}" Classes="editor-input" AutomationProperties.Name="练习模式">
-                                            <ComboBoxItem Content="描红：范字 + 描红 + 空格" />
-                                            <ComboBoxItem Content="临摹：范字 + 空格" />
-                                        </ComboBox>
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.PracticeMode}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding PracticeModeChoices}" SelectedIndex="{Binding PracticeModeIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.PracticeMode}}" />
                                     </StackPanel>
                                 </Border>
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="每字格数" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding RepeatsChoices}" SelectedIndex="{Binding RepeatsIndex}" Classes="editor-input" AutomationProperties.Name="每字格数" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.CellsPerCharacter}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding RepeatsChoices}" SelectedIndex="{Binding RepeatsIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.CellsPerCharacter}}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="描红深浅" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}" SelectedIndex="{Binding TraceIntensityIndex}" IsEnabled="{Binding IsTraceMode}" Classes="editor-input" AutomationProperties.Name="描红深浅" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.TracingOpacity}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding TraceIntensityChoices}" SelectedIndex="{Binding TraceIntensityIndex}" IsEnabled="{Binding IsTraceMode}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.TracingOpacity}}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
                                     <StackPanel>
-                                        <TextBlock Text="组间距" Classes="editor-label" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.GroupSpacing}}" Classes="editor-label" />
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <Slider Classes="editor-slider"
-                                                    AutomationProperties.Name="组间距"
+                                                    AutomationProperties.Name="{l:I18n {x:Static q:Language.GroupSpacing}}"
                                                     Minimum="1"
                                                     Maximum="10"
                                                     TickFrequency="1"
@@ -343,39 +336,39 @@
                                         </Grid>
                                     </StackPanel>
                                 </Border>
-                                <CheckBox Content="空心双钩字（范字描轮廓，供填墨）" Classes="editor-check" IsChecked="{Binding HollowGlyph}" />
+                                <CheckBox Content="{l:I18n {x:Static q:Language.HollowGlyph}}" Classes="editor-check" IsChecked="{Binding HollowGlyph}" />
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem AutomationProperties.Name="字迹设置">
+                    <TabItem AutomationProperties.Name="{l:I18n {x:Static q:Language.WritingSettings}}">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M12,19 L19,12 A4.95,4.95 0 0 0 12,5 L5,12 V19 Z M18,13 L11,6"
                                                     IconSize="18"
                                                     StrokeThickness="1.6"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-                                <TextBlock Text="字迹" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.Writing}}" />
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Classes="editor-tab-body">
                                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Classes="editor-field">
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="格子颜色" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding GridColorIndex}" Classes="editor-input" AutomationProperties.Name="格子颜色预设" />
-                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" AutomationProperties.Name="格子颜色值" PlaceholderText="#B04A3F" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.GridColor}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding GridColorIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.GridColorPreset}}" />
+                                        <TextBox Text="{Binding GridColorHex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.GridColorValue}}" PlaceholderText="#B04A3F" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="文字颜色" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding TextColorIndex}" Classes="editor-input" AutomationProperties.Name="文字颜色预设" />
-                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" AutomationProperties.Name="文字颜色值" PlaceholderText="#1A1A1A" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.TextColor}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding ColorChoices}" SelectedIndex="{Binding TextColorIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.TextColorPreset}}" />
+                                        <TextBox Text="{Binding TextColorHex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.TextColorValue}}" PlaceholderText="#1A1A1A" Margin="{StaticResource ZitieEditorSubcontrolSpacing}" />
                                     </StackPanel>
                                 </Grid>
                                 <Border Classes="editor-field">
                                     <StackPanel>
-                                        <TextBlock Text="字帖字体" Classes="editor-label" />
-                                        <ComboBox ItemsSource="{Binding SheetFonts}" SelectedItem="{Binding SelectedSheetFont}" Classes="editor-input" AutomationProperties.Name="字帖字体" MaxDropDownHeight="360">
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.SheetFont}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding SheetFonts}" SelectedItem="{Binding SelectedSheetFont}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.SheetFont}}" MaxDropDownHeight="360">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate x:DataType="models:FontOption">
                                                     <TextBlock Text="{Binding DisplayName}" FontFamily="{Binding PreviewFamilyName}" />
@@ -389,34 +382,29 @@
                                 </Border>
                                 <Border Classes="editor-field">
                                     <StackPanel>
-                                        <TextBlock Text="纸张底纹" Classes="editor-label" />
-                                        <ComboBox SelectedIndex="{Binding BackgroundIndex}" Classes="editor-input" AutomationProperties.Name="纸张底纹">
-                                            <ComboBoxItem Content="白底（无底纹）" />
-                                            <ComboBoxItem Content="红格纸（淡红横线）" />
-                                            <ComboBoxItem Content="信纸（淡蓝横线）" />
-                                            <ComboBoxItem Content="宣纸（暖白米色横线）" />
-                                        </ComboBox>
+                                        <TextBlock Text="{l:I18n {x:Static q:Language.PaperTexture}}" Classes="editor-label" />
+                                        <ComboBox ItemsSource="{Binding BackgroundChoices}" SelectedIndex="{Binding BackgroundIndex}" Classes="editor-input" AutomationProperties.Name="{l:I18n {x:Static q:Language.PaperTexture}}" />
                                     </StackPanel>
                                 </Border>
-                                <CheckBox Content="页面装饰边框" Classes="editor-check" IsChecked="{Binding FrameBorder}" />
+                                <CheckBox Content="{l:I18n {x:Static q:Language.DecorativeFrame}}" Classes="editor-check" IsChecked="{Binding FrameBorder}" />
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem AutomationProperties.Name="拼音设置">
+                    <TabItem AutomationProperties.Name="{l:I18n {x:Static q:Language.PinyinSettings}}">
                         <TabItem.Header>
                             <StackPanel HorizontalAlignment="Center" Spacing="3">
                                 <controls:ZitieIcon Data="M4,12 H7 L9,6 L13,18 L15,12 H20"
                                                     IconSize="18"
                                                     StrokeThickness="1.6"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" />
-                                <TextBlock Text="拼音" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.Pinyin}}" />
                             </StackPanel>
                         </TabItem.Header>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Classes="editor-tab-body" IsEnabled="{Binding IsStandardPracticeLayout}">
-                                <CheckBox Content="标注拼音" Classes="editor-check" IsChecked="{Binding ShowPinyin}" />
-                                <CheckBox Content="只看拼音（隐藏范字，看拼音写词语）"
+                                <CheckBox Content="{l:I18n {x:Static q:Language.ShowPinyin}}" Classes="editor-check" IsChecked="{Binding ShowPinyin}" />
+                                <CheckBox Content="{l:I18n {x:Static q:Language.PinyinOnly}}"
                                           Classes="editor-check"
                                           IsChecked="{Binding PinyinOnly}"
                                           IsEnabled="{Binding ShowPinyin}" />
@@ -429,7 +417,7 @@
             <Grid Grid.Column="1" RowDefinitions="*,Auto" MinWidth="0">
                 <Border Grid.Row="0" Classes="preview-stage">
                     <Grid>
-                        <TextBlock Text="字 帖 工 坊"
+                        <TextBlock Text="{l:I18n {x:Static q:Language.WorkshopTitle}}"
                                    Foreground="{DynamicResource ZitieInkMutedBrush}"
                                    Opacity="0.55"
                                    FontSize="{DynamicResource ZitieUiFontSizeSmall}"
@@ -449,26 +437,26 @@
                 <Border Grid.Row="1" Classes="stage-bar">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <controls:ZitieStepper ValueText="{Binding PageIndicator}"
-                                               AutomationProperties.Name="分页控制"
+                                               AutomationProperties.Name="{l:I18n {x:Static q:Language.PageNavigation}}"
                                                ValueWidth="60"
                                                DecreaseIconData="M15 18l-6-6 6-6"
                                                IncreaseIconData="M9 6l6 6-6 6"
                                                DecreaseCommand="{Binding PreviousPageCommand}"
                                                IncreaseCommand="{Binding NextPageCommand}"
-                                               DecreaseToolTip="上一页"
-                                               IncreaseToolTip="下一页" />
+                                               DecreaseToolTip="{l:I18n {x:Static q:Language.PreviousPage}}"
+                                               IncreaseToolTip="{l:I18n {x:Static q:Language.NextPage}}" />
                         <Grid Grid.Column="2"
                               ColumnDefinitions="Auto,Auto,Auto"
                               ColumnSpacing="8"
                               VerticalAlignment="Center">
-                            <TextBlock Text="缩放"
+                            <TextBlock Text="{l:I18n {x:Static q:Language.Zoom}}"
                                        Classes="gallery-count"
                                        VerticalAlignment="Center" />
                             <Slider Grid.Column="1"
                                     Width="{StaticResource ZitieStageZoomSliderWidth}"
                                     Classes="gallery-zoom"
-                                    AutomationProperties.Name="画布缩放"
-                                    ToolTip.Tip="缩放画布大小"
+                                    AutomationProperties.Name="{l:I18n {x:Static q:Language.CanvasZoom}}"
+                                    ToolTip.Tip="{l:I18n {x:Static q:Language.ZoomCanvas}}"
                                     Minimum="0.3"
                                     Maximum="2"
                                     TickFrequency="0.05"
@@ -496,7 +484,7 @@
                 <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
                     <StackPanel Spacing="5">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="模板切换" Classes="content-drawer-title" />
+                            <TextBlock Text="{l:I18n {x:Static q:Language.SwitchTemplate}}" Classes="content-drawer-title" />
                             <TextBlock Text="TEMPLATE PREVIEW"
                                        Classes="content-drawer-title-en"
                                        VerticalAlignment="Bottom"
@@ -509,8 +497,8 @@
                     <Button Grid.Column="1"
                             Classes="content-drawer-close"
                             Command="{Binding CloseTemplatePickerCommand}"
-                            AutomationProperties.Name="关闭模板切换"
-                            ToolTip.Tip="关闭">
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.CloseTemplatePicker}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.Close}}">
                         <controls:ZitieIcon Data="M6,6 L18,18 M18,6 L6,18"
                                             IconSize="18"
                                             StrokeThickness="2"
@@ -521,8 +509,8 @@
                 <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <TextBox Text="{Binding TemplateSearchText, UpdateSourceTrigger=PropertyChanged}"
                              Classes="editor-input content-search"
-                             AutomationProperties.Name="快速搜索模板"
-                             PlaceholderText="搜索模板名称、说明或 ID">
+                             AutomationProperties.Name="{l:I18n {x:Static q:Language.QuickTemplateSearch}}"
+                             PlaceholderText="{l:I18n {x:Static q:Language.SearchTemplateDetails}}">
                         <TextBox.InnerLeftContent>
                             <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
                                                 IconSize="15"
@@ -532,30 +520,30 @@
                         </TextBox.InnerLeftContent>
                     </TextBox>
                     <Button Grid.Column="1"
-                            Content="重置"
+                            Content="{l:I18n {x:Static q:Language.Reset}}"
                             Classes="gallery-action"
                             Command="{Binding ResetTemplateSearchCommand}"
-                            AutomationProperties.Name="重置模板搜索" />
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.ResetTemplateSearch}}" />
                 </Grid>
 
                 <Grid Grid.Row="2" RowDefinitions="Auto,*" Margin="0,14,0,0" MinHeight="0">
                     <Border Classes="content-results-header">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="模 板 列 表" Classes="content-section-label" />
+                            <TextBlock Text="{l:I18n {x:Static q:Language.TemplateList}}" Classes="content-section-label" />
                             <TextBlock Grid.Column="1"
                                        Text="{Binding TemplateFilterSummary}"
                                        Classes="content-section-label" />
                         </Grid>
                     </Border>
                     <Grid Grid.Row="1">
-                        <TextBlock Text="未找到匹配的模板"
+                        <TextBlock Text="{l:I18n {x:Static q:Language.NoTemplatesFound}}"
                                    Classes="module-empty"
                                    IsVisible="{Binding IsTemplateFilterEmpty}"
                                    Margin="2,12,0,0" />
                         <ListBox ItemsSource="{Binding FilteredTemplateChoices}"
                                  SelectedItem="{Binding PreviewTemplateModule}"
                                  Classes="template-results"
-                                 AutomationProperties.Name="模板搜索结果">
+                                 AutomationProperties.Name="{l:I18n {x:Static q:Language.TemplateResults}}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel />
@@ -582,17 +570,17 @@
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                         <Button Classes="content-apply-button"
                                 Command="{Binding ApplySelectedTemplateCommand}"
-                                AutomationProperties.Name="应用所选模板">
+                                AutomationProperties.Name="{l:I18n {x:Static q:Language.ApplyTemplate}}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <controls:ZitieIcon Data="M20,6 L9,17 L4,12"
                                                     IconSize="16"
                                                     StrokeThickness="2"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                <TextBlock Text="应用所选模板" VerticalAlignment="Center" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.ApplyTemplate}}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                         <TextBlock Grid.Column="1"
-                                   Text="保留当前练习文本"
+                                   Text="{l:I18n {x:Static q:Language.KeepPracticeText}}"
                                    Classes="muted-text"
                                    VerticalAlignment="Center" />
                     </Grid>
@@ -610,7 +598,7 @@
                 <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
                     <StackPanel Spacing="5">
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="内容资源" Classes="content-drawer-title" />
+                            <TextBlock Text="{l:I18n {x:Static q:Language.ContentLibrary}}" Classes="content-drawer-title" />
                             <TextBlock Text="CONTENT LIBRARY"
                                        Classes="content-drawer-title-en"
                                        VerticalAlignment="Bottom"
@@ -623,8 +611,8 @@
                     <Button Grid.Column="1"
                             Classes="content-drawer-close"
                             Command="{Binding CloseContentPickerCommand}"
-                            AutomationProperties.Name="关闭内容资源"
-                            ToolTip.Tip="关闭">
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.CloseContentLibrary}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.Close}}">
                         <controls:ZitieIcon Data="M6,6 L18,18 M18,6 L6,18"
                                             IconSize="18"
                                             StrokeThickness="2"
@@ -635,8 +623,8 @@
                 <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                     <TextBox Text="{Binding ContentSelection.SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Classes="editor-input content-search"
-                             AutomationProperties.Name="快速搜索内容"
-                             PlaceholderText="搜索标题、年级、单元、作者或正文">
+                             AutomationProperties.Name="{l:I18n {x:Static q:Language.QuickContentSearch}}"
+                             PlaceholderText="{l:I18n {x:Static q:Language.SearchContentDetails}}">
                         <TextBox.InnerLeftContent>
                             <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
                                                 IconSize="15"
@@ -646,10 +634,10 @@
                         </TextBox.InnerLeftContent>
                     </TextBox>
                     <Button Grid.Column="1"
-                            Content="重置"
+                            Content="{l:I18n {x:Static q:Language.Reset}}"
                             Classes="gallery-action"
                             Command="{Binding ResetContentFiltersCommand}"
-                            AutomationProperties.Name="重置内容筛选" />
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.ResetContentFilters}}" />
                 </Grid>
 
                 <Grid Grid.Row="2"
@@ -662,10 +650,10 @@
                                   ItemsSource="{Binding ContentSelection.Subjects}"
                                   SelectedItem="{Binding ContentSelection.SelectedSubject}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容学科">
+                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentSubject}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <TextBlock Text="{Binding ., StringFormat=学科：{0}}" />
+                                    <TextBlock Text="{l:I18n {x:Static q:Language.SubjectFilter}, {Binding .}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -673,10 +661,10 @@
                                   ItemsSource="{Binding ContentSelection.Editions}"
                                   SelectedItem="{Binding ContentSelection.SelectedEdition}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="教材版本">
+                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.TextbookEdition}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <TextBlock Text="{Binding ., StringFormat=版本：{0}}" />
+                                    <TextBlock Text="{l:I18n {x:Static q:Language.EditionFilter}, {Binding .}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -684,10 +672,10 @@
                                   ItemsSource="{Binding ContentSelection.Grades}"
                                   SelectedItem="{Binding ContentSelection.SelectedGrade}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容年级">
+                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentGrade}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <TextBlock Text="{Binding ., StringFormat=年级：{0}}" />
+                                    <TextBlock Text="{l:I18n {x:Static q:Language.GradeFilter}, {Binding .}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -695,10 +683,10 @@
                                   ItemsSource="{Binding ContentSelection.Semesters}"
                                   SelectedItem="{Binding ContentSelection.SelectedSemester}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容学期">
+                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentSemester}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <TextBlock Text="{Binding ., StringFormat=学期：{0}}" />
+                                    <TextBlock Text="{l:I18n {x:Static q:Language.SemesterFilter}, {Binding .}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -706,10 +694,10 @@
                                   ItemsSource="{Binding ContentSelection.Units}"
                                   SelectedItem="{Binding ContentSelection.SelectedUnit}"
                                   Classes="editor-input"
-                                  AutomationProperties.Name="内容单元">
+                                  AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentUnit}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <TextBlock Text="{Binding ., StringFormat=单元：{0}}" />
+                                    <TextBlock Text="{l:I18n {x:Static q:Language.UnitFilter}, {Binding .}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -719,11 +707,11 @@
                                 IsVisible="{Binding ContentSelection.HasRecentItems}"
                                 Spacing="8"
                                 Margin="0,14,0,0">
-                        <TextBlock Text="最 近 使 用" Classes="content-section-label" />
+                        <TextBlock Text="{l:I18n {x:Static q:Language.RecentlyUsed}}" Classes="content-section-label" />
                         <ListBox ItemsSource="{Binding ContentSelection.RecentItems}"
                                  SelectedItem="{Binding ContentSelection.SelectedResult}"
                                  Classes="recent-content-list"
-                                 AutomationProperties.Name="最近使用内容">
+                                 AutomationProperties.Name="{l:I18n {x:Static q:Language.RecentContent}}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal" Spacing="8" />
@@ -743,7 +731,7 @@
                 <Grid Grid.Row="4" RowDefinitions="Auto,*" Margin="0,14,0,0" MinHeight="0">
                     <Border Classes="content-results-header">
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="搜 索 结 果" Classes="content-section-label" />
+                            <TextBlock Text="{l:I18n {x:Static q:Language.SearchResults}}" Classes="content-section-label" />
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ContentSelection.ResultCountSummary}"
                                        Classes="content-section-label" />
@@ -753,7 +741,7 @@
                              ItemsSource="{Binding ContentSelection.FilteredItems}"
                              SelectedItem="{Binding ContentSelection.SelectedResult}"
                              Classes="content-results"
-                             AutomationProperties.Name="内容搜索结果">
+                             AutomationProperties.Name="{l:I18n {x:Static q:Language.ContentResults}}">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel />
@@ -814,17 +802,17 @@
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                         <Button Classes="content-apply-button"
                                 Command="{Binding ApplySelectedContentCommand}"
-                                AutomationProperties.Name="应用所选内容">
+                                AutomationProperties.Name="{l:I18n {x:Static q:Language.ApplyContent}}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <controls:ZitieIcon Data="M20,6 L9,17 L4,12"
                                                     IconSize="16"
                                                     StrokeThickness="2"
                                                     Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                <TextBlock Text="应用所选内容" VerticalAlignment="Center" />
+                                <TextBlock Text="{l:I18n {x:Static q:Language.ApplyContent}}" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                         <TextBlock Grid.Column="1"
-                                   Text="应用到练习文本"
+                                   Text="{l:I18n {x:Static q:Language.ApplyToPracticeText}}"
                                    Classes="muted-text"
                                    VerticalAlignment="Center" />
                     </Grid>

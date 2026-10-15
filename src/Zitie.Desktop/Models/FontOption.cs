@@ -17,12 +17,17 @@ public enum FontStrokeStyle
 }
 
 /// <summary>字帖字体及其书写适用性；笔锋描述来自字体类别，不对字形做人工特效。</summary>
-public sealed record FontOption(
-    string Name,
-    SheetFontCategory Category,
-    FontStrokeStyle StrokeStyle,
-    bool IsBundled = false)
+public sealed class FontOption(
+    string name,
+    SheetFontCategory category,
+    FontStrokeStyle strokeStyle,
+    bool isBundled = false) : LocalizedBindableBase
 {
+    public string Name { get; } = name;
+    public SheetFontCategory Category { get; } = category;
+    public FontStrokeStyle StrokeStyle { get; } = strokeStyle;
+    public bool IsBundled { get; } = isBundled;
+
     public bool IsRecommended => Category == SheetFontCategory.StandardKai;
 
     public int RecommendationRank => Category switch
@@ -35,23 +40,23 @@ public sealed record FontOption(
 
     public string CategoryName => Category switch
     {
-        SheetFontCategory.StandardKai => "规范楷体",
-        SheetFontCategory.Handwriting => "书写体",
-        SheetFontCategory.Print => "印刷体",
-        _ => "其他字体"
+        SheetFontCategory.StandardKai => AppText.Get(Language.StandardKai),
+        SheetFontCategory.Handwriting => AppText.Get(Language.Handwriting),
+        SheetFontCategory.Print => AppText.Get(Language.PrintFont),
+        _ => AppText.Get(Language.OtherFonts)
     };
 
     public string StrokeStyleName => StrokeStyle switch
     {
-        FontStrokeStyle.Clear => "笔锋清晰",
-        FontStrokeStyle.Natural => "自然笔意",
-        FontStrokeStyle.NotEmphasized => "不强调笔锋",
-        _ => "笔锋未评估"
+        FontStrokeStyle.Clear => AppText.Get(Language.ClearStrokes),
+        FontStrokeStyle.Natural => AppText.Get(Language.NaturalStrokes),
+        FontStrokeStyle.NotEmphasized => AppText.Get(Language.UnemphasizedStrokes),
+        _ => AppText.Get(Language.UnassessedStrokes)
     };
 
     public string DisplayName => $"{Name} · {CategoryName}";
 
-    public string Description => $"{CategoryName} · {StrokeStyleName}" + (IsBundled ? " · 内置字体" : string.Empty);
+    public string Description => $"{CategoryName} · {StrokeStyleName}" + (IsBundled ? AppText.Get(Language.BundledFontSuffix) : string.Empty);
 
     public string PreviewFamilyName => IsBundled
         ? "avares://Zitie.Avalonia/Fonts#LXGW WenKai"

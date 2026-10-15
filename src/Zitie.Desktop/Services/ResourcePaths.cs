@@ -3,7 +3,14 @@ namespace Zitie.Desktop.Services;
 /// <summary>内置资源目录统一位于程序目录 resources/ 下。</summary>
 internal static class ResourcePaths
 {
-    public static string Root { get; } = Path.Combine(AppContext.BaseDirectory, "resources");
+    public static string Root { get; } = ResolveRoot();
+
+    private static string ResolveRoot()
+    {
+        var direct = Path.Combine(AppContext.BaseDirectory, "resources");
+        var bundled = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources", "resources"));
+        return Directory.Exists(direct) ? direct : Directory.Exists(bundled) ? bundled : direct;
+    }
 
     public static string ModuleStyles { get; } = Path.Combine(Root, "module-styles");
 

@@ -20,7 +20,7 @@ namespace Zitie.Desktop.ViewModels;
 /// <summary>
 ///     字帖编辑页：左侧配置驱动 <see cref="Rebuild" /> 重新排版，右侧预览消费同一份结果。
 /// </summary>
-public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
+public class SheetEditorViewModel : LocalizedBindableBase, INavigationAware, IDisposable
 {
     public const double MinimumZoom = 0.3;
     public const double MaximumZoom = 2;
@@ -43,7 +43,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     private int _settingsTabIndex;
     private int _pageIndex;
     private string? _documentPath;
-    private string _statusMessage = "已就绪";
+    private string _statusMessage = AppText.Get(Language.Ready);
+    private string? _statusKey = Language.Ready;
+    private object?[] _statusArguments = [];
     private bool _isDirty;
     private bool _suppressDirty;
     private bool _suppressRebuild;
@@ -147,13 +149,13 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         try
         {
             var path = await _dialogs.PickOpenFileAsync(
-                "字帖文档", ["*.zitie.json", "*.json"], "打开字帖文档");
+                AppText.Get(Language.SheetDocument), ["*.zitie.json", "*.json"], AppText.Get(Language.OpenSheetDocument));
             if (path is null) return;
             LoadDocumentFrom(path);
         }
         catch (Exception exception)
         {
-            SetFailure("打开文档失败", exception);
+            SetFailure(AppText.Get(Language.OpenDocumentFailed), exception);
         }
     }
 
@@ -171,7 +173,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         }
         catch (Exception exception)
         {
-            SetFailure("保存文档失败", exception);
+            SetFailure(AppText.Get(Language.SaveDocumentFailed), exception);
         }
     }
 
@@ -179,13 +181,13 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     {
         try
         {
-            var path = await _dialogs.PickSaveFileAsync("字帖文档", "zitie.json", "未命名字帖.zitie.json");
+            var path = await _dialogs.PickSaveFileAsync(AppText.Get(Language.SheetDocument), "zitie.json", AppText.Get(Language.UntitledDocument));
             if (path is null) return;
             SaveDocumentTo(path);
         }
         catch (Exception exception)
         {
-            SetFailure("保存文档失败", exception);
+            SetFailure(AppText.Get(Language.SaveDocumentFailed), exception);
         }
     }
 
@@ -193,13 +195,13 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     {
         try
         {
-            var path = await _dialogs.PickSaveFileAsync("字帖模板包", "zi", "我的字帖模板.zi");
+            var path = await _dialogs.PickSaveFileAsync(AppText.Get(Language.TemplatePackage), "zi", AppText.Get(Language.MyTemplateFile));
             if (path is null) return;
             SaveTemplateTo(path);
         }
         catch (Exception exception)
         {
-            SetFailure("保存模板失败", exception);
+            SetFailure(AppText.Get(Language.SaveTemplateFailed), exception);
         }
     }
 
@@ -209,14 +211,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         try
         {
             var path = await _dialogs.PickSaveFileAsync(
-                "PDF 文档", "pdf", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
+                AppText.Get(Language.PdfDocument), "pdf", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
             if (path is null) return;
             ExportPdfTo(path);
             _dialogs.RevealFile(path);
         }
         catch (Exception exception)
         {
-            SetFailure("导出 PDF 失败", exception);
+            SetFailure(AppText.Get(Language.ExportPdfFailed), exception);
         }
     }
 
@@ -226,14 +228,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         try
         {
             var path = await _dialogs.PickSaveFileAsync(
-                "PNG 图片", "png", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.png");
+                AppText.Get(Language.PngImage), "png", $"zitie-{DateTime.Now:yyyyMMdd-HHmmss}.png");
             if (path is null) return;
             ExportPngTo(path);
             _dialogs.RevealFile(path);
         }
         catch (Exception exception)
         {
-            SetFailure("导出 PNG 失败", exception);
+            SetFailure(AppText.Get(Language.ExportPngFailed), exception);
         }
     }
 
@@ -242,14 +244,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         if (!CanExport) return;
         try
         {
-            var directory = await _dialogs.PickFolderAsync("选择 PNG 输出目录");
+            var directory = await _dialogs.PickFolderAsync(AppText.Get(Language.SelectPngFolder));
             if (directory is null) return;
             ExportPngsTo(directory);
             _dialogs.OpenFolder(directory);
         }
         catch (Exception exception)
         {
-            SetFailure("批量导出 PNG 失败", exception);
+            SetFailure(AppText.Get(Language.ExportAllPngFailed), exception);
         }
     }
 
@@ -261,42 +263,33 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
     public int[] RepeatsChoices { get; } = Enumerable.Range(1, 8).ToArray();
 
-    public string[] CellsPerLineChoices { get; } = ["自动", "5", "7", "8", "10", "12", "14", "16", "20", "24"];
+    public LocalizedChoice[] CellsPerLineChoices { get; } = [new(Language.Auto), new("5", true), new("7", true), new("8", true), new("10", true), new("12", true), new("14", true), new("16", true), new("20", true), new("24", true)];
 
     private static readonly int[] CellsPerLineValues = [0, 5, 7, 8, 10, 12, 14, 16, 20, 24];
 
     public int[] BlankCellLineChoices { get; } = Enumerable.Range(0, 11).ToArray();
 
-    public string[] ColorChoices { get; } = ["红色", "黑色", "绿色"];
+    public LocalizedChoice[] ColorChoices { get; } = [new(Language.Red), new(Language.Black), new(Language.Green)];
 
-    public string[] TraceIntensityChoices { get; } =
+    public LocalizedChoice[] TraceIntensityChoices { get; } =
     [
-        "非常深",
-        "深",
-        "较深",
-        "适中",
-        "略浅",
-        "非常浅",
-        "白色",
-        "空心"
+        new(Language.VeryDark), new(Language.Dark), new(Language.MediumDark), new(Language.Moderate),
+        new(Language.Light), new(Language.VeryLight), new(Language.White), new(Language.Outline)
     ];
 
-    public string[] HeaderPresetChoices { get; } =
+    public LocalizedChoice[] HeaderPresetChoices { get; } =
     [
-        "无页头",
-        "填写栏",
-        "标题 + 填写栏",
-        "诗词题头",
-        "自定义"
+        new(Language.NoHeader), new(Language.FillInHeader), new(Language.TitleAndFillIn), new(Language.PoemHeader), new(Language.Custom)
     ];
 
-    public string[] PageSizeChoices { get; } =
+    public LocalizedChoice[] PageSizeChoices { get; } =
     [
-        "A4 纵向",
-        "A4 横向",
-        "A3 纵向",
-        "Letter 纵向"
+        new(Language.A4Portrait), new(Language.A4Landscape), new(Language.A3Portrait), new(Language.LetterPortrait)
     ];
+
+    public LocalizedChoice[] GridKindChoices { get; } = [new(Language.NoGrid), new(Language.RiceGrid), new(Language.FieldGrid), new(Language.PalaceGrid), new(Language.SquareGrid), new(Language.EnglishGrid), new(Language.NineGrid), new(Language.PinyinGrid)];
+    public LocalizedChoice[] PracticeModeChoices { get; } = [new(Language.TracingMode), new(Language.CopyingMode)];
+    public LocalizedChoice[] BackgroundChoices { get; } = [new(Language.PlainPaper), new(Language.RedLinedPaper), new(Language.BlueLinedPaper), new(Language.RicePaper)];
 
     public IReadOnlyList<FontOption> SheetFonts => _fontCatalog.Fonts;
 
@@ -328,7 +321,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
     public bool IsTemplateFilterEmpty => FilteredTemplateChoices.Count == 0;
 
-    public string TemplateFilterSummary => $"{FilteredTemplateChoiceCount} / {TemplateChoices.Count} 个模板";
+    public string TemplateFilterSummary => AppText.Format(Language.TemplateResultCount, FilteredTemplateChoiceCount, TemplateChoices.Count);
 
     public string TemplateSearchText
     {
@@ -363,7 +356,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         }
     }
 
-    public string CurrentTemplateName => _module?.Name ?? "未选择模板";
+    public string CurrentTemplateName => _module?.Name ?? AppText.Get(Language.NoTemplateSelected);
 
     public int CellsPerLineIndex
     {
@@ -385,7 +378,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         set => SetEditorState(_editorState with { BlankCellLineCount = Math.Clamp(value, 0, 10) });
     }
 
-    public string BlankCellLineLabel => IsVertical ? "空格子列" : "空格子行";
+    public string BlankCellLineLabel => IsVertical ? AppText.Get(Language.EmptyCellColumns) : AppText.Get(Language.EmptyCellRows);
 
     public int TraceIntensityIndex
     {
@@ -563,12 +556,12 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             _contentPreviewSnapshot = null;
             IsDirty = true;
             CloseContentPicker(commit: true);
-            SetStatus($"已应用内容：{entry.Title}");
+            SetLocalizedStatus(Language.ContentApplied, entry.Title);
             return;
         }
 
         ApplyTextEntryToState(entry);
-        SetStatus($"已应用内容：{entry.Title}");
+        SetLocalizedStatus(Language.ContentApplied, entry.Title);
     }
 
     private void ApplyTextEntryToState(TextEntry entry)
@@ -622,7 +615,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         ApplyPreviewFromSnapshot(
             _contentPreviewSnapshot,
             () => ApplyTextEntryToState(entry));
-        SetStatus($"预览内容：{entry.Title}");
+        SetLocalizedStatus(Language.ContentPreview, entry.Title);
     }
 
     private void OpenTemplatePicker()
@@ -672,7 +665,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
         _templatePreviewSnapshot = null;
         CloseTemplatePicker(commit: true);
-        SetStatus($"已应用模板：{module.Name}");
+        SetLocalizedStatus(Language.TemplateApplied, module.Name);
     }
 
     private void PreviewSelectedTemplate()
@@ -696,7 +689,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         ApplyPreviewFromSnapshot(
             _templatePreviewSnapshot,
             () => ApplyModuleDefaults(module, preserveContent: true, preservedContent));
-        SetStatus($"预览模板：{module.Name}");
+        SetLocalizedStatus(Language.TemplatePreview, module.Name);
     }
 
     private void ClearPreviewTemplateModule()
@@ -893,8 +886,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     public int PageCount => Pages.Count;
 
     public string PageIndicator => PageCount == 0
-        ? "暂无内容"
-        : $"第 {PageIndex + 1} / {PageCount} 页";
+        ? AppText.Get(Language.NoContent)
+        : AppText.Format(Language.PagePosition, PageIndex + 1, PageCount);
 
     public DelegateCommand GoBackCommand { get; }
 
@@ -947,7 +940,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     }
 
     public string DocumentDisplayPath => string.IsNullOrWhiteSpace(DocumentPath)
-        ? $"未保存文档{(IsDirty ? " *" : string.Empty)}"
+        ? AppText.Get(Language.UnsavedDocument) + (IsDirty ? " *" : string.Empty)
         : $"{DocumentPath}{(IsDirty ? " *" : string.Empty)}";
 
     public bool IsDirty
@@ -970,8 +963,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     {
         FlushPendingRebuild();
         SheetExporter.ExportPdf(path, Spec, Pages);
-        SetStatus($"已导出 PDF：{Path.GetFileName(path)}");
-        ZitieLogging.Info($"已导出 PDF：{path}");
+        SetLocalizedStatus(Language.ExportedPdf, Path.GetFileName(path));
+        ZitieLogging.Info(AppText.Format(Language.ExportedPdf, path));
     }
 
     public void ExportPngTo(string path)
@@ -980,8 +973,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         if (PageIndex < 0 || PageIndex >= Pages.Count) return;
 
         SheetExporter.ExportPng(path, Spec, Pages[PageIndex], PageCount);
-        SetStatus($"已导出 PNG：{Path.GetFileName(path)}");
-        ZitieLogging.Info($"已导出 PNG：{path}");
+        SetLocalizedStatus(Language.ExportedPng, Path.GetFileName(path));
+        ZitieLogging.Info(AppText.Format(Language.ExportedPng, path));
     }
 
     public void ExportPngsTo(string directory, double dpi = 300)
@@ -995,8 +988,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             SheetExporter.ExportPng(path, Spec, Pages[index], PageCount, dpi);
         }
 
-        SetStatus($"已导出 {Pages.Count} 张 PNG");
-        ZitieLogging.Info($"已批量导出 PNG：{directory}");
+        SetLocalizedStatus(Language.ExportedPngPages, Pages.Count);
+        ZitieLogging.Info(AppText.Format(Language.ExportedPngFolder, directory));
     }
 
     public void SaveDocumentTo(string path)
@@ -1005,7 +998,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         SheetDocumentStore.Save(path, Spec, _module?.Id);
         DocumentPath = path;
         IsDirty = false;
-        SetStatus($"已保存：{Path.GetFileName(path)}");
+        SetLocalizedStatus(Language.DocumentSaved, Path.GetFileName(path));
     }
 
     public void LoadDocumentFrom(string path)
@@ -1027,7 +1020,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         DocumentPath = path;
         RebuildImmediately();
         IsDirty = false;
-        SetStatus($"已打开：{Path.GetFileName(path)}");
+        SetLocalizedStatus(Language.DocumentOpened, Path.GetFileName(path));
     }
 
     public void SaveTemplateTo(string path, string? name = null)
@@ -1036,12 +1029,28 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         SheetDocumentStore.SaveTemplate(path, Spec, name ?? Title);
         _catalog.Reload();
         RefreshTemplateChoices();
-        SetStatus($"已保存模板：{Path.GetFileName(path)}");
+        SetLocalizedStatus(Language.TemplateSaved, Path.GetFileName(path));
     }
 
     public void SetStatus(string message)
     {
+        _statusKey = null;
         StatusMessage = message;
+    }
+
+    private void SetLocalizedStatus(string key, params object?[] arguments)
+    {
+        _statusKey = key;
+        _statusArguments = arguments;
+        StatusMessage = AppText.Format(key, arguments);
+    }
+
+    protected override void OnCultureChanged()
+    {
+        var charCount = InputText.Count(char.IsLetterOrDigit);
+        InputTextSummary = charCount > 0 ? AppText.Format(Language.CharacterCount, charCount) : string.Empty;
+        if (_statusKey is not null) _statusMessage = AppText.Format(_statusKey, _statusArguments);
+        base.OnCultureChanged();
     }
 
     public bool CanExport => PageCount > 0;
@@ -1067,7 +1076,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
             _module,
             PageIndex,
             IsDirty,
-            StatusMessage);
+            StatusMessage,
+            _statusKey,
+            _statusArguments);
     }
 
     private void ApplyPreviewFromSnapshot(EditorPreviewSnapshot snapshot, Action applyPreview)
@@ -1113,6 +1124,8 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         _selectedSheetFont = snapshot.SelectedSheetFont;
         _pageIndex = snapshot.PageIndex;
         _statusMessage = snapshot.StatusMessage;
+        _statusKey = snapshot.StatusKey;
+        _statusArguments = snapshot.StatusArguments;
         SetCurrentModule(snapshot.Module);
         RaisePropertyChanged(string.Empty);
     }
@@ -1185,7 +1198,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
     private void Rebuild()
     {
         var charCount = InputText.Count(char.IsLetterOrDigit);
-        InputTextSummary = charCount > 0 ? $"{charCount} 字" : string.Empty;
+        InputTextSummary = charCount > 0 ? AppText.Format(Language.CharacterCount, charCount) : string.Empty;
 
         var headerPreset = (SheetHeaderPreset)Math.Clamp(HeaderPresetIndex, 0, HeaderPresetChoices.Length - 1);
         var traceIntensity = (TraceIntensity)Math.Clamp(TraceIntensityIndex, 0, TraceIntensityChoices.Length - 1);
@@ -1335,7 +1348,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
         RebuildImmediately();
         IsDirty = true;
-        SetStatus($"已切换模板：{module.Name}");
+        SetLocalizedStatus(Language.TemplateSwitched, module.Name);
     }
 
     private void ApplyModuleDefaults(
@@ -1557,13 +1570,13 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         }
         catch (Exception exception)
         {
-            ZitieLogging.Warn("编辑页模板目录加载失败", exception);
+            ZitieLogging.Warn(AppText.Get(Language.TemplateLoadFailed), exception);
             if (!_isDisposed)
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     if (_isNavigationActive)
-                        SetStatus($"模板加载失败：{exception.Message}");
+                        SetLocalizedStatus(Language.TemplateLoadError, exception.Message);
                 });
             }
         }
@@ -1577,14 +1590,14 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         _pendingNavigationModuleId = null;
         if (string.IsNullOrWhiteSpace(moduleId))
         {
-            SetStatus("已就绪");
+            SetLocalizedStatus(Language.Ready);
             return;
         }
 
         var module = _catalog.Find(moduleId);
         if (module is null)
         {
-            SetStatus("已就绪");
+            SetLocalizedStatus(Language.Ready);
             return;
         }
 
@@ -1602,7 +1615,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
         RebuildImmediately();
         IsDirty = false;
-        SetStatus("已就绪");
+        SetLocalizedStatus(Language.Ready);
     }
 
     private void ConfigureTemplateSearchDebounce()
@@ -1748,7 +1761,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
 
         RebuildImmediately();
         IsDirty = false;
-        SetStatus(_catalog.IsLoaded ? "已就绪" : "正在加载模板...");
+        SetLocalizedStatus(_catalog.IsLoaded ? Language.Ready : Language.LoadingTemplates);
     }
 
     private void ResetEditorState()
@@ -1760,7 +1773,7 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         _zoom = DefaultZoom;
         _pageIndex = 0;
         _documentPath = null;
-        _statusMessage = "已就绪";
+        _statusMessage = AppText.Get(Language.Ready);
         _isDirty = false;
         _isRebuildQueued = false;
         _isContentPickerOpen = false;
@@ -1805,7 +1818,9 @@ public class SheetEditorViewModel : BindableBase, INavigationAware, IDisposable
         ModuleDefinition? Module,
         int PageIndex,
         bool IsDirty,
-        string StatusMessage);
+        string StatusMessage,
+        string? StatusKey,
+        object?[] StatusArguments);
 
     private sealed record ContentSnapshot(
         string InputText,

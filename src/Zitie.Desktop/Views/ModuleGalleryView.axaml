@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="https://codewf.com" xmlns:q="using:Zitie.Desktop.I18n"
              xmlns:vm="using:Zitie.Desktop.ViewModels"
              xmlns:controls="using:Zitie.Desktop.Controls"
              xmlns:zitie="using:Zitie.Avalonia.Controls"
@@ -16,21 +17,21 @@
                     <Border Classes="page-title-accent" />
                     <StackPanel Spacing="5">
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                            <TextBlock Text="样式分类" Classes="page-title" />
+                            <TextBlock Text="{l:I18n {x:Static q:Language.StyleCategories}}" Classes="page-title" />
                             <TextBlock Text="TEMPLATE GALLERY" Classes="page-title-en" />
                         </StackPanel>
-                        <TextBlock Text="选择模板开始生成字帖 · 内置模板与自定义模板均为 YAML 配方，可随意改造"
+                        <TextBlock Text="{l:I18n {x:Static q:Language.GallerySubtitle}}"
                                    Classes="page-subtitle" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
-                    <Button Content="打开模板目录"
+                    <Button Content="{l:I18n {x:Static q:Language.OpenTemplateFolder}}"
                             Classes="gallery-action"
-                            AutomationProperties.Name="打开模板目录"
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.OpenTemplateFolder}}"
                             Command="{Binding OpenTemplateDirectoryCommand}" />
-                    <Button Content="刷新"
+                    <Button Content="{l:I18n {x:Static q:Language.Refresh}}"
                             Classes="gallery-action"
-                            AutomationProperties.Name="刷新模板库"
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.RefreshGallery}}"
                             Command="{Binding RefreshCommand}" />
                 </StackPanel>
             </Grid>
@@ -54,8 +55,8 @@
                 <TextBox Grid.Column="1"
                          Classes="gallery-search"
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         AutomationProperties.Name="搜索模板"
-                         PlaceholderText="搜索">
+                         AutomationProperties.Name="{l:I18n {x:Static q:Language.SearchTemplates}}"
+                         PlaceholderText="{l:I18n {x:Static q:Language.Search}}">
                     <TextBox.InnerLeftContent>
                         <controls:ZitieIcon Data="M11 4a7 7 0 1 0 7 7 7 7 0 0 0-7-7z M20 20l-3.5-3.5"
                                             IconSize="15"
@@ -65,7 +66,7 @@
                     </TextBox.InnerLeftContent>
                 </TextBox>
                 <TextBlock Grid.Column="2"
-                           Text="{Binding FilteredModuleCount, StringFormat={}{0} 个模板}"
+                           Text="{Binding FilteredModuleSummary}"
                            Classes="gallery-count"
                            VerticalAlignment="Center" />
             </Grid>
@@ -91,7 +92,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Text="未找到匹配的模板"
+                <TextBlock Text="{l:I18n {x:Static q:Language.NoTemplatesFound}}"
                            Classes="module-empty"
                            IsVisible="{Binding IsEmpty}"
                            ZIndex="2" />
@@ -188,7 +189,7 @@
                                                     <TextBlock Text="{Binding Module.Name}"
                                                                Classes="module-card-title"
                                                                TextTrimming="CharacterEllipsis" />
-                                                    <TextBlock Text="{Binding Module.Description}"
+                                                    <TextBlock Text="{Binding Description}"
                                                                Classes="module-card-desc"
                                                                TextWrapping="Wrap" />
                                                     <StackPanel Margin="0,4,0,0">
@@ -200,7 +201,7 @@
                                                     </StackPanel>
                                                 </StackPanel>
                                                 <Border Grid.RowSpan="2" Classes="card-overlay">
-                                                    <TextBlock Text="开始生成 →" Classes="card-overlay-text" />
+                                                    <TextBlock Text="{l:I18n {x:Static q:Language.StartGenerating}}" Classes="card-overlay-text" />
                                                 </Border>
                                             </Grid>
                                         </Button>
@@ -221,14 +222,14 @@
                       ColumnDefinitions="Auto,Auto,Auto"
                       ColumnSpacing="8"
                       VerticalAlignment="Center">
-                    <TextBlock Text="缩放"
+                    <TextBlock Text="{l:I18n {x:Static q:Language.Zoom}}"
                                Classes="gallery-count"
                                VerticalAlignment="Center" />
                     <Slider Grid.Column="1"
                             Width="{StaticResource ZitieStageZoomSliderWidth}"
                             Classes="gallery-zoom"
-                            AutomationProperties.Name="模板块缩放"
-                            ToolTip.Tip="缩放模板块大小"
+                            AutomationProperties.Name="{l:I18n {x:Static q:Language.CardZoom}}"
+                            ToolTip.Tip="{l:I18n {x:Static q:Language.ZoomTemplateCards}}"
                             Minimum="{Binding MinimumZoom}"
                             Maximum="{Binding MaximumZoom}"
                             TickFrequency="0.05"

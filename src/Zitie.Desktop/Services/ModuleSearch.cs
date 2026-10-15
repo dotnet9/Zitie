@@ -38,7 +38,11 @@ public static class ModuleSearch
 
     private static JiebaSegmenter CreateSegmenter()
     {
-        ConfigManager.ConfigFileBaseDir = Path.Combine(AppContext.BaseDirectory, "Resources");
+        // Jieba 内部使用默认反序列化器，显式保留模型字典的原生转换器，避免 AOT 退回整句搜索。
+        _ = JiebaModelJsonContext.Default.GetTypeInfo(typeof(IDictionary<char, IDictionary<char, double>>));
+        var direct = Path.Combine(AppContext.BaseDirectory, "Resources");
+        var bundled = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources", "Resources"));
+        ConfigManager.ConfigFileBaseDir = Directory.Exists(direct) ? direct : bundled;
         return new JiebaSegmenter();
     }
 

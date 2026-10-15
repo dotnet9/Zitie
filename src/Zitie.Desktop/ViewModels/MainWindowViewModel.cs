@@ -13,7 +13,7 @@ namespace Zitie.Desktop.ViewModels;
 ///     当前页面高亮通过监听 MainRegion 的导航完成事件同步，
 ///     无论是导航栏点击、模板卡片打开还是编辑页返回，都能保持一致。
 /// </summary>
-public class MainWindowViewModel : BindableBase
+public class MainWindowViewModel : LocalizedBindableBase
 {
     private const string MainRegionName = "MainRegion";
     private const string GalleryViewName = "ModuleGallery";
@@ -29,6 +29,7 @@ public class MainWindowViewModel : BindableBase
     {
         _regionManager = regionManager;
         _deviceSettings = deviceSettings;
+        Appearance = new AppearanceViewModel(deviceSettings);
 
         NavigateGalleryCommand = new DelegateCommand(
             () => _regionManager.RequestNavigate(MainRegionName, GalleryViewName));
@@ -47,6 +48,8 @@ public class MainWindowViewModel : BindableBase
     public DelegateCommand NavigateEditorCommand { get; }
 
     public DelegateCommand ToggleLogCommand { get; }
+
+    public AppearanceViewModel Appearance { get; }
 
     public double MinimumUiFontSize => DeviceSettingsService.MinimumUiFontSize;
 

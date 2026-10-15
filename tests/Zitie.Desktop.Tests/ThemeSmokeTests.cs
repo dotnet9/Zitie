@@ -19,7 +19,7 @@ public sealed class ThemeSmokeTests
     {
         var accent = Resource<SolidColorBrush>("ZitieAccentBrush");
 
-        Assert.Equal(Color.Parse("#B04A3F"), accent.Color);
+        Assert.Equal(Resource<SolidColorBrush>("StudioAccent").Color, accent.Color);
         Assert.Same(accent, Resource<SolidColorBrush>("CheckBoxCheckedDefaultBackground"));
         Assert.Same(accent, Resource<SolidColorBrush>("SliderTrackForeground"));
         Assert.IsType<ControlTheme>(Resource<object>("ZitieEditorTabItemTheme"));
@@ -73,7 +73,7 @@ public sealed class ThemeSmokeTests
     private static T Resource<T>(string key)
     {
         var application = Assert.IsAssignableFrom<Application>(Application.Current);
-        Assert.True(application.TryFindResource(key, out var value));
+        Assert.True(application.TryGetResource(key, application.ActualThemeVariant, out var value));
         return Assert.IsAssignableFrom<T>(value);
     }
 }

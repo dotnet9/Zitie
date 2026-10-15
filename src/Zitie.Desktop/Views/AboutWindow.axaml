@@ -1,0 +1,37 @@
+<codewf:CodeWFWindow xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:codewf="https://codewf.com" xmlns:q="using:Zitie.Desktop.I18n" xmlns:vm="using:Zitie.Desktop.ViewModels"
+                    x:Class="Zitie.Desktop.Views.AboutWindow" x:DataType="vm:AboutViewModel"
+                    Title="{codewf:I18n {x:Static q:Language.About}}" Width="600" Height="580" MinWidth="520" MinHeight="500"
+                    WindowStartupLocation="CenterOwner" CanMinimize="False" CanMaximize="False"
+                    Background="{DynamicResource StudioSurface}" TitleBarBackground="{DynamicResource StudioSurface}"
+                    Foreground="{DynamicResource StudioText}" TitleBarForeground="{DynamicResource StudioText}">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="28" Spacing="18">
+        <Grid ColumnDefinitions="56,*" ColumnSpacing="16">
+            <Image Width="56" Height="56" Source="avares://Zitie.Desktop/Assets/logo.png" />
+            <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                <TextBlock Text="{codewf:I18n {x:Static q:Language.ProductName}}" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock Text="{codewf:I18n {x:Static q:Language.AppDescription}}" Foreground="{DynamicResource StudioMuted}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+        <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
+            <TextBlock Text="{codewf:I18n {x:Static q:Language.Version}}" /><TextBlock Grid.Column="1" Text="{Binding VersionText}" />
+            <TextBlock Grid.Row="1" Text="{codewf:I18n {x:Static q:Language.Platform}}" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PlatformText}" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="2" Text="{codewf:I18n {x:Static q:Language.BuildTime}}" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding BuildTimeText}" />
+            <TextBlock Grid.Row="3" Text="{codewf:I18n {x:Static q:Language.Author}}" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{codewf:I18n {x:Static q:Language.AuthorName}}" />
+        </Grid>
+        <TextBlock Text="https://github.com/dotnet9/Zitie" FontSize="12" Foreground="{DynamicResource StudioMuted}" />
+        <Border Height="1" Background="{DynamicResource StudioBorder}" />
+        <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" />
+        <TextBlock Text="{codewf:I18n {x:Static q:Language.ManualUpdateHint}}" IsVisible="{Binding NeedsReleasePage}" Foreground="{DynamicResource StudioMuted}" TextWrapping="Wrap" />
+        <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" IsVisible="{Binding IsDownloading}" />
+        <WrapPanel>
+            <Button Margin="0,0,8,8" Content="{codewf:I18n {x:Static q:Language.CheckUpdates}}" Command="{Binding CheckCommand}" IsEnabled="{Binding !IsChecking}" />
+            <Button Margin="0,0,8,8" Content="{codewf:I18n {x:Static q:Language.Download}}" Command="{Binding DownloadCommand}" IsVisible="{Binding CanDownload}" />
+            <Button Margin="0,0,8,8" Content="{codewf:I18n {x:Static q:Language.Install}}" Command="{Binding InstallCommand}" IsVisible="{Binding IsReady}" />
+            <Button Margin="0,0,8,8" Content="{codewf:I18n {x:Static q:Language.OpenReleasePage}}" Command="{Binding OpenReleasePageCommand}" IsVisible="{Binding NeedsReleasePage}" />
+            <Button Margin="0,0,8,8" Content="{codewf:I18n {x:Static q:Language.Cancel}}" Command="{Binding CancelCommand}" IsVisible="{Binding IsDownloading}" />
+        </WrapPanel>
+        <TextBlock Text="{Binding ReleaseNotes}" IsVisible="{Binding HasReleaseNotes}" TextWrapping="Wrap" />
+        <TextBlock Text="{codewf:I18n {x:Static q:Language.Copyright}}" FontSize="12" Foreground="{DynamicResource StudioMuted}" />
+    </StackPanel></ScrollViewer>
+</codewf:CodeWFWindow>

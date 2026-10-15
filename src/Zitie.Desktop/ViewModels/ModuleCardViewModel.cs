@@ -11,7 +11,7 @@ namespace Zitie.Desktop.ViewModels;
 /// <summary>
 ///     模块卡片展示项：包一层命令，避免视图里做 $parent 绑定。
 /// </summary>
-public sealed class ModuleCardViewModel : BindableBase, IDisposable
+public sealed class ModuleCardViewModel : LocalizedBindableBase, IDisposable
 {
     public const double BaseCardWidth = 244;
     public const double CardHorizontalSpacing = 16;
@@ -92,13 +92,15 @@ public sealed class ModuleCardViewModel : BindableBase, IDisposable
 
     public double PreviewZoom => Math.Round(BasePreviewZoom * CardZoom, 3, MidpointRounding.AwayFromZero);
 
-    public string CategoryText => Module.Categories.FirstOrDefault() ??
-                                  Module.Category ??
-                                  "自定义";
+    public string CategoryText => CatalogText.DisplayCategory(Module.Categories.FirstOrDefault() ?? Module.Category);
+
+    public string Description => Module.Kind == "styleTemplate"
+        ? AppText.Format(Language.StyleTemplateDescription, string.Join(" / ", Module.Categories.Select(CatalogText.DisplayCategory)))
+        : Module.Description;
 
     public string StatusText => Module.Enabled
-        ? $"示例模板 · {GridText}"
-        : "即将上线";
+        ? AppText.Format(Language.SampleTemplate, GridText)
+        : AppText.Get(Language.ComingSoon);
 
     internal bool IsPreviewMaterialized => _preview is not null;
 
@@ -177,14 +179,14 @@ public sealed class ModuleCardViewModel : BindableBase, IDisposable
 
     private string GridText => ModulePreviewFactory.ParseGrid(Module.Defaults.Grid) switch
     {
-        GridKind.None => "无格线",
-        GridKind.Tian => "田字格",
-        GridKind.HuiGong => "回宫格",
-        GridKind.Nine => "九宫格",
-        GridKind.Pinyin => "拼音四线格",
-        GridKind.English => "四线三格",
-        GridKind.Plain => "方格",
-        _ => "米字格"
+        GridKind.None => AppText.Get(Language.NoGrid),
+        GridKind.Tian => AppText.Get(Language.FieldGrid),
+        GridKind.HuiGong => AppText.Get(Language.PalaceGrid),
+        GridKind.Nine => AppText.Get(Language.NineGrid),
+        GridKind.Pinyin => AppText.Get(Language.PinyinGrid),
+        GridKind.English => AppText.Get(Language.FourLineGrid),
+        GridKind.Plain => AppText.Get(Language.SquareGrid),
+        _ => AppText.Get(Language.RiceGrid)
     };
 
     private ModulePreview Preview => _preview ??= ModulePreviewFactory.Create(Module);

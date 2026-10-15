@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
@@ -6,12 +6,13 @@
     <JiebaNetResourcePackageVersion>0.42.2</JiebaNetResourcePackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="CodeWF.Toolkit.Core" Version="1.0.0.1" />
+    <PackageVersion Include="CodeWF.Toolkit.Core" Version="1.0.0.19" />
     <!-- Avalonia -->
     <PackageVersion Include="Avalonia" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Desktop" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.1.4" />
     <PackageVersion Include="Avalonia.Headless" Version="12.1.4" />
+    <PackageVersion Include="Avalonia.Skia" Version="12.1.4" />
     <!-- 渲染 -->
     <PackageVersion Include="SkiaSharp" Version="4.151.1" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="4.151.1" />
@@ -23,8 +24,10 @@
     <PackageVersion Include="Irihi.Ursa" Version="2.2.0" />
     <PackageVersion Include="Irihi.Ursa.Themes.Semi" Version="2.2.0" />
     <!-- MVVM / DI / 日志 -->
-    <PackageVersion Include="CodeWF.Avalonia.Controls" Version="12.1.4.1" />
-    <PackageVersion Include="CodeWF.Avalonia.Log" Version="12.1.4.1" />
+    <PackageVersion Include="CodeWF.Toolkit.Lang" Version="1.0.0.19" />
+    <PackageVersion Include="CodeWF.Avalonia.Lang" Version="12.1.4.20" />
+    <PackageVersion Include="CodeWF.Avalonia.Controls" Version="12.1.4.20" />
+    <PackageVersion Include="CodeWF.Avalonia.Log" Version="12.1.4.20" />
     <PackageVersion Include="Markdig" Version="1.3.2" />
     <PackageVersion Include="Prism.Avalonia" Version="8.1.97.11073" />
     <PackageVersion Include="Prism.DryIoc.Avalonia" Version="8.1.97.11073" />
