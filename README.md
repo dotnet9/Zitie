@@ -2,7 +2,11 @@
 
 Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖生成器，适合生字描红、临摹、古诗抄写、拼音练习和自定义文本排版。
 
-![Zitie 模板库与界面轮播](docs/media/design-tour.gif)
+| 实际模板库 · .NET 紫 | 实际字帖编辑器 |
+| :---: | :---: |
+| ![](docs/media/gallery-dotnet.png) | ![](docs/media/editor-layout.png) |
+
+以上截图来自实际 Windows NativeAOT 程序的 Skia 离屏运行。历史原型轮播见 [design-tour.gif](docs/media/design-tour.gif)，原型与实际界面的验证范围见 [验证记录](docs/UI-VERIFICATION.md)。
 
 ## 下载安装
 
@@ -23,6 +27,8 @@ Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖
 - 模板库支持关键词搜索、分类筛选、模板块缩放、Ctrl+滚轮缩放和刷新用户模板目录。
 - 软件字号可用 12-30 的滑块按设备显示效果调整，并保存到本机设置。
 - `.zitie.json` 文档保存/打开，内置模板由 223 个样式示例图驱动。
+- 三态明暗模式与八套共享配色分别保存，含 .NET 紫、极光和余烬；已打开的窗口、选项和字体分类可切换中英文。
+- 独立关于窗口显示真实版本、平台与编译时间，使用 CodeWF.Toolkit 检查更新、下载、SHA-256 校验、取消与安装；无匹配平台资产时提供发布页入口。
 
 ## 使用
 
@@ -86,10 +92,28 @@ dotnet build Zitie.slnx -c Release --no-restore
 发布脚本位于仓库根目录，支持 `win-x64`、`linux-x64`、`linux-arm64`、`osx-x64` 和 `osx-arm64`：
 
 ```powershell
-pwsh ./scripts/publish_demo.ps1 -RuntimeIdentifier win-x64
+pwsh ./scripts/publish.ps1 -RuntimeIdentifier win-x64
 ```
 
-全平台启用 NativeAOT；macOS/Linux 保留完整反射元数据且不做单文件合并，以兼容 Avalonia、Prism 和日志组件的反射绑定。
+全平台启用 NativeAOT 并保留完整反射元数据，以兼容 Avalonia、Prism 和日志组件。各平台在对应系统、架构的 runner 上原生发布；macOS 应用包搬移资源后再次执行自检。
+
+## 原型与国际化维护
+
+[design/index.html](design/index.html) 是唯一原型交付文件，复制到空目录后可直接离线交互，无网络字体、外部图片或脚本依赖。维护源位于 `scripts/prototype-source` 与 `design/assets`；目录快照来自实际应用的 326 个合并模板和 292 条内容，223 张示例图与 103 张实际预览缩略图一同内嵌。
+
+宿主 `I18n/zh-CN.json`、`en-US.json` 输出到程序目录，`Language.tt` 生成强类型键。全局语言只使用 Toolkit 的单个管理器；引用库保持内嵌资源，应用同键覆盖由库统一处理。
+
+```powershell
+pwsh scripts/sync_localization_keys.ps1 -Check
+dotnet run --project scripts/ui-verification/UiVerification.csproj -c Release -- artifacts/ui-verification
+pwsh scripts/sync_prototype_catalog.ps1 -Check
+pwsh scripts/build_prototype.ps1 -Check
+npm ci --prefix design/tests
+npx --prefix design/tests playwright install chromium
+node design/tests/audit-prototype.cjs
+```
+
+模板/内容变化后先运行实际界面验证，再执行 `scripts/sync_prototype_catalog.ps1`；需要更新目录模板缩略图时添加 `--export-previews`，将输出 `previews` 同步到 `design/assets/previews`。最后运行 `scripts/build_prototype.ps1`。字体需要新增字形时，用 `fonttools[woff]` 执行 `scripts/subset_prototype_font.py`，继续遵守 OFL 许可。
 
 ## 项目结构
 
