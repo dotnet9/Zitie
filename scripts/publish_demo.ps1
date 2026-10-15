@@ -72,6 +72,11 @@ else {
     )
 }
 
+if ($RuntimeIdentifier -like "osx-*") {
+    # Apple 经典链接器不支持压缩调试段；仅关闭压缩，保留完整运行时元数据。
+    $publishArguments += "-p:CompressSymbols=false"
+}
+
 Write-Host "Publishing Zitie.Desktop for $RuntimeIdentifier..."
 & dotnet @publishArguments
 if ($LASTEXITCODE -ne 0) {
