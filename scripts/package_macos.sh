@@ -214,6 +214,12 @@ package_rid() {
   dmg_path="$(create_dmg "$rid" "$version" "$app_dir")"
   notarize_dmg "$dmg_path"
 
+  # 公证装订会改变 DMG，必须在最终产物确定后生成同目录校验文件。
+  (
+    cd "$(dirname "$dmg_path")"
+    shasum -a 256 "$(basename "$dmg_path")" > "$(basename "$dmg_path").sha256"
+  )
+
   echo "Created: $dmg_path"
 }
 

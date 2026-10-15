@@ -44,6 +44,10 @@ jobs:
           pwsh scripts/sync_prototype_catalog.ps1 -Check
           pwsh scripts/build_prototype.ps1 -Check
 
+      - name: 验证五平台安装包门禁
+        shell: pwsh
+        run: ./scripts/tests/release_installers_test.ps1
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -171,7 +175,12 @@ jobs:
           } while ((Get-Date) -lt $deadline)
           if ($dmgs.Count -eq 0) { throw "No dmg found under artifacts/macos" }
           foreach ($d in $dmgs) {
+            $checksumPath = $d.FullName + '.sha256'
+            if (-not (Test-Path -LiteralPath $checksumPath -PathType Leaf)) {
+              throw "DMG checksum was not produced: $checksumPath"
+            }
             Copy-Item -LiteralPath $d.FullName -Destination "artifacts/release/$($d.Name)" -Force
+            Copy-Item -LiteralPath $checksumPath -Destination "artifacts/release/$($d.Name).sha256" -Force
           }
           $copied = @(Get-ChildItem artifacts/release -Filter *.dmg -File)
           if ($copied.Count -eq 0) { throw "Copy produced no files" }
@@ -212,6 +221,10 @@ jobs:
           }
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "tag_name=$tagName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: 校验五平台安装包与 SHA-256
+        shell: pwsh
+        run: ./scripts/verify_release_installers.ps1 -Version '${{ steps.version.outputs.version }}'
 
       - name: 准备发布说明
         shell: pwsh
