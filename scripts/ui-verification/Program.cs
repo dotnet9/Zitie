@@ -151,6 +151,7 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     model.Appearance.SelectedLanguage = model.Appearance.Languages.Single(option => option.Key == culture); Pump();
     Check(I18nManager.Instance.Culture.Name == culture && settings.Language == culture, "Existing editor keeps the requested language without selection feedback");
     Check(about.Title == AppText.Get(Language.About), "Existing about window follows global language");
+    Check(!about.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_MinimizeButton").IsEnabled && !about.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_MaximizeRestoreButton").IsEnabled,"About respects disabled minimize and maximize capabilities");
     Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.2", "About uses actual assembly metadata");
     Check(editor.GridKindIndex == 2 && editor.PracticeModeIndex == 1 && editor.BackgroundIndex == 3 && editor.HeaderPresetIndex == 3 && editor.PageSizeIndex == 1 && editor.TraceIntensityIndex == 5, "Existing localized choices retain every selected parameter");
     editor.SettingsTabIndex = 1; Pump();
