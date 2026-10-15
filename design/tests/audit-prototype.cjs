@@ -39,6 +39,10 @@ const { pathToFileURL } = require('node:url');
     await page.evaluate(() => document.fonts.ready);
     const frame = await page.locator('.window').evaluate(element => ({ border: parseFloat(getComputedStyle(element).borderTopWidth), title: element.querySelector('.titlebar').getBoundingClientRect().height, buttons: element.querySelectorAll('.titlebar .window-buttons button').length }));
     check(frame.border >= 1 && frame.title >= 32 && frame.buttons === 3, 'Desktop window frame and caption buttons are rendered');
+    check(await page.locator('.titlebar').evaluate(element=>{
+      const brand=element.querySelector('.brand').getBoundingClientRect(),palette=element.querySelector('#palette').getBoundingClientRect(),mode=element.querySelector('#mode').getBoundingClientRect(),language=element.querySelector('#language').getBoundingClientRect();
+      return Math.abs(mode.width-30)<1 && Math.abs(language.width-30)<1 && palette.left-brand.right<=14 && mode.left-palette.right<=9 && language.left-mode.right<=9 && [...element.querySelectorAll('.window-buttons button')].every(button=>parseFloat(getComputedStyle(button).width)===32);
+    }),'Title-bar icons keep native widths and compact spacing beside the brand');
     check(JSON.stringify(await page.locator('.titlebar .window-buttons button').evaluateAll(buttons=>buttons.map(button=>button.dataset.window)))===JSON.stringify(['minimize','maximize','close']),'Each caption button has the correct identity');
     await page.click('[data-window="minimize"]'); check(await page.locator('.window').evaluate(element => element.classList.contains('is-minimized')), 'Window minimize control changes the frame');
     check(!(await page.locator('.window > .body').isVisible()),'Minimize hides the main content');
