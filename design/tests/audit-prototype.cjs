@@ -111,11 +111,15 @@ const { pathToFileURL } = require('node:url');
       await page.click('#show-about'); await capture(`about-${language}`);
       check((await page.locator('#about .metadata').textContent()).includes('2026-10-15 00:00:00'), 'About uses the fixed design build-time sample');
       check(await page.locator('#about .window-buttons button').count() === 3, 'About contains standard desktop window commands');
+      check(await page.locator('#about [data-about="minimize"]').isDisabled() && await page.locator('#about [data-about="maximize"]').isDisabled(),'About caption capabilities match the native window');
+      await page.locator('#about [data-about="minimize"]').evaluate(button=>button.click());
+      check(!(await page.locator('#about').evaluate(element=>element.classList.contains('is-minimized'))),'Disabled About caption buttons do not change its layout');
       await page.click('[data-update="check"]'); await page.waitForSelector('[data-update="download"]');
       await capture(`update-available-${language}`);
       await page.click('[data-update="download"]'); await page.waitForSelector('[data-update="install"]');
       await capture(`update-ready-${language}`); await page.click('[data-update="install"]');
       await page.click('#close-about');
+      check(!(await page.locator('#about').isVisible()),'About close hides its window');
     }
     await page.click('[data-route="gallery"]'); await page.fill('#gallery-search', 'nqez-945');
     check(await page.locator('.card').count() === 2, 'Partial ID search keeps both matching templates');
