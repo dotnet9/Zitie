@@ -23,6 +23,7 @@ Usage:
   ./package_macos.sh osx-x64|osx-arm64|all
 
 Environment:
+  APP_VERSION              Override the project version for this release.
   APP_NAME                 App bundle name. Default: Zitie
   EXECUTABLE_NAME          Executable inside publish dir. Default: Zitie.Desktop
   BUNDLE_ID                CFBundleIdentifier. Default: com.codewf.zitie
@@ -39,8 +40,10 @@ die() {
 }
 
 resolve_version() {
-  local version
-  version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$ROOT_DIR/Directory.Build.props" | head -n 1)"
+  local version="${APP_VERSION:-}"
+  if [[ -z "$version" ]]; then
+    version="$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' "$ROOT_DIR/Directory.Build.props" | head -n 1)"
+  fi
   [[ -n "$version" ]] || die "Unable to resolve project version from Directory.Build.props."
   echo "$version"
 }
@@ -141,7 +144,7 @@ create_app_bundle() {
   chmod +x "$macos_dir/$EXECUTABLE_NAME"
   create_icon "$resources_dir/$APP_NAME.icns" "$iconset_dir"
   write_info_plist "$contents_dir/Info.plist" "$macos_version"
-  "$macos_dir/$EXECUTABLE_NAME" --selfcheck || die "Relocated NativeAOT resource self-check failed."
+  "$macos_dir/$EXECUTABLE_NAME" --selfcheck >&2 || die "Relocated NativeAOT resource self-check failed."
 
   echo "$app_dir"
 }
@@ -177,7 +180,7 @@ create_dmg() {
   ditto "$app_dir" "$dmg_stage/$APP_NAME.app"
   ln -s /Applications "$dmg_stage/Applications"
 
-  echo "Creating DMG $dmg_path ..."
+  echo "Creating DMG $dmg_path ..." >&2
   hdiutil create \
     -volname "$APP_NAME" \
     -srcfolder "$dmg_stage" \
@@ -209,9 +212,10 @@ package_rid() {
   local app_dir
   local dmg_path
 
-  app_dir="$(create_app_bundle "$rid" "$macos_version")"
+  # 命令替换默认不继承 errexit，显式开启才能传播复制、打包等失败。
+  app_dir="$(set -e; create_app_bundle "$rid" "$macos_version")"
   sign_app_bundle "$app_dir"
-  dmg_path="$(create_dmg "$rid" "$version" "$app_dir")"
+  dmg_path="$(set -e; create_dmg "$rid" "$version" "$app_dir")"
   notarize_dmg "$dmg_path"
 
   # 公证装订会改变 DMG，必须在最终产物确定后生成同目录校验文件。

@@ -48,6 +48,10 @@ jobs:
         shell: pwsh
         run: ./scripts/tests/release_installers_test.ps1
 
+      - name: 验证 macOS 版本、校验文件与失败传播
+        shell: bash
+        run: bash scripts/tests/macos_packaging_test.sh
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
