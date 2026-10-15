@@ -6,6 +6,8 @@ using Avalonia.Headless;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Avalonia.Interactivity;
+using Ursa.Controls;
 using System.Text.Json;
 using CodeWF.Avalonia.Controls.Themes;
 using CodeWF.Toolkit.Core.UpdateChecking;
@@ -60,6 +62,15 @@ using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented 
     writer.WriteEndObject(); writer.WriteEndObject();
 }
 Check(model.Appearance.Palettes.Count == 8 && model.Appearance.Modes.Count == 3, "Eight palettes and three independent modes");
+var paletteSelector=window.GetVisualDescendants().OfType<ListBox>().Single(control=>control.Classes.Contains("title-palettes"));
+Check(paletteSelector.Items.Count==8,"Title bar exposes eight palette dots");
+var themeToggle=window.GetVisualDescendants().OfType<ThemeToggleButton>().Single();
+model.Appearance.ThemeMode=StudioThemeMode.System;Pump();
+foreach(var expected in new[]{StudioThemeMode.Light,StudioThemeMode.Dark,StudioThemeMode.System})
+{
+    themeToggle.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_ThemeButton").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Pump();
+    Check(model.Appearance.ThemeMode==expected && new DeviceSettingsService(settings.SettingsPath).ThemeMode==expected.ToString(),"Actual Ursa theme click persists "+expected);
+}
 if (args.Contains("--export-previews"))
 {
     var previews = Path.Combine(output, "previews"); Directory.CreateDirectory(previews);
@@ -72,7 +83,7 @@ if (args.Contains("--export-previews"))
 }
 foreach (var palette in Enum.GetValues<StudioPalette>())
 {
-    model.Appearance.SelectedPalette = model.Appearance.Palettes.Single(option => option.Key == palette.ToString());
+    paletteSelector.SelectedItem = model.Appearance.Palettes.Single(option => option.Key == palette.ToString());
     foreach (var mode in new[] { "Light", "Dark" })
     {
         model.Appearance.SelectedMode = model.Appearance.Modes.Single(option => option.Key == mode); Pump();
@@ -87,7 +98,18 @@ Check(reload.ThemeMode == "System" && reload.Palette == settings.Palette, "Appea
 foreach (var culture in new[] { "en-US", "zh-CN" })
 {
     var palette = settings.Palette;
-    model.Appearance.SelectedLanguage = model.Appearance.Languages.Single(option => option.Key == culture); Pump();
+    var languageButton=window.GetVisualDescendants().OfType<Button>().Single(button=>button.Flyout is MenuFlyout);
+    var languageMenu=(MenuFlyout)languageButton.Flyout!;languageMenu.ShowAt(languageButton);Pump();
+    var languageItem=languageMenu.ItemsSource!.Cast<AppearanceChoice>().Single(option=>option.Key==culture);
+    Check(languageMenu.IsOpen && languageItem.SelectCommand is not null,"Language popup opens with the actual language catalog");
+    languageItem.SelectCommand!.Execute(null);languageMenu.Hide();Pump();
+    foreach(var mode in new[]{StudioThemeMode.Light,StudioThemeMode.Dark,StudioThemeMode.System})
+    {
+        model.Appearance.ThemeMode=mode;Pump();
+        var key=mode switch{StudioThemeMode.Light=>Language.LightMode,StudioThemeMode.Dark=>Language.DarkMode,_=>Language.SystemMode};
+        var themeButton=themeToggle.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_ThemeButton");
+        Check(ToolTip.GetTip(themeButton) is TextBlock text && text.Text==AppText.Get(key),"Actual Ursa tooltip follows "+culture+" / "+mode);
+    }
     Check(I18nManager.Instance.Culture.Name == culture && settings.Language == culture, "Requested language remains selected globally and in saved preferences");
     Check(window.Title == AppText.Get(Language.WindowTitle), "Existing main window changes language");
     Check(settings.Palette == palette, "Language change retains selected palette");
@@ -129,7 +151,7 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     model.Appearance.SelectedLanguage = model.Appearance.Languages.Single(option => option.Key == culture); Pump();
     Check(I18nManager.Instance.Culture.Name == culture && settings.Language == culture, "Existing editor keeps the requested language without selection feedback");
     Check(about.Title == AppText.Get(Language.About), "Existing about window follows global language");
-    Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.1", "About uses actual assembly metadata");
+    Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.2", "About uses actual assembly metadata");
     Check(editor.GridKindIndex == 2 && editor.PracticeModeIndex == 1 && editor.BackgroundIndex == 3 && editor.HeaderPresetIndex == 3 && editor.PageSizeIndex == 1 && editor.TraceIntensityIndex == 5, "Existing localized choices retain every selected parameter");
     editor.SettingsTabIndex = 1; Pump();
     var gridChoice = window.GetVisualDescendants().OfType<ComboBox>().Single(control => AutomationProperties.GetName(control) == AppText.Get(Language.GridType));
@@ -167,8 +189,8 @@ void Capture(Window target, string name) { Pump(); target.CaptureRenderedFrame()
 sealed class FakeUpdates(string root) : IUpdateService
 {
     public UpdateServiceOptions Options { get; } = new() { Repository = "Zitie", ProductName = "Zitie" };
-    public Version CurrentVersion => new(0, 2, 1);
-    public string CurrentVersionText => "0.2.1";
+    public Version CurrentVersion => new(0, 2, 2);
+    public string CurrentVersionText => "0.2.2";
     public int InstallCalls;
     public string Mode = "available";
     public bool DelayDownload;

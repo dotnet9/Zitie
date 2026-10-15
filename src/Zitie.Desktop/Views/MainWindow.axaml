@@ -5,6 +5,7 @@
                    xmlns:zitie="using:Zitie.Desktop.Controls"
                    xmlns:codewf="https://codewf.com"
                    xmlns:vm="using:Zitie.Desktop.ViewModels"
+                   xmlns:ursa="https://irihi.tech/ursa"
                    x:Class="Zitie.Desktop.Views.MainWindow"
                    x:DataType="vm:MainWindowViewModel"
                    prism:ViewModelLocator.AutoWireViewModel="True"
@@ -20,6 +21,10 @@
                    FontFamily="{DynamicResource ZitieUiFontFamily}"
                    WindowStartupLocation="CenterScreen"
                    TitleBarHeight="44">
+    <Window.Styles>
+        <Style Selector="ListBox.title-palettes ListBoxItem"><Setter Property="Width" Value="24" /><Setter Property="Height" Value="28" /><Setter Property="Padding" Value="4" /><Setter Property="CornerRadius" Value="14" /><Setter Property="Background" Value="Transparent" /><Setter Property="BorderBrush" Value="Transparent" /><Setter Property="BorderThickness" Value="1" /></Style>
+        <Style Selector="ListBox.title-palettes ListBoxItem:selected"><Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" /></Style>
+    </Window.Styles>
     <codewf:CodeWFWindow.LeftContent>
         <StackPanel Margin="14,0,0,0"
                     VerticalAlignment="Center"
@@ -42,15 +47,24 @@
 
     <codewf:CodeWFWindow.TitleBarContent>
         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <ComboBox Width="100" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Modes}" SelectedItem="{Binding Appearance.SelectedMode}" ToolTip.Tip="{l:I18n {x:Static q:Language.ThemeMode}}">
-                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><TextBlock Text="{Binding Text}" /></DataTemplate></ComboBox.ItemTemplate>
-            </ComboBox>
-            <ComboBox Width="132" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Palettes}" SelectedItem="{Binding Appearance.SelectedPalette}" ToolTip.Tip="{l:I18n {x:Static q:Language.Palette}}">
-                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><StackPanel Orientation="Horizontal" Spacing="8"><Border Width="10" Height="10" CornerRadius="5" Background="{Binding Swatch}" VerticalAlignment="Center" /><TextBlock Text="{Binding Text}" /></StackPanel></DataTemplate></ComboBox.ItemTemplate>
-            </ComboBox>
-            <ComboBox Width="112" MinHeight="28" HorizontalContentAlignment="Left" ItemsSource="{Binding Appearance.Languages}" SelectedItem="{Binding Appearance.SelectedLanguage}" ToolTip.Tip="{l:I18n {x:Static q:Language.LanguageName}}">
-                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><TextBlock Text="{Binding Text}" /></DataTemplate></ComboBox.ItemTemplate>
-            </ComboBox>
+            <ListBox Classes="title-palettes" ItemsSource="{Binding Appearance.Palettes}" SelectedItem="{Binding Appearance.SelectedPalette}" Height="28" Padding="0" BorderThickness="0" Background="Transparent" ToolTip.Tip="{l:I18n {x:Static q:Language.Palette}}">
+                <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></ListBox.ItemsPanel>
+                <ListBox.ItemTemplate><DataTemplate x:DataType="vm:AppearanceChoice"><Ellipse Width="14" Height="14" Fill="{Binding Swatch}" ToolTip.Tip="{Binding Text}" AutomationProperties.Name="{Binding Text}" /></DataTemplate></ListBox.ItemTemplate>
+            </ListBox>
+            <ThemeVariantScope x:Name="TitleBarThemeScope" DataContext="{Binding Appearance}" x:DataType="vm:AppearanceViewModel" RequestedThemeVariant="{Binding ThemeMode, Mode=TwoWay, Converter={x:Static codewf:StudioThemeModeConverter.Instance}}">
+                <ThemeVariantScope.Resources>
+                    <TextBlock x:Key="STRING_THEME_TOGGLE_SYSTEM" Text="{l:I18n {x:Static q:Language.SystemMode}}" />
+                    <TextBlock x:Key="STRING_THEME_TOGGLE_LIGHT" Text="{l:I18n {x:Static q:Language.LightMode}}" />
+                    <TextBlock x:Key="STRING_THEME_TOGGLE_DARK" Text="{l:I18n {x:Static q:Language.DarkMode}}" />
+                </ThemeVariantScope.Resources>
+                <ursa:ThemeToggleButton Width="30" Height="30" IsThreeState="True" TargetScope="{Binding #TitleBarThemeScope}" ToolTip.Tip="{l:I18n {x:Static q:Language.ThemeMode}}" />
+            </ThemeVariantScope>
+            <Button Width="30" Height="30" Padding="6" Background="Transparent" ToolTip.Tip="{l:I18n {x:Static q:Language.LanguageName}}" AutomationProperties.Name="{l:I18n {x:Static q:Language.LanguageName}}">
+                <PathIcon Width="17" Height="17" Data="{StaticResource SemiIconLanguage}" />
+                <Button.Flyout><MenuFlyout ItemsSource="{Binding Appearance.Languages}"><MenuFlyout.ItemContainerTheme>
+                    <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="vm:AppearanceChoice"><Setter Property="Header" Value="{Binding Text}" /><Setter Property="Command" Value="{Binding SelectCommand}" /></ControlTheme>
+                </MenuFlyout.ItemContainerTheme></MenuFlyout></Button.Flyout>
+            </Button>
             <Border Classes="device-divider" />
             <TextBlock Classes="device-label" VerticalAlignment="Center" Text="{l:I18n {x:Static q:Language.FontSize}}" />
             <Slider Width="80" Classes="device-font-slider" AutomationProperties.Name="{l:I18n {x:Static q:Language.InterfaceFontSize}}" Minimum="{Binding MinimumUiFontSize}" Maximum="{Binding MaximumUiFontSize}" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding UiFontSize}" />
