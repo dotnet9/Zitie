@@ -30,6 +30,11 @@
     document.documentElement.lang = state.language;
   }
   function localize() {
+    for (const button of document.querySelectorAll('[data-window],[data-about]')) {
+      const action = button.dataset.window || button.dataset.about;
+      const labels = state.language === 'zh-CN' ? { minimize: '最小化', maximize: '最大化或还原', close: '关闭' } : { minimize: 'Minimize', maximize: 'Maximize or restore', close: 'Close' };
+      button.title = labels[action]; button.setAttribute('aria-label', button.title);
+    }
     document.querySelectorAll('[data-text]').forEach(node => node.textContent = t(node.dataset.text));
     document.querySelectorAll('[data-tip]').forEach(node => { node.title = t(node.dataset.tip); node.setAttribute('aria-label', node.title); });
     document.querySelectorAll('[data-placeholder]').forEach(node => node.placeholder = t(node.dataset.placeholder));
@@ -208,6 +213,13 @@
   $('back').onclick = () => navigate('gallery'); $('template-switch').onclick = () => openDrawer('template');
   $('folder').onclick = () => notice('PrototypeFolderAction'); $('refresh').onclick = renderGallery;
   $('show-about').onclick = () => { renderUpdate(); $('about').showModal(); }; $('close-about').onclick = () => $('about').close();
+  for (const button of document.querySelectorAll('[data-window]')) button.onclick = () => {
+    const frame = document.querySelector('.window'), action = button.dataset.window;
+    if (action === 'close') { frame.hidden = true; $('restore-window').hidden = false; }
+    else frame.classList.toggle(action === 'minimize' ? 'is-minimized' : 'is-restored');
+  };
+  for (const button of document.querySelectorAll('[data-about]')) button.onclick = () => $('about').classList.toggle(button.dataset.about === 'minimize' ? 'is-minimized' : 'is-maximized');
+  $('restore-window').onclick = () => { document.querySelector('.window').hidden = false; $('restore-window').hidden = true; };
   $('show-log').onclick = () => { $('log-panel').hidden = !$('log-panel').hidden; $('log').textContent = `Zitie 0.2.1\n${t('TemplateCount', catalog.templates.length)}\n${t('ContentCount', catalog.contents.length)}`; }; $('close-log').onclick = () => $('log-panel').hidden = true;
   $('close-notice').onclick = () => $('notice').close();
   $('save-document').onclick = $('save-as').onclick = () => { const blob = new Blob([JSON.stringify(createDocument(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'practice.zitie.json'; a.click(); URL.revokeObjectURL(a.href); };

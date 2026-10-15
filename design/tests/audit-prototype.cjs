@@ -26,6 +26,13 @@ const { pathToFileURL } = require('node:url');
   try {
     await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
+    const frame = await page.locator('.window').evaluate(element => ({ border: parseFloat(getComputedStyle(element).borderTopWidth), title: element.querySelector('.titlebar').getBoundingClientRect().height, buttons: element.querySelectorAll('.titlebar .window-buttons button').length }));
+    check(frame.border >= 1 && frame.title >= 32 && frame.buttons === 3, 'Desktop window frame and caption buttons are rendered');
+    await page.click('[data-window="minimize"]'); check(await page.locator('.window').evaluate(element => element.classList.contains('is-minimized')), 'Window minimize control changes the frame');
+    await page.click('[data-window="minimize"]');
+    await page.click('[data-window="maximize"]'); check(await page.locator('.window').evaluate(element => element.classList.contains('is-restored')), 'Window restore control changes the frame');
+    await page.click('[data-window="maximize"]');
+    await page.click('[data-window="close"]'); check(await page.locator('#restore-window').isVisible(), 'Closed prototype can be reopened'); await page.click('#restore-window');
     check(await page.evaluate(() => zitie.templateCount === 326 && zitie.contentCount === 292), 'Prototype contains the actual complete catalog');
     for (const language of ['zh-CN', 'en-US']) {
       await page.selectOption('#language', language);
@@ -81,6 +88,8 @@ const { pathToFileURL } = require('node:url');
       check(await page.locator('textarea[data-state="text"]').inputValue().then(text => text.includes('床前')), 'Content selection updates the practice text');
       await page.click('#template-switch'); await page.fill('#drawer-query', 'nqez-945'); await capture(`template-picker-${language}`); await page.keyboard.press('Escape');
       await page.click('#show-about'); await capture(`about-${language}`);
+      check((await page.locator('#about .metadata').textContent()).includes('2026-10-15 00:00:00'), 'About uses the fixed design build-time sample');
+      check(await page.locator('#about .window-buttons button').count() === 3, 'About contains standard desktop window commands');
       await page.click('[data-update="check"]'); await page.waitForSelector('[data-update="download"]');
       await capture(`update-available-${language}`);
       await page.click('[data-update="download"]'); await page.waitForSelector('[data-update="install"]');

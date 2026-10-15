@@ -6,12 +6,16 @@
 #tabs button svg{display:block;margin:0 auto 3px;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #sheet .gcell .pinyin{position:static;left:auto;right:auto;bottom:auto;font:7px sans-serif;color:var(--ink-color);line-height:1}
 .toolbar-start{display:flex;align-items:center;gap:6px;min-width:0;flex:1;overflow-x:auto;scrollbar-width:thin}.toolbar-end{display:flex;align-items:center;gap:6px;flex:none}.editor-toolbar button{flex:none}.editor-toolbar .template-switch{flex:none}
+
+/* 桌面窗体的外框、标题栏和窗口命令与内容区域分离。 */
+.window{border-color:var(--muted);border-radius:3px;box-shadow:0 10px 40px #0003;overflow:hidden}.titlebar{border-bottom:1px solid var(--border);padding-right:0}.window-buttons{height:100%;gap:0;align-items:center;flex:none}.window-buttons button,#about>header .window-buttons button{width:44px;height:32px;min-height:32px;padding:0;border:0;border-radius:0;background:transparent;color:var(--text);font:18px 'Segoe UI',sans-serif}.window-buttons button:hover{background:var(--raised)}.window-buttons .caption-close:hover{background:#c42b1c;color:#fff}.window.is-restored{width:calc(100% - 32px);height:calc(100% - 32px);margin:16px;min-width:1000px}.window.is-minimized{height:44px;margin-top:16px}.window.is-minimized>.body{display:none}.window.is-minimized .titlebar{height:42px}#about{border-color:var(--muted);border-radius:3px}#about>header{height:32px;padding:0 0 0 8px;font-weight:600}#about .window-buttons{margin-left:auto}#about.is-minimized{min-height:34px;height:34px}#about.is-minimized>.about-body{display:none}#about.is-maximized{width:calc(100vw - 24px);height:calc(100vh - 24px);max-width:none}#restore-window{position:fixed;inset:45% auto auto 45%;background:var(--surface);border-color:var(--accent)}
+.about-brand .seal{color:white}
 </style></head>
 <body>
 <div class="window">
   <header class="titlebar"><div class="brand"><span class="seal">字</span><div><b data-text="ProductName"></b><small>ZITIE WORKSHOP</small></div></div>
     <select id="mode" aria-label="Theme"></select><label class="palette-select"><i id="swatch"></i><select id="palette" aria-label="Palette"></select></label><select id="language" aria-label="Language"><option value="zh-CN">简体中文</option><option value="en-US">English</option></select>
-    <span class="font-control"><label for="font" data-text="FontSize"></label><input id="font" type="range" min="12" max="30" value="13"><output id="font-value">13</output></span><div class="window-buttons"><span>−</span><span>□</span><span>×</span></div>
+    <span class="font-control"><label for="font" data-text="FontSize"></label><input id="font" type="range" min="12" max="30" value="13"><output id="font-value">13</output></span><div class="window-buttons"><button type="button" data-window="minimize">−</button><button type="button" data-window="maximize">□</button><button type="button" class="caption-close" data-window="close">×</button></div>
   </header>
   <div class="body"><nav class="rail"><button data-route="gallery" data-tip="TemplateGallery"></button><button data-route="editor" data-tip="NewSheet"></button><button id="show-about" data-tip="About"></button><button id="show-log" class="bottom" data-tip="Log"></button></nav>
   <main>
@@ -20,8 +24,8 @@
     <aside id="log-panel" hidden><header><b data-text="Log"></b><button id="close-log" data-text="Close"></button></header><pre id="log"></pre></aside>
   </main></div>
 </div>
-<div id="overlay" class="overlay" hidden><aside id="drawer" class="drawer"></aside></div>
-<dialog id="about"><header><b data-text="About"></b><button id="close-about">×</button></header><div class="about-body"><div class="about-brand"><span class="seal">字</span><div><h2 data-text="ProductName"></h2><span>v0.2.1</span></div></div><p data-text="AppDescription"></p><div class="metadata"><span>.NET 10 · Avalonia 12 · win-x64</span><span>2026-10-15</span><a href="https://github.com/dotnet9/Zitie">GitHub · MIT</a></div><div class="update-card"><h3 data-text="CheckUpdates"></h3><p id="update-status"></p><progress id="update-progress" max="100" value="0" hidden></progress><div id="update-actions"></div><small data-text="PrototypeUpdate"></small></div></div></dialog>
+<button id="restore-window" hidden>Zitie</button><div id="overlay" class="overlay" hidden><aside id="drawer" class="drawer"></aside></div>
+<dialog id="about"><header><b data-text="About"></b><div class="window-buttons"><button type="button" data-about="minimize">−</button><button type="button" data-about="maximize">□</button><button type="button" class="caption-close" id="close-about">×</button></div></header><div class="about-body"><div class="about-brand"><span class="seal">字</span><div><h2 data-text="ProductName"></h2><span>v0.2.1</span></div></div><p data-text="AppDescription"></p><div class="metadata"><span>.NET 10 · Avalonia 12 · win-x64</span><span>2026-10-15 00:00:00</span><a href="https://github.com/dotnet9/Zitie">GitHub · MIT</a></div><div class="update-card"><h3 data-text="CheckUpdates"></h3><p id="update-status"></p><progress id="update-progress" max="100" value="0" hidden></progress><div id="update-actions"></div><small data-text="PrototypeUpdate"></small></div></div></dialog>
 <dialog id="notice"><p id="notice-text"></p><button id="close-notice" data-text="Close"></button></dialog><input id="document-file" type="file" accept=".json" hidden>
 <script>window.ZITIE_CATALOG={
   "templates": [
@@ -9904,6 +9908,11 @@ window.ZITIE_PALETTES={"Default": {"light": {"StudioBackgroundColor": "#FFFFFF",
     document.documentElement.lang = state.language;
   }
   function localize() {
+    for (const button of document.querySelectorAll('[data-window],[data-about]')) {
+      const action = button.dataset.window || button.dataset.about;
+      const labels = state.language === 'zh-CN' ? { minimize: '最小化', maximize: '最大化或还原', close: '关闭' } : { minimize: 'Minimize', maximize: 'Maximize or restore', close: 'Close' };
+      button.title = labels[action]; button.setAttribute('aria-label', button.title);
+    }
     document.querySelectorAll('[data-text]').forEach(node => node.textContent = t(node.dataset.text));
     document.querySelectorAll('[data-tip]').forEach(node => { node.title = t(node.dataset.tip); node.setAttribute('aria-label', node.title); });
     document.querySelectorAll('[data-placeholder]').forEach(node => node.placeholder = t(node.dataset.placeholder));
@@ -10082,6 +10091,13 @@ window.ZITIE_PALETTES={"Default": {"light": {"StudioBackgroundColor": "#FFFFFF",
   $('back').onclick = () => navigate('gallery'); $('template-switch').onclick = () => openDrawer('template');
   $('folder').onclick = () => notice('PrototypeFolderAction'); $('refresh').onclick = renderGallery;
   $('show-about').onclick = () => { renderUpdate(); $('about').showModal(); }; $('close-about').onclick = () => $('about').close();
+  for (const button of document.querySelectorAll('[data-window]')) button.onclick = () => {
+    const frame = document.querySelector('.window'), action = button.dataset.window;
+    if (action === 'close') { frame.hidden = true; $('restore-window').hidden = false; }
+    else frame.classList.toggle(action === 'minimize' ? 'is-minimized' : 'is-restored');
+  };
+  for (const button of document.querySelectorAll('[data-about]')) button.onclick = () => $('about').classList.toggle(button.dataset.about === 'minimize' ? 'is-minimized' : 'is-maximized');
+  $('restore-window').onclick = () => { document.querySelector('.window').hidden = false; $('restore-window').hidden = true; };
   $('show-log').onclick = () => { $('log-panel').hidden = !$('log-panel').hidden; $('log').textContent = `Zitie 0.2.1\n${t('TemplateCount', catalog.templates.length)}\n${t('ContentCount', catalog.contents.length)}`; }; $('close-log').onclick = () => $('log-panel').hidden = true;
   $('close-notice').onclick = () => $('notice').close();
   $('save-document').onclick = $('save-as').onclick = () => { const blob = new Blob([JSON.stringify(createDocument(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'practice.zitie.json'; a.click(); URL.revokeObjectURL(a.href); };
