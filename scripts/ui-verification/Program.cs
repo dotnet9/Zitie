@@ -129,7 +129,7 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     model.Appearance.SelectedLanguage = model.Appearance.Languages.Single(option => option.Key == culture); Pump();
     Check(I18nManager.Instance.Culture.Name == culture && settings.Language == culture, "Existing editor keeps the requested language without selection feedback");
     Check(about.Title == AppText.Get(Language.About), "Existing about window follows global language");
-    Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.0", "About uses actual assembly metadata");
+    Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.1", "About uses actual assembly metadata");
     Check(editor.GridKindIndex == 2 && editor.PracticeModeIndex == 1 && editor.BackgroundIndex == 3 && editor.HeaderPresetIndex == 3 && editor.PageSizeIndex == 1 && editor.TraceIntensityIndex == 5, "Existing localized choices retain every selected parameter");
     editor.SettingsTabIndex = 1; Pump();
     var gridChoice = window.GetVisualDescendants().OfType<ComboBox>().Single(control => AutomationProperties.GetName(control) == AppText.Get(Language.GridType));
@@ -167,8 +167,8 @@ void Capture(Window target, string name) { Pump(); target.CaptureRenderedFrame()
 sealed class FakeUpdates(string root) : IUpdateService
 {
     public UpdateServiceOptions Options { get; } = new() { Repository = "Zitie", ProductName = "Zitie" };
-    public Version CurrentVersion => new(0, 2, 0);
-    public string CurrentVersionText => "0.2.0";
+    public Version CurrentVersion => new(0, 2, 1);
+    public string CurrentVersionText => "0.2.1";
     public int InstallCalls;
     public string Mode = "available";
     public bool DelayDownload;

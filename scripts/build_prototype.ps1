@@ -7,7 +7,9 @@ $read = { param($path) [IO.File]::ReadAllText($path).ReplaceLineEndings("`n") }
 $catalog = & $read (Join-Path $assets 'catalog.json')
 $parsedCatalog = $catalog | ConvertFrom-Json
 $images = [ordered]@{}
-foreach ($name in @($parsedCatalog.templates.image | Where-Object { $_ } | Sort-Object -Unique)) {
+$imageNames = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+foreach ($name in @($parsedCatalog.templates.image | Where-Object { $_ })) { $null = $imageNames.Add($name) }
+foreach ($name in $imageNames) {
     $imagePath = Join-Path $repositoryRoot "docs/modules/$name"
     if (-not (Test-Path -LiteralPath $imagePath -PathType Leaf)) { throw "Missing prototype image: $name" }
     $extension = [IO.Path]::GetExtension($name).TrimStart('.').ToLowerInvariant()
