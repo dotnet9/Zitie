@@ -107,8 +107,15 @@ jobs:
         shell: pwsh
         run: |
           $binary = if ($IsWindows) { 'Zitie.Desktop.exe' } else { 'Zitie.Desktop' }
-          & "artifacts/publish/${{ matrix.rid }}/Zitie.Desktop/$binary" --selfcheck
-          if ($LASTEXITCODE -ne 0) { throw 'NativeAOT self-check failed.' }
+          $path = [IO.Path]::GetFullPath("artifacts/publish/${{ matrix.rid }}/Zitie.Desktop/$binary")
+          if ($IsWindows) {
+            $process = Start-Process -FilePath $path -ArgumentList '--selfcheck' -Wait -PassThru -WindowStyle Hidden
+            $exitCode = $process.ExitCode
+          } else {
+            & $path --selfcheck
+            $exitCode = $LASTEXITCODE
+          }
+          if ($exitCode -ne 0) { throw "NativeAOT 自检失败，退出码：$exitCode" }
 
       - name: 打包 Linux deb + sha256
         if: matrix.rid == 'linux-x64'
