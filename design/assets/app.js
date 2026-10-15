@@ -26,7 +26,7 @@
     const tokens = window.ZITIE_PALETTES[state.palette][dark ? 'dark' : 'light'];
     for (const [name, token] of Object.entries({ background: 'StudioBackgroundColor', surface: 'StudioSurfaceColor', raised: 'StudioRaisedColor', border: 'StudioBorderColor', text: 'StudioTextColor', muted: 'StudioMutedColor', accent: 'StudioAccentColor' })) document.documentElement.style.setProperty('--' + name, tokens[token]);
     document.documentElement.dataset.mode = dark ? 'dark' : 'light'; document.documentElement.dataset.palette = state.palette;
-    $('palette').innerHTML = Object.keys(paletteNames).map(palette => `<button class="palette-dot" role="option" data-palette="${palette}" aria-selected="${state.palette===palette}" title="${escape(t(paletteNames[palette]))}" aria-label="${escape(t(paletteNames[palette]))}"><i style="background:${window.ZITIE_PALETTES[palette][dark?'dark':'light'].StudioAccentColor}"></i></button>`).join('');
+    $('palette').innerHTML = Object.keys(paletteNames).map(palette => `<button class="palette-dot" role="option" data-palette="${palette}" aria-selected="${state.palette===palette}" title="${escape(t(paletteNames[palette]))}" aria-label="${escape(t(paletteNames[palette]))}"><i style="background:${window.ZITIE_PALETTES[palette].swatch}"></i></button>`).join('');
     $('mode').dataset.mode=state.mode; $('mode').textContent=state.mode==='Light'?'☀':state.mode==='Dark'?'☾':'◐'; $('mode').title=t(state.mode+'Mode'); $('mode').setAttribute('aria-label',$('mode').title);
     $('language').title=t('LanguageName'); $('language').setAttribute('aria-label',$('language').title);
     document.documentElement.lang = state.language;
