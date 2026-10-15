@@ -13,8 +13,16 @@ const { pathToFileURL } = require('node:url');
   const url = pathToFileURL(html).href;
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1240, height: 840 }, deviceScaleFactor: 1 });
-  const setLanguage=async value=>{await page.locator('#language').click();await page.locator('#language-menu [data-language="'+value+'"]').click();};
-  const setMode=async value=>{for(let index=0;index<3;index++){if(await page.locator('#mode').getAttribute('data-mode')===value)return;await page.locator('#mode').click();}if(await page.locator('#mode').getAttribute('data-mode')!==value)throw Error('Theme cycle failed');};
+  async function checkAppearanceLanguage(language) {
+    const matches=await page.evaluate(expected=>{
+      const keys={DotNet:'DotNetPalette',Aurora:'AuroraPalette',Ember:'EmberPalette',Default:'DefaultPalette',Aquatic:'AquaticPalette',Desert:'DesertPalette',Dusk:'DuskPalette',NightSky:'NightSkyPalette'};
+      const words=ZITIE_RESOURCES[expected].Zitie.Text,mode=document.getElementById('mode'),languageButton=document.getElementById('language');
+      return document.documentElement.lang===expected && mode.title===words[mode.dataset.mode+'Mode'] && mode.getAttribute('aria-label')===mode.title && languageButton.title===words.LanguageName && languageButton.getAttribute('aria-label')===languageButton.title && [...document.querySelectorAll('button[data-palette]')].every(button=>button.title===words[keys[button.dataset.palette]] && button.getAttribute('aria-label')===button.title);
+    },language);
+    if(!matches)throw Error('Title-bar language, tooltips and accessibility labels did not switch immediately: '+language);
+  }
+  const setLanguage=async value=>{await page.locator('#language').click();await page.locator('#language-menu [data-language="'+value+'"]').click();await checkAppearanceLanguage(value);};
+  const setMode=async value=>{for(let index=0;index<3;index++){if(await page.locator('#mode').getAttribute('data-mode')===value){await checkAppearanceLanguage(await page.locator('html').getAttribute('lang'));return;}await page.locator('#mode').click();}if(await page.locator('#mode').getAttribute('data-mode')!==value)throw Error('Theme cycle failed');await checkAppearanceLanguage(await page.locator('html').getAttribute('lang'));};
   const setPalette=async value=>{await page.locator('button[data-palette="'+value+'"]').click();};
   const errors = [], external = [];
   let states = 0;
@@ -39,6 +47,7 @@ const { pathToFileURL } = require('node:url');
     check(await page.evaluate(() => zitie.templateCount === 326 && zitie.contentCount === 292), 'Prototype contains the actual complete catalog');
     for (const language of ['zh-CN', 'en-US']) {
       await setLanguage(language);
+      await setMode('System');
       for (const palette of ['DotNet', 'Aurora', 'Ember', 'Default', 'Aquatic', 'Desert', 'Dusk', 'NightSky']) {
         await setPalette(palette);
         for (const mode of ['Light', 'Dark']) {
