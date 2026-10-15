@@ -14,7 +14,7 @@
 
 ```text
 1. 改版本号（Directory.Build.props / csproj）+ 更新 UpdateLog.md + 同步 README 版本行
-2. 提交：chore(release): vX.Y.Z（英文规范提交，仓库另有约定从其约定）
+2. 按修改范围用简体中文规范提交，例如 fix(原型): 统一资源生成顺序
 3. 打附注 tag —— tag 的附注消息就是 GitHub Release 的发布说明（见下节）：
        git tag -a vX.Y.Z -m "应用名 X.Y.Z\n\n- 要点一\n- 要点二 ..."
 4. 推送分支与 tag：git push origin <branch> && git push origin vX.Y.Z
@@ -24,7 +24,7 @@
 
 ## 3. 发布说明规范（重要）
 
-**Release 页的说明来自附注 tag 的消息**。打 tag 时必须写清楚：
+Release 优先使用仓库中的版本说明，缺少时使用附注 tag 的消息。打 tag 时同样写清楚：
 
 ```bash
 git tag -a vX.Y.Z -m "应用名 X.Y.Z

@@ -127,7 +127,7 @@ node design/tests/audit-prototype.cjs
 
 ## CI/CD：自动发布安装包
 
-推送 `v*` 标签（例如 `v0.1.0`，与 `Directory.Build.props` 的 `<Version>` 一致）会触发 [.github/workflows/release.yml](.github/workflows/release.yml)：先跑全部测试，再用仓库自带的 `scripts/publish_demo.ps1` 发布五个平台（win-x64 / linux-x64 / linux-arm64 / osx-x64 / osx-arm64 全部 NativeAOT，模板模块随包分发），分别打包为 Inno Setup 中文安装包（Windows）、deb（Linux）、dmg（macOS），最后创建 GitHub Release。也可以在 Actions 页面手动触发并输入版本号。
+推送 `v*` 标签（与 `Directory.Build.props` 的 `<Version>` 一致）会触发 [.github/workflows/release.yml](.github/workflows/release.yml)：先跑全部测试，再用仓库自带的 `scripts/publish.ps1` 发布五个平台（win-x64 / linux-x64 / linux-arm64 / osx-x64 / osx-arm64 全部 NativeAOT，模板模块随包分发），分别打包为 Inno Setup 中文安装包（Windows）、deb（Linux）、dmg（macOS），最后创建 GitHub Release。也可以在 Actions 页面手动触发并输入版本号。
 
 ## 发布
 
