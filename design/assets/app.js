@@ -26,7 +26,9 @@
     const tokens = window.ZITIE_PALETTES[state.palette][dark ? 'dark' : 'light'];
     for (const [name, token] of Object.entries({ background: 'StudioBackgroundColor', surface: 'StudioSurfaceColor', raised: 'StudioRaisedColor', border: 'StudioBorderColor', text: 'StudioTextColor', muted: 'StudioMutedColor', accent: 'StudioAccentColor' })) document.documentElement.style.setProperty('--' + name, tokens[token]);
     document.documentElement.dataset.mode = dark ? 'dark' : 'light'; document.documentElement.dataset.palette = state.palette;
-    $('swatch').style.background = tokens.StudioAccentColor;
+    $('palette').innerHTML = Object.keys(paletteNames).map(palette => `<button class="palette-dot" role="option" data-palette="${palette}" aria-selected="${state.palette===palette}" title="${escape(t(paletteNames[palette]))}" aria-label="${escape(t(paletteNames[palette]))}"><i style="background:${window.ZITIE_PALETTES[palette][dark?'dark':'light'].StudioAccentColor}"></i></button>`).join('');
+    $('mode').dataset.mode=state.mode; $('mode').textContent=state.mode==='Light'?'☀':state.mode==='Dark'?'☾':'◐'; $('mode').title=t(state.mode+'Mode'); $('mode').setAttribute('aria-label',$('mode').title);
+    $('language').title=t('LanguageName');
     document.documentElement.lang = state.language;
   }
   function localize() {
@@ -38,9 +40,6 @@
     document.querySelectorAll('[data-text]').forEach(node => node.textContent = t(node.dataset.text));
     document.querySelectorAll('[data-tip]').forEach(node => { node.title = t(node.dataset.tip); node.setAttribute('aria-label', node.title); });
     document.querySelectorAll('[data-placeholder]').forEach(node => node.placeholder = t(node.dataset.placeholder));
-    $('mode').innerHTML = ['System', 'Light', 'Dark'].map(mode => `<option value="${mode}"${state.mode === mode ? ' selected' : ''}>${escape(t(mode + 'Mode'))}</option>`).join('');
-    $('palette').innerHTML = Object.keys(paletteNames).map(palette => `<option value="${palette}"${state.palette === palette ? ' selected' : ''}>${escape(t(paletteNames[palette]))}</option>`).join('');
-    $('language').value = state.language;
     const icons = {
       'open-document': 'M3 8a2 2 0 0 1 2-2h4l2.2 2.5H19a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
       'save-document': 'M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M8 3v5h7 M8 13h8v5H8z',
@@ -205,7 +204,11 @@
   });
   document.addEventListener('input', event => { const input = event.target; if (input.dataset.state) { state[input.dataset.state] = input.type === 'checkbox' ? input.checked : (['range', 'number'].includes(input.type) || ['header', 'columns'].includes(input.dataset.state)) ? Number(input.value) : input.value; if (input.dataset.state === 'intensity') state.opacity = ({VeryDark:90,Dark:75,MediumDark:60,Moderate:40,Light:25,VeryLight:15,White:0,Outline:30})[input.value]; if (input.dataset.state === 'gridPreset') state.gridColor = ({red:'#b04a3f',black:'#242424',green:'#477b51'})[input.value]; if (input.dataset.state === 'textPreset') state.textColor = ({red:'#b04a3f',black:'#242424',green:'#477b51'})[input.value]; renderSheet(); } if (input.id === 'drawer-query') renderDrawerResults(); });
   document.addEventListener('change', event => { if (event.target.dataset.filter !== undefined) renderDrawerResults(); });
-  $('mode').onchange = event => { state.mode = event.target.value; applyAppearance(); }; $('palette').onchange = event => { state.palette = event.target.value; applyAppearance(); }; $('language').onchange = event => { state.language = event.target.value; localize(); };
+  $('mode').onclick = () => { state.mode = ({System:'Light',Light:'Dark',Dark:'System'})[state.mode]; applyAppearance(); };
+  $('palette').onclick = event => { const button=event.target.closest('[data-palette]');if(button){state.palette=button.dataset.palette;applyAppearance();} };
+  $('language').onclick = () => { $('language-menu').hidden=!$('language-menu').hidden; };
+  $('language-menu').onclick = event => { const button=event.target.closest('[data-language]');if(button){state.language=button.dataset.language;$('language-menu').hidden=true;localize();} };
+  document.addEventListener('click',event=>{if(!event.target.closest('.language-picker'))$('language-menu').hidden=true;});
   $('font').oninput = event => { document.documentElement.style.setProperty('--font', event.target.value + 'px'); $('font-value').value = event.target.value; };
   $('gallery-search').oninput = renderGallery;
   $('gallery-zoom').oninput = event => { document.documentElement.style.setProperty('--card-scale', event.target.value / 100); $('gallery-zoom-value').value = event.target.value + '%'; };

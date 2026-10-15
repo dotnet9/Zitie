@@ -13,6 +13,9 @@ const { pathToFileURL } = require('node:url');
   const url = pathToFileURL(html).href;
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1240, height: 840 }, deviceScaleFactor: 1 });
+  const setLanguage=async value=>{await page.locator('#language').click();await page.locator('#language-menu [data-language="'+value+'"]').click();};
+  const setMode=async value=>{for(let index=0;index<3;index++){if(await page.locator('#mode').getAttribute('data-mode')===value)return;await page.locator('#mode').click();}if(await page.locator('#mode').getAttribute('data-mode')!==value)throw Error('Theme cycle failed');};
+  const setPalette=async value=>{await page.locator('button[data-palette="'+value+'"]').click();};
   const errors = [], external = [];
   let states = 0;
   page.on('pageerror', error => errors.push(error.message));
@@ -35,11 +38,11 @@ const { pathToFileURL } = require('node:url');
     await page.click('[data-window="close"]'); check(await page.locator('#restore-window').isVisible(), 'Closed prototype can be reopened'); await page.click('#restore-window');
     check(await page.evaluate(() => zitie.templateCount === 326 && zitie.contentCount === 292), 'Prototype contains the actual complete catalog');
     for (const language of ['zh-CN', 'en-US']) {
-      await page.selectOption('#language', language);
+      await setLanguage(language);
       for (const palette of ['DotNet', 'Aurora', 'Ember', 'Default', 'Aquatic', 'Desert', 'Dusk', 'NightSky']) {
-        await page.selectOption('#palette', palette);
+        await setPalette(palette);
         for (const mode of ['Light', 'Dark']) {
-          await page.selectOption('#mode', mode);
+          await setMode(mode);
           await page.click('[data-route="gallery"]');
           check(await page.locator('.card').count() === 326, 'All templates remain reachable');
           await capture(`gallery-${language}-${palette}-${mode}`);
@@ -48,8 +51,8 @@ const { pathToFileURL } = require('node:url');
           await capture(`editor-${language}-${palette}-${mode}`);
         }
       }
-      await page.selectOption('#palette', 'DotNet');
-      await page.selectOption('#mode', 'Light');
+      await setPalette('DotNet');
+      await setMode('Light');
       for (let tab = 0; tab < 5; tab++) { await page.click(`[data-tab="${tab}"]`); await capture(`parameters-${language}-${tab}`); }
       await page.click('[data-tab="0"]');
       await page.fill('textarea[data-state="text"]', '天地玄黄');
@@ -81,9 +84,9 @@ const { pathToFileURL } = require('node:url');
       await page.fill('#drawer-query', '静夜思');
       check(await page.locator('.result').count() > 0, 'Actual content search returns a selectable poem');
       await page.locator('.result').first().click();
-      await page.selectOption('#language', language === 'zh-CN' ? 'en-US' : 'zh-CN');
+      await setLanguage(language === 'zh-CN' ? 'en-US' : 'zh-CN');
       check(await page.locator('#drawer-query').inputValue() === '静夜思' && await page.locator('.result.active').count() === 1 && await page.locator('#apply-selection').isEnabled(), 'Open drawer retains filters and selection during language changes');
-      await page.selectOption('#language', language); await capture(`content-library-${language}`);
+      await setLanguage(language); await capture(`content-library-${language}`);
       await page.click('[data-action="apply-selection"]');
       check(await page.locator('textarea[data-state="text"]').inputValue().then(text => text.includes('床前')), 'Content selection updates the practice text');
       await page.click('#template-switch'); await page.fill('#drawer-query', 'nqez-945'); await capture(`template-picker-${language}`); await page.keyboard.press('Escape');
