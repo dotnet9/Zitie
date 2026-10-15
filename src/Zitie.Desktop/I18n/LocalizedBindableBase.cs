@@ -10,10 +10,15 @@ public abstract class LocalizedBindableBase : BindableBase
     {
         var reference = new WeakReference<LocalizedBindableBase>(this);
         EventHandler<EventArgs>? handler = null;
-        handler = (_, _) =>
+        void Refresh()
         {
             if (reference.TryGetTarget(out var target)) target.OnCultureChanged();
             else I18nManager.Instance.CultureChanged -= handler;
+        }
+        handler = (_, _) =>
+        {
+            if (global::Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) Refresh();
+            else global::Avalonia.Threading.Dispatcher.UIThread.Post(Refresh);
         };
         I18nManager.Instance.CultureChanged += handler;
     }

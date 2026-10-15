@@ -63,6 +63,19 @@ using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented 
     writer.WriteEndObject(); writer.WriteEndObject();
 }
 Check(model.Appearance.Palettes.Count == 8 && model.Appearance.Modes.Count == 3, "Eight palettes and three independent modes");
+// 保持实际菜单实例，外部全局切语后仍可点回原语言，并与设备偏好一致。
+var sharedLanguageButton=window.GetVisualDescendants().OfType<Button>().Single(button=>button.Flyout is MenuFlyout);
+var sharedLanguageMenu=(MenuFlyout)sharedLanguageButton.Flyout!;
+foreach(var culture in new[]{"en-US","zh-CN","en-US","zh-CN"})
+{
+    sharedLanguageMenu.ShowAt(sharedLanguageButton);Pump();
+    Task.Run(()=>I18nManager.Instance.Culture=System.Globalization.CultureInfo.GetCultureInfo(culture)).GetAwaiter().GetResult();Pump();
+    Check(model.Appearance.SelectedLanguage?.Key==culture && new DeviceSettingsService(settings.SettingsPath).Language==culture,"External global culture synchronizes the open language menu and device preference");
+    var returnCulture=culture=="en-US"?"zh-CN":"en-US";
+    model.Appearance.Languages.Single(option=>option.Key==returnCulture).SelectCommand!.Execute(null);Pump();
+    Check(I18nManager.Instance.Culture?.Name==returnCulture && model.Appearance.SelectedLanguage?.Key==returnCulture && new DeviceSettingsService(settings.SettingsPath).Language==returnCulture,"The same open language menu can switch back after an external change");
+    sharedLanguageMenu.Hide();Pump();
+}
 var paletteSelector=window.GetVisualDescendants().OfType<ListBox>().Single(control=>control.Classes.Contains("title-palettes"));
 Check(paletteSelector.Items.Count==8,"Title bar exposes eight palette dots");
 var themeToggle=window.GetVisualDescendants().OfType<ThemeToggleButton>().Single();

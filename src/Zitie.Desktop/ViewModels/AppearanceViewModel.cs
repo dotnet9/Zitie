@@ -85,4 +85,13 @@ public sealed class AppearanceViewModel : LocalizedBindableBase
             settings.Language = value.Key; I18nManager.Instance.Culture = CultureInfo.GetCultureInfo(value.Key); RaisePropertyChanged();
         }
     }
+
+    /// <summary>全局切语同步设备偏好，避免重选旧语言被相同值判断拦截。</summary>
+    protected override void OnCultureChanged()
+    {
+        var cultureName = I18nManager.Instance.Culture?.Name;
+        if (settings is not null && (cultureName is "zh-CN" or "en-US") && settings.Language != cultureName)
+            settings.Language = cultureName;
+        base.OnCultureChanged();
+    }
 }
