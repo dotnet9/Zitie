@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Automation;
@@ -29,6 +29,7 @@ int assertions = 0;
 var application = (App)Application.Current!;
 var window = (MainWindow)lifetime.MainWindow!;
 window.Show();
+ControlLocaleVerification.Run(window, ["zh-CN", "en-US"]);
 var model = (MainWindowViewModel)window.DataContext!;
 Until(() => window.GetVisualDescendants().OfType<ModuleGalleryView>().FirstOrDefault()?.DataContext is ModuleGalleryViewModel { IsLoading: false });
 var gallery = (ModuleGalleryViewModel)window.GetVisualDescendants().OfType<ModuleGalleryView>().Single().DataContext!;
@@ -114,6 +115,9 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     Check(window.Title == AppText.Get(Language.WindowTitle), "Existing main window changes language");
     Check(settings.Palette == palette, "Language change retains selected palette");
     Capture(window, $"gallery-{culture}.png");
+    window.Width=window.MinWidth;window.Height=window.MinHeight;Pump();
+    Capture(window, $"minimum-gallery-{culture}.png");
+    window.Width=1240;window.Height=840;Pump();
 }
 var originalCount = gallery.Modules.Count;
 var expectedMatches = gallery.Modules.Where(item => ModuleSearch.Matches(item.Module, "nqez-945")).Select(item => item.Module.Id).ToArray();
@@ -152,7 +156,7 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     Check(I18nManager.Instance.Culture.Name == culture && settings.Language == culture, "Existing editor keeps the requested language without selection feedback");
     Check(about.Title == AppText.Get(Language.About), "Existing about window follows global language");
     Check(!about.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_MinimizeButton").IsEnabled && !about.GetVisualDescendants().OfType<Button>().Single(button=>button.Name=="PART_MaximizeRestoreButton").IsEnabled,"About respects disabled minimize and maximize capabilities");
-    Check(aboutModel.PlatformText.Contains(".NET 10") && aboutModel.VersionText == "v0.2.2", "About uses actual assembly metadata");
+    Check(aboutModel.PlatformText.Contains(".NET " + Environment.Version.Major) && aboutModel.VersionText == "v" + typeof(App).Assembly.GetName().Version!.ToString(3), "About uses actual assembly metadata");
     Check(editor.GridKindIndex == 2 && editor.PracticeModeIndex == 1 && editor.BackgroundIndex == 3 && editor.HeaderPresetIndex == 3 && editor.PageSizeIndex == 1 && editor.TraceIntensityIndex == 5, "Existing localized choices retain every selected parameter");
     editor.SettingsTabIndex = 1; Pump();
     var gridChoice = window.GetVisualDescendants().OfType<ComboBox>().Single(control => AutomationProperties.GetName(control) == AppText.Get(Language.GridType));
@@ -161,10 +165,22 @@ foreach (var culture in new[] { "en-US", "zh-CN" })
     var exportButton = window.GetVisualDescendants().OfType<Zitie.Desktop.Controls.ZitieToolButton>().Single(control => AutomationProperties.GetName(control) == AppText.Get(Language.ExportPdf));
     var exportPosition = exportButton.TranslatePoint(default, window);
     Check(exportPosition is { } position && position.X >= 0 && position.X + exportButton.Bounds.Width <= window.Bounds.Width, "Export command remains entirely inside the English and Chinese toolbars");
-    window.Width = 1000; Pump();
+    window.Width = window.MinWidth; window.Height=window.MinHeight; Pump();
     var narrowPosition = exportButton.TranslatePoint(default, window);
     Check(narrowPosition is { } narrow && narrow.X >= 0 && narrow.X + exportButton.Bounds.Width <= window.Bounds.Width, "Minimum-width toolbar keeps export commands visible and document commands scrollable");
-    window.Width = 1240; Pump();
+    var commandScroller=window.GetVisualDescendants().OfType<ScrollViewer>().Single(control=>control.Name=="CommandScroller");
+    commandScroller.Offset=new Vector(Math.Max(0,commandScroller.Extent.Width-commandScroller.Viewport.Width),0);Pump();
+    var saveTemplate=window.GetVisualDescendants().OfType<Zitie.Desktop.Controls.ZitieToolButton>().Single(control=>AutomationProperties.GetName(control)==AppText.Get(Language.SaveReusableTemplate));
+    var savePoint=saveTemplate.TranslatePoint(default,commandScroller)!.Value;
+    Check(savePoint.X>=-1 && savePoint.X+saveTemplate.Bounds.Width<=commandScroller.Bounds.Width+1,"Minimum editor reaches the final document command by horizontal scrolling");
+    for(var tab=0;tab<5;tab++)
+    {
+        editor.SettingsTabIndex=tab;Pump();
+        foreach(var scroller in window.GetVisualDescendants().OfType<ScrollViewer>().Where(control=>control.Extent.Height>control.Viewport.Height+1))scroller.ScrollToEnd();
+        Capture(window,$"minimum-editor-{tab}-{culture}.png");
+    }
+    editor.SettingsTabIndex=1;commandScroller.Offset=default;
+    window.Width = 1240; window.Height=840; Pump();
     Capture(window, $"editor-layout-{culture}.png");
     Capture(about, $"about-{culture}.png");
 }

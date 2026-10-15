@@ -1,5 +1,6 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Regions;
@@ -25,10 +26,8 @@ public partial class App : PrismApplication
         AppText.Initialize();
         AvaloniaXamlLoader.Load(this);
         ThemeController = new StudioThemeController(this);
-        I18nManager.Instance.CultureChanged += (_, _) =>
-        {
-            foreach (var theme in Styles.OfType<Semi.Avalonia.SemiTheme>()) theme.Locale = I18nManager.Instance.Culture;
-        };
+        I18nManager.Instance.CultureChanged += OnCultureChanged;
+        ApplyControlCulture();
         base.Initialize();
     }
 
@@ -62,6 +61,20 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<IRegionNavigationJournal, RegionNavigationJournal>();
         containerRegistry.RegisterForNavigation<ModuleGalleryView, ModuleGalleryViewModel>("ModuleGallery");
         containerRegistry.RegisterForNavigation<SheetEditorView, SheetEditorViewModel>("SheetEditor");
+    }
+
+    private static void OnCultureChanged(object? sender, EventArgs args)
+    {
+        if (Dispatcher.UIThread.CheckAccess()) ApplyControlCulture();
+        else Dispatcher.UIThread.Post(ApplyControlCulture);
+    }
+
+    /// <summary>更新主题内置文案，保留宿主资源的同键覆盖。</summary>
+    private static void ApplyControlCulture()
+    {
+        if (Application.Current is not { } application || I18nManager.Instance.Culture is not { } culture) return;
+        foreach (var theme in application.Styles.OfType<Semi.Avalonia.SemiTheme>()) theme.Locale = culture;
+        foreach (var theme in application.Styles.OfType<Ursa.Themes.Semi.UrsaSemiTheme>()) theme.Locale = culture;
     }
 
 }
