@@ -2,6 +2,9 @@ param([switch] $Check)
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $assets = Join-Path $repositoryRoot 'design/assets'
+$versionMatch = [regex]::Match([IO.File]::ReadAllText((Join-Path $repositoryRoot 'Directory.Build.props')), '<Version>(?<version>\d+\.\d+\.\d+)</Version>')
+if (-not $versionMatch.Success) { throw '未找到产品版本号。' }
+$version = $versionMatch.Groups['version'].Value
 $encoding = [Text.UTF8Encoding]::new($false)
 $read = { param($path) [IO.File]::ReadAllText($path).ReplaceLineEndings("`n") }
 $catalog = & $read (Join-Path $assets 'catalog.json')
@@ -33,6 +36,7 @@ $palette = (& $read (Join-Path $assets 'palette-tokens.js')).Replace('window.QUI
 $data = "window.ZITIE_CATALOG=$catalog;`nwindow.ZITIE_IMAGES=" + ($images | ConvertTo-Json -Compress -Depth 5) + ";`nwindow.ZITIE_RESOURCES=" + ($translations | ConvertTo-Json -Compress -Depth 50) + ";`n$palette"
 $script = & $read (Join-Path $assets 'app.js')
 $document = (& $read (Join-Path $PSScriptRoot 'prototype-source/index.template.html')).Replace('/*__STYLE__*/', $style).Replace('/*__DATA__*/', $data.Replace('</script', '<\/script')).Replace('/*__APP__*/', $script)
+$document = $document.Replace('__APP_VERSION__', $version)
 $output = Join-Path $repositoryRoot 'design/index.html'
 if ($Check) {
     if (-not (Test-Path -LiteralPath $output) -or (& $read $output) -cne $document) { throw 'Stale single-file prototype. Run scripts/build_prototype.ps1.' }

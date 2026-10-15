@@ -223,7 +223,7 @@
   };
   for (const button of document.querySelectorAll('[data-about]')) button.onclick = () => $('about').classList.toggle(button.dataset.about === 'minimize' ? 'is-minimized' : 'is-maximized');
   $('restore-window').onclick = () => { document.querySelector('.window').hidden = false; $('restore-window').hidden = true; };
-  $('show-log').onclick = () => { $('log-panel').hidden = !$('log-panel').hidden; $('log').textContent = `Zitie 0.2.2\n${t('TemplateCount', catalog.templates.length)}\n${t('ContentCount', catalog.contents.length)}`; }; $('close-log').onclick = () => $('log-panel').hidden = true;
+  $('show-log').onclick = () => { $('log-panel').hidden = !$('log-panel').hidden; $('log').textContent = `Zitie __APP_VERSION__\n${t('TemplateCount', catalog.templates.length)}\n${t('ContentCount', catalog.contents.length)}`; }; $('close-log').onclick = () => $('log-panel').hidden = true;
   $('close-notice').onclick = () => $('notice').close();
   $('save-document').onclick = $('save-as').onclick = () => { const blob = new Blob([JSON.stringify(createDocument(), null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'practice.zitie.json'; a.click(); URL.revokeObjectURL(a.href); };
   $('save-template').onclick = () => notice('PrototypeFileAction');

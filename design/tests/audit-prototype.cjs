@@ -5,6 +5,8 @@ const { pathToFileURL } = require('node:url');
 
 (async () => {
   const root = path.resolve(__dirname, '../..');
+  const productVersion = fs.readFileSync(path.join(root, 'Directory.Build.props'), 'utf8').match(/<Version>(\d+\.\d+\.\d+)<\/Version>/)?.[1];
+  if (!productVersion) throw new Error('Product version is missing');
   const output = path.resolve(process.argv[2] || path.join(root, 'artifacts/prototype-audit'));
   const standalone = path.join(output, 'standalone');
   fs.mkdirSync(standalone, { recursive: true });
@@ -121,6 +123,7 @@ const { pathToFileURL } = require('node:url');
       check(await page.locator('textarea[data-state="text"]').inputValue().then(text => text.includes('床前')), 'Content selection updates the practice text');
       await page.click('#template-switch'); await page.fill('#drawer-query', 'nqez-945'); await capture(`template-picker-${language}`); await page.keyboard.press('Escape');
       await page.click('#show-about'); await capture(`about-${language}`);
+      check((await page.locator('#about .about-brand').textContent()).includes('v' + productVersion), 'Prototype and product versions match');
       check((await page.locator('#about .metadata').textContent()).includes('2026-10-15 00:00:00'), 'About uses the fixed design build-time sample');
       check(await page.locator('#about .window-buttons button').count() === 3, 'About contains standard desktop window commands');
       check(await page.locator('#about [data-about="minimize"]').isDisabled() && await page.locator('#about [data-about="maximize"]').isDisabled(),'About caption capabilities match the native window');
