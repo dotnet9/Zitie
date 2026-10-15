@@ -38,7 +38,15 @@ const { pathToFileURL } = require('node:url');
     await page.goto(url);
     await page.evaluate(() => document.fonts.ready);
     const frame = await page.locator('.window').evaluate(element => ({ border: parseFloat(getComputedStyle(element).borderTopWidth), title: element.querySelector('.titlebar').getBoundingClientRect().height, buttons: element.querySelectorAll('.titlebar .window-buttons button').length }));
-    check(frame.border >= 1 && frame.title >= 32 && frame.buttons === 3, 'Desktop window frame and caption buttons are rendered');
+    check(frame.border >= 1 && frame.title === 44 && frame.buttons === 3, 'Desktop window frame and caption buttons match the native metrics');
+    check(await page.evaluate(()=>{
+      const rail=document.querySelector('.rail').getBoundingClientRect(),card=document.querySelector('.card').getBoundingClientRect();
+      const chips=[...document.querySelectorAll('#categories button')],style=getComputedStyle(chips[0]);
+      const rows=Object.values(chips.reduce((result,item)=>{const y=item.getBoundingClientRect().y;(result[y]??=[]).push(item.textContent);return result;},{})).map(items=>items.length);
+      return rail.width===64 && card.x===91 && card.y===233 && card.width===244 && card.height===334
+        && style.height==='30px' && style.paddingLeft==='13px' && style.marginRight==='6px' && style.fontWeight==='600'
+        && JSON.stringify(rows)===JSON.stringify([12,6]);
+    }),'Chinese gallery keeps the native navigation, category rows and card geometry');
     check(await page.locator('.titlebar').evaluate(element=>{
       const brand=element.querySelector('.brand').getBoundingClientRect(),palette=element.querySelector('#palette').getBoundingClientRect(),mode=element.querySelector('#mode').getBoundingClientRect(),language=element.querySelector('#language').getBoundingClientRect();
       return Math.abs(mode.width-30)<1 && Math.abs(language.width-30)<1 && palette.left-brand.right<=14 && mode.left-palette.right<=9 && language.left-mode.right<=9 && [...element.querySelectorAll('.window-buttons button')].every(button=>parseFloat(getComputedStyle(button).width)===32);
