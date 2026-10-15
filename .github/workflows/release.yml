@@ -33,6 +33,27 @@ jobs:
       - name: 测试
         run: dotnet test Zitie.slnx -c Release
 
+      - name: 验证实际窗口与更新状态
+        shell: pwsh
+        run: dotnet run --project scripts/ui-verification/UiVerification.csproj -c Release -- artifacts/ui-verification
+
+      - name: 校验 T4、目录和单文件原型
+        shell: pwsh
+        run: |
+          pwsh scripts/sync_localization_keys.ps1 -Check
+          pwsh scripts/sync_prototype_catalog.ps1 -Check
+          pwsh scripts/build_prototype.ps1 -Check
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: 验证离线交互
+        shell: pwsh
+        run: |
+          npm ci --prefix design/tests
+          npx --prefix design/tests playwright install chromium
+          node design/tests/audit-prototype.cjs
+
   publish:
     name: 发布 ${{ matrix.rid }}
     needs: test
@@ -47,9 +68,9 @@ jobs:
           - rid: linux-arm64
             os: ubuntu-24.04-arm
           - rid: osx-x64
-            os: macos-14
+            os: macos-15-intel
           - rid: osx-arm64
-            os: macos-14
+            os: macos-15
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -78,9 +99,16 @@ jobs:
           Write-Host "版本：$version"
 
       # 仓库自带发布脚本：全平台 NativeAOT，并打包模板模块
-      - name: 发布（scripts/publish_demo.ps1）
+      - name: 发布（scripts/publish.ps1）
         shell: pwsh
-        run: pwsh scripts/publish_demo.ps1 -RuntimeIdentifier '${{ matrix.rid }}'
+        run: pwsh scripts/publish.ps1 -RuntimeIdentifier '${{ matrix.rid }}' -Version $env:APP_VERSION
+
+      - name: 运行原生程序自检
+        shell: pwsh
+        run: |
+          $binary = if ($IsWindows) { 'Zitie.Desktop.exe' } else { 'Zitie.Desktop' }
+          & "artifacts/publish/${{ matrix.rid }}/Zitie.Desktop/$binary" --selfcheck
+          if ($LASTEXITCODE -ne 0) { throw 'NativeAOT self-check failed.' }
 
       - name: 打包 Linux deb + sha256
         if: matrix.rid == 'linux-x64'
@@ -192,17 +220,17 @@ jobs:
             Copy-Item -LiteralPath $curated -Destination $bodyPath -Force
             Write-Host "使用发布说明：$curated"
           }
-                    # 附注 tag 的说明就是发布说明（Release 页直接可读，不点开 tag 也能看到）
-                    git fetch --quiet --tags origin 2>$null
-                    $tagMessage = git tag -l "$env:TAG_NAME" --format='%(contents)'
-                    if (-not [string]::IsNullOrWhiteSpace($tagMessage)) {
-                      $tagMessage | Set-Content -LiteralPath $bodyPath -Encoding utf8
-                      Write-Host "使用附注 tag 说明作为发布说明。"
-                    }
-                    else {
-        
-            "Zitie v$env:VERSION" | Set-Content -LiteralPath $bodyPath -Encoding utf8
-            Write-Host "未找到 $curated，将只使用自动生成的变更说明。"
+          else {
+            git fetch --quiet --tags origin 2>$null
+            $tagMessage = git tag -l "$env:TAG_NAME" --format='%(contents)'
+            if (-not [string]::IsNullOrWhiteSpace($tagMessage)) {
+              $tagMessage | Set-Content -LiteralPath $bodyPath -Encoding utf8
+              Write-Host "使用附注 tag 说明作为发布说明。"
+            }
+            else {
+              "Zitie v$env:VERSION" | Set-Content -LiteralPath $bodyPath -Encoding utf8
+              Write-Host "未找到 $curated，将只使用自动生成的变更说明。"
+            }
           }
 
       - name: 创建 GitHub Release

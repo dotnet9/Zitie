@@ -132,7 +132,7 @@ create_app_bundle() {
 
   rm -rf "$app_dir"
   mkdir -p "$macos_dir" "$resources_dir"
-  # older bundle marker; some tools fail to recognize the bundle without it.
+  # 保留旧版应用包标记，部分系统工具依靠它识别应用包。
   printf 'APPL????' >"$contents_dir/PkgInfo"
   # codesign 要求 Contents/MacOS 下只能出现可执行文件/动态库：
   # 先整体拷入，再把主可执行文件与动态库以外的内容挪到 Contents/Resources。
@@ -141,6 +141,7 @@ create_app_bundle() {
   chmod +x "$macos_dir/$EXECUTABLE_NAME"
   create_icon "$resources_dir/$APP_NAME.icns" "$iconset_dir"
   write_info_plist "$contents_dir/Info.plist" "$macos_version"
+  "$macos_dir/$EXECUTABLE_NAME" --selfcheck || die "Relocated NativeAOT resource self-check failed."
 
   echo "$app_dir"
 }

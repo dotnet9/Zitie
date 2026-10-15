@@ -25,3 +25,37 @@ jobs:
 
       - name: Test
         run: dotnet test Zitie.slnx -c Release --no-build
+
+  ui:
+    name: 国际化与原型验收
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: 验证实际窗口与更新状态
+        shell: pwsh
+        run: dotnet run --project scripts/ui-verification/UiVerification.csproj -c Release -- artifacts/ui-verification
+      - name: 校验 T4、目录和单文件原型
+        shell: pwsh
+        run: |
+          pwsh scripts/sync_localization_keys.ps1 -Check
+          pwsh scripts/sync_prototype_catalog.ps1 -Check
+          pwsh scripts/build_prototype.ps1 -Check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: 验证离线交互
+        shell: pwsh
+        run: |
+          npm ci --prefix design/tests
+          npx --prefix design/tests playwright install chromium
+          node design/tests/audit-prototype.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-verification
+          path: |
+            artifacts/ui-verification/*.png
+            artifacts/prototype-audit/*.png

@@ -20,8 +20,5 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 }
 Write-Host "发布 $RuntimeIdentifier (Version=$Version)"
 
-& (Join-Path $PSScriptRoot "publish_demo.ps1") -RuntimeIdentifier $RuntimeIdentifier
-if ($Version -ne "0.0.0" -and (Test-Path (Join-Path $repositoryRoot "artifacts/publish/$RuntimeIdentifier/Zitie.Desktop"))) {
-    Write-Host "注意：publish_demo.ps1 不注入版本号；安装包命名版本由打包脚本（.iss/deb/dmg）使用 -Version"
-}
+& (Join-Path $PSScriptRoot "publish_demo.ps1") -RuntimeIdentifier $RuntimeIdentifier -Version $Version
 exit $LASTEXITCODE

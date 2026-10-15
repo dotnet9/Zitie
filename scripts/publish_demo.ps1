@@ -1,7 +1,8 @@
 ﻿param(
     [Parameter(Mandatory = $true)]
     [ValidateSet("win-x64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64")]
-    [string] $RuntimeIdentifier
+    [string] $RuntimeIdentifier,
+    [string] $Version = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -34,10 +35,15 @@ $publishArguments = @(
     "-r", $RuntimeIdentifier,
     "--self-contained", "true",
     "-p:RestoreForce=true",
-    "-p:DebugType=None",
-    "-p:DebugSymbols=false",
+    "-p:DebugType=portable",
+    "-p:DebugSymbols=true",
+    "-p:IlcGenerateCompleteTypeMetadata=true",
+    "-p:IlcTrimMetadata=false",
     "-o", $resolvedOutputPath
 )
+if (-not [string]::IsNullOrWhiteSpace($Version)) {
+    $publishArguments += "-p:Version=$Version"
+}
 
 if ($RuntimeIdentifier -like "win-*") {
     # Windows：NativeAOT 单文件。反射保留由 Roots.xml（TrimmerRootDescriptor）声明。
