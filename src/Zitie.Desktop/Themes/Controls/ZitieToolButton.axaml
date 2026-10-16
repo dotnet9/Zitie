@@ -68,19 +68,19 @@
 
         <Style Selector="^.primary">
             <Setter Property="Padding" Value="16,0" />
-            <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource StudioPrimary}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource StudioPrimary}" />
+            <Setter Property="Foreground" Value="{DynamicResource StudioOnPrimary}" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
         <Style Selector="^.primary:pointerover">
-            <Setter Property="Background" Value="{DynamicResource ZitieAccentHoverBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentHoverBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource StudioPrimaryHover}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource StudioPrimaryHover}" />
+            <Setter Property="Foreground" Value="{DynamicResource StudioOnPrimary}" />
         </Style>
         <Style Selector="^.primary:pressed">
-            <Setter Property="Background" Value="{DynamicResource ZitieAccentDarkBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ZitieAccentDarkBrush}" />
+            <Setter Property="Background" Value="{DynamicResource StudioPrimaryPressed}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource StudioPrimaryPressed}" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

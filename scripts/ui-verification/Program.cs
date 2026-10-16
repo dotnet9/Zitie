@@ -29,6 +29,9 @@ int assertions = 0;
 var application = (App)Application.Current!;
 var window = (MainWindow)lifetime.MainWindow!;
 window.Show();
+ButtonPaletteVerification.Run(App.ThemeController, output,
+    ("primary", new Zitie.Desktop.Controls.ZitieToolButton { Classes = { "primary" } }),
+    ("apply", new Button { Classes = { "content-apply-button" } }));
 ControlLocaleVerification.Run(window, ["zh-CN", "en-US"]);
 var model = (MainWindowViewModel)window.DataContext!;
 Until(() => window.GetVisualDescendants().OfType<ModuleGalleryView>().FirstOrDefault()?.DataContext is ModuleGalleryViewModel { IsLoading: false });

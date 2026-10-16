@@ -399,19 +399,17 @@
         <Setter Property="BorderThickness" Value="0,1,0,0" />
     </Style>
     <Style Selector="Button.content-apply-button">
+        <Setter Property="Theme" Value="{DynamicResource SolidButton}" />
         <Setter Property="Height" Value="38" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Background" Value="{DynamicResource ZitieAccentBrush}" />
+        <Setter Property="Background" Value="{DynamicResource StudioPrimary}" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Foreground" Value="{DynamicResource ZitieLightTextBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource StudioOnPrimary}" />
         <Setter Property="FontSize" Value="{DynamicResource ZitieUiFontSizeBase}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="LetterSpacing" Value="2" />
-    </Style>
-    <Style Selector="Button.content-apply-button:pointerover">
-        <Setter Property="Background" Value="{DynamicResource ZitieAccentHoverBrush}" />
     </Style>
     <Style Selector="Button.content-apply-button:disabled">
         <Setter Property="Opacity" Value="0.45" />
