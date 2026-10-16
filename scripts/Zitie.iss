@@ -6,6 +6,7 @@
 #endif
 
 [Setup]
+LicenseFile=..\LICENSE
 AppId={{33EFC376-2EFC-4C57-BD22-F276A6EB3AEA}
 AppName=Zitie
 AppVersion={#AppVersion}
@@ -30,10 +31,11 @@ UninstallDisplayIcon={app}\Zitie.Desktop.exe
 WizardStyle=modern
 
 [Languages]
+Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "chinesesimplified"; MessagesFile: "Languages\ChineseSimplified.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -43,4 +45,6 @@ Name: "{autoprograms}\Zitie"; Filename: "{app}\Zitie.Desktop.exe"; WorkingDir: "
 Name: "{autodesktop}\Zitie"; Filename: "{app}\Zitie.Desktop.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\Zitie.Desktop.exe"; Description: "Launch Zitie"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Zitie.Desktop.exe"; Description: "{cm:LaunchProgram,Zitie}"; Flags: nowait postinstall skipifsilent
+
+#include "installer\CodeWF.Setup.iss"
