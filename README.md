@@ -2,18 +2,20 @@
 
 Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖生成器，适合生字描红、临摹、古诗抄写、拼音练习和自定义文本排版。
 
+当前版本：`0.2.6`。本版本修复 macOS 安装镜像卸载时的临时占用，并保留五平台原生安装包与 SHA-256 校验。
+
 | 实际模板库 · .NET 紫 | 实际字帖编辑器 |
 | :---: | :---: |
 | ![](docs/media/gallery-dotnet.png) | ![](docs/media/editor-layout.png) |
 
-以上截图来自当前 `0.2.5` 版本的实际 Windows NativeAOT 程序的 Skia 离屏运行。历史原型轮播见 [design-tour.gif](docs/media/design-tour.gif)，原型与实际界面的验证范围见 [验证记录](docs/UI-VERIFICATION.md)。
+以上截图来自 `0.2.5` 版本的实际 Windows NativeAOT 程序的 Skia 离屏运行。历史原型轮播见 [design-tour.gif](docs/media/design-tour.gif)，各版本的原型与实际界面验证范围见 [验证记录](docs/UI-VERIFICATION.md)。
 
 ## 下载安装
 
 从 [GitHub Releases](https://github.com/dotnet9/Zitie/releases/latest) 下载最新安装包（附 `.sha256` 校验）：
 
 - Windows：`Zitie-v*-win-x64-setup.exe`（简体中文安装向导）
-- Linux x64 / arm64：`Zitie-*-linux-x64.deb`、`Zitie-*-linux-arm64.deb`
+- Linux x64 / arm64：`Zitie-v*-linux-x64.deb`、`Zitie-v*-linux-arm64.deb`
 - macOS x64 / arm64：`Zitie-*-osx-x64.dmg`、`Zitie-*-osx-arm64.dmg`
 
 ## 功能
