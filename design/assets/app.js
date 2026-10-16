@@ -1,4 +1,4 @@
-/* 原型只维护演示状态；系统目录、更新与安装均使用受控交互。 */
+﻿/* 原型只维护演示状态；系统目录、更新与安装均使用受控交互。 */
 (() => {
   const $ = id => document.getElementById(id);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
@@ -24,7 +24,7 @@
   function applyAppearance() {
     const dark = state.mode === 'Dark' || state.mode === 'System' && matchMedia('(prefers-color-scheme: dark)').matches;
     const tokens = window.ZITIE_PALETTES[state.palette][dark ? 'dark' : 'light'];
-    for (const [name, token] of Object.entries({ background: 'StudioBackgroundColor', surface: 'StudioSurfaceColor', raised: 'StudioRaisedColor', border: 'StudioBorderColor', text: 'StudioTextColor', muted: 'StudioMutedColor', accent: 'StudioAccentColor' })) document.documentElement.style.setProperty('--' + name, tokens[token]);
+    for (const [name, token] of Object.entries({ primary: 'StudioPrimaryColor', 'primary-hover': 'StudioPrimaryHoverColor', 'primary-pressed': 'StudioPrimaryPressedColor', 'on-primary': 'StudioOnPrimaryColor', background: 'StudioBackgroundColor', surface: 'StudioSurfaceColor', raised: 'StudioRaisedColor', border: 'StudioBorderColor', text: 'StudioTextColor', muted: 'StudioMutedColor', accent: 'StudioAccentColor' })) document.documentElement.style.setProperty('--' + name, tokens[token]);
     document.documentElement.dataset.mode = dark ? 'dark' : 'light'; document.documentElement.dataset.palette = state.palette;
     $('palette').innerHTML = Object.keys(paletteNames).map(palette => `<button class="palette-dot" role="option" data-palette="${palette}" aria-selected="${state.palette===palette}" title="${escape(t(paletteNames[palette]))}" aria-label="${escape(t(paletteNames[palette]))}"><i style="background:${window.ZITIE_PALETTES[palette].swatch}"></i></button>`).join('');
     $('mode').dataset.mode=state.mode; $('mode').textContent=state.mode==='Light'?'☀':state.mode==='Dark'?'☾':'◐'; $('mode').title=t(state.mode+'Mode'); $('mode').setAttribute('aria-label',$('mode').title);

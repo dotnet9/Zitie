@@ -1,4 +1,4 @@
-# Zitie 字帖生成器
+﻿# Zitie 字帖生成器
 
 Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖生成器，适合生字描红、临摹、古诗抄写、拼音练习和自定义文本排版。
 
@@ -6,7 +6,7 @@ Zitie 是基于 .NET 10、Avalonia、Semi.Avalonia 和 SkiaSharp 的桌面字帖
 | :---: | :---: |
 | ![](docs/media/gallery-dotnet.png) | ![](docs/media/editor-layout.png) |
 
-以上截图来自实际 Windows NativeAOT 程序的 Skia 离屏运行。历史原型轮播见 [design-tour.gif](docs/media/design-tour.gif)，原型与实际界面的验证范围见 [验证记录](docs/UI-VERIFICATION.md)。
+以上截图来自当前 `0.2.5` 版本的实际 Windows NativeAOT 程序的 Skia 离屏运行。历史原型轮播见 [design-tour.gif](docs/media/design-tour.gif)，原型与实际界面的验证范围见 [验证记录](docs/UI-VERIFICATION.md)。
 
 ## 下载安装
 
