@@ -1,0 +1,16 @@
+{
+  "id": "com.codewf.zitie",
+  "package": "zitie",
+  "command": "zitie",
+  "name": "Zitie",
+  "chineseName": "字帖工坊",
+  "summary": "Create and export calligraphy practice sheets",
+  "chineseSummary": "制作和导出书写练习字帖",
+  "description": "A copybook editor with a template gallery, adjustable practice sheets and export tools.",
+  "chineseDescription": "提供模板图库、练习参数调整和导出功能的字帖编辑器。",
+  "categories": [
+    "Education",
+    "Graphics"
+  ],
+  "homepage": "https://github.com/dotnet9/Zitie"
+}
